@@ -110,6 +110,18 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[workers]", :delayed
     end
 
+    template "/var/www/rb-rails/config/chef_config.yml" do
+        source "chef_config.yml.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        variables(:nodename => node["hostname"])
+        notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[workers]", :delayed
+    end
+
     service "webui" do
       service_name "webui"
       supports :status => true, :reload => true, :restart => true, :enable => true
