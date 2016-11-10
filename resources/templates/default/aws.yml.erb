@@ -1,0 +1,9 @@
+<% [ "production", "development" ].each do |x| %>
+<%= x %>:
+  bucket: <%= @s3_bucket %>
+  access_key_id: <%= @access_key_id %>
+  secret_access_key: <%= @secret_key_id %>
+  s3_host_name: <%= @s3_host %>
+  s3_protocol: https
+  generate_s3_url: <%= @s3_host.end_with?(".amazonaws.com") ? "true" : "false" %>
+<% end %>
