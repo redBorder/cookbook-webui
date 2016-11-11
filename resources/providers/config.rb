@@ -8,6 +8,7 @@ action :add do #Usually used to install and configure something
     user = new_resource.user
     hostname = new_resource.hostname
     memory_kb = new_resource.memory_kb
+    cdomain = node["redborder"]["cdomain"]
 
     yum_package "redborder-webui" do #TODO Lo instala en /var/www/rb-rails
       action :upgrade
@@ -108,6 +109,11 @@ action :add do #Usually used to install and configure something
       db_pass_druid = db_druid["pass"]
     end
 
+    webui_secret = Chef::DataBagItem.load("passwords", "webui_secret") rescue webui_secret = {}
+    if !webui_secret.empty?
+      webui_secret_token = webui_secret["secret"]
+    end
+
     ############
     # TEMPLATES
     ############
@@ -152,6 +158,19 @@ action :add do #Usually used to install and configure something
                   :db_hostname_druid => db_hostname_druid, :db_port_druid => db_druid_port,
                   :db_username_druid => db_username_druid, :db_pass_druid => db_pass_druid,
                   :memory => memory_kb)
+    end
+
+    template "/var/www/rb-rails/config/redborder_config.yml" do
+        source "redborder_config.yml.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        variables(:cdomain => cdomain,
+                  :webui_secret_token => webui_secret_token)
+                  #:proxy_insecure => proxy_insecure) #TODO when client proxy done. Set proxy_verify_cert in template
+        notifies :restart, "service[rb-webui]", :delayed
+        notifies :restart, "service[rb-workers]", :delayed
     end
 
     service "webui" do

@@ -1,0 +1,13 @@
+<% [ "production", "development" ].each do |x| %>
+<%= x %>:
+  mailer_sender: 'alarm@<%= @cdomain %>'
+  authentication_mode: database
+  secret: <%= @webui_secret_token %>
+  rsa_filename: rsa
+  url: '<%= @cdomain %>'
+  remote_license_path: '/etc/redborder/rB.lic'
+  remote_logs_path: '/var/log/remote'
+  resolve_private_dns: "true"
+  cluster_mode: 'samza'
+  proxy_verify_cert: "true"
+<% end %>
