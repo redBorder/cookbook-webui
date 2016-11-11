@@ -150,8 +150,8 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        notifies :restart, "service[rb-webui]", :delayed if manager_services["rb-webui"]
-        notifies :restart, "service[rb-workers]", :delayed if manager_services["rb-webui"]
+        notifies :restart, "service[webui]", :delayed if manager_services["rb-webui"]
+        notifies :restart, "service[workers]", :delayed if manager_services["rb-webui"]
         variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
                   :db_port_redborder => db_redborder_port, :db_username_redborder => db_username_redborder,
                   :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
@@ -166,11 +166,22 @@ action :add do #Usually used to install and configure something
         group "root"
         mode 0644
         retries 2
+        cookbook "webui"
         variables(:cdomain => cdomain,
                   :webui_secret_token => webui_secret_token)
                   #:proxy_insecure => proxy_insecure) #TODO when client proxy done. Set proxy_verify_cert in template
-        notifies :restart, "service[rb-webui]", :delayed
-        notifies :restart, "service[rb-workers]", :delayed
+        notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[workers]", :delayed
+    end
+
+    template "/var/www/rb-rails/config/rbdruid_config.yml" do
+        source "rbdruid_config.yml.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        notifies :restart, "service[webui]", :delayed
     end
 
     service "webui" do
