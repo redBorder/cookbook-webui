@@ -7,6 +7,8 @@ actions :add, :remove, :register, :deregister
 default_action :add
 
 attribute :user, :kind_of => String, :default => "webui"
+attribute :hostname, :kind_of => String
+attribute :memory_kb, :kind_of => Integer
 
 #attribute :mystring, :kind_of => String, :default => "string example"
 #attribute :myinteger, :kind_of => Fixnum, :default => 1

@@ -1,0 +1,31 @@
+<%
+workers = ([ [ node["cpu"]["total"].to_i-1, (@memory.nil? ? 1 : (@memory / (2*1024*1024) ).floor) ].min, 1 ].max).to_i
+threads = [ [((@memory/workers)/(300*1024)), 1].max, 32 ].min
+memory_per_thread = (@memory/workers)/threads
+pool_rb = [ [ ( memory_per_thread * 8 / 200000).ceil, 4 ].max, 32 ].min
+pool_druid = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
+%>
+
+<% [ "production", "development" ].each do |x| %>
+<%= x %>:
+  adapter: postgresql
+  database: <%= @db_name_redborder.nil? ? "redborder" : @db_name_redborder  %>
+  pool: <%= [ pool_rb, @http_workers ].max %>
+  timeout: 5000
+  username: <%= @db_username_redborder %>
+  password: <%= @db_pass_redborder %>
+  host: <%= @db_hostname_redborder %>
+  port: <%= @db_port_redborder.nil? ? "5432" : @db_port_redborder %>
+  encoding: utf8
+
+<% end %>
+
+druid:
+  adapter: postgresql
+  database: <%= @db_name_druid.nil? ? "druid" : @db_name_druid  %>
+  pool: <%= [ pool_druid, @http_workers ].max %>
+  timeout: 5000
+  username: <%= @db_username_druid %>
+  password: <%= @db_pass_druid %>
+  host: <%= @db_hostname_druid %>
+  port: <%= @db_port_druid.nil? ? "5432" : @db_port_druid %>

@@ -6,6 +6,8 @@
 action :add do #Usually used to install and configure something
   begin
     user = new_resource.user
+    hostname = new_resource.hostname
+    memory_kb = new_resource.memory_kb
 
     yum_package "redborder-webui" do #TODO Lo instala en /var/www/rb-rails
       action :upgrade
@@ -86,12 +88,24 @@ action :add do #Usually used to install and configure something
       s3_secret_key = s3["s3_secret_key_id"]
     end
 
+    #Obtaining redborder database configuration from databag
+    db_redborder = Chef::DataBagItem.load("passwords", "db_redborder") rescue db_redborder = {}
+    if !db_redborder.empty?
+      db_name_redborder = db_redborder["database"]
+      db_hostname_redborder = db_redborder["hostname"]
+      db_port_redborder = db_redborder["port"]
+      db_username_redborder = db_redborder["username"]
+      db_pass_redborder = db_redborder["pass"]
+    end
+
     #Obtaining druid database configuration from databag
-    db_druid = Chef::DataBagItem.load("passwords", "db_redborder") rescue db_druid = {}
+    db_druid = Chef::DataBagItem.load("passwords", "db_druid") rescue db_druid = {}
     if !db_druid.empty?
-      psql_uri = "#{db_redborder["hostname"]}:#{db_redborder["port"]}"
-      psql_user = db_redborder["username"]
-      psql_password = db_redborder["pass"]
+      db_name_druid = db_druid["database"]
+      db_hostname_druid = db_druid["hostname"]
+      db_port_druid = db_redborder["port"]
+      db_username_druid = db_druid["username"]
+      db_pass_druid = db_druid["pass"]
     end
 
     ############
@@ -105,7 +119,8 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        variables(:s3_bucket => s3_bucket, :s3_host => s3_host, :s3_access_key => s3_access_key, :s3_secret_key => s3_secret_key)
+        variables(:s3_bucket => s3_bucket, :s3_host => s3_host,
+                  :s3_access_key => s3_access_key, :s3_secret_key => s3_secret_key)
         notifies :restart, "service[webui]", :delayed
         notifies :restart, "service[workers]", :delayed
     end
@@ -117,9 +132,26 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        variables(:nodename => node["hostname"])
+        variables(:nodename => hostname)
         notifies :restart, "service[webui]", :delayed
         notifies :restart, "service[workers]", :delayed
+    end
+
+    template "/var/www/rb-rails/config/database.yml" do
+        source "database.yml.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        notifies :restart, "service[rb-webui]", :delayed if manager_services["rb-webui"]
+        notifies :restart, "service[rb-workers]", :delayed if manager_services["rb-webui"]
+        variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
+                  :db_port_redborder => db_redborder_port, :db_username_redborder => db_username_redborder,
+                  :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
+                  :db_hostname_druid => db_hostname_druid, :db_port_druid => db_druid_port,
+                  :db_username_druid => db_username_druid, :db_pass_druid => db_pass_druid,
+                  :memory => memory_kb)
     end
 
     service "webui" do
