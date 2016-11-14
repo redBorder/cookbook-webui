@@ -1,0 +1,9 @@
+<% [ "production", "development" ].each do |x| %>
+<%= x %>:
+  servers:
+  <% if @elasticache_hosts.nil? %>
+    - "memcached.service:11211"
+  <% else %>
+    - "<% @elasticache_hosts.map {|host| host} %>"
+  <% end %>
+<% end %>

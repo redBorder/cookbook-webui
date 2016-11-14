@@ -8,7 +8,8 @@ action :add do #Usually used to install and configure something
     user = new_resource.user
     hostname = new_resource.hostname
     memory_kb = new_resource.memory_kb
-    cdomain = node["redborder"]["cdomain"]
+    elasticache_hosts = new_resource.elasticache_hosts
+    cdomain = new_resource.cdomain
 
     yum_package "redborder-webui" do #TODO Lo instala en /var/www/rb-rails
       action :upgrade
@@ -63,11 +64,11 @@ action :add do #Usually used to install and configure something
     ##########
 
     link "/var/www/rb-rails/rB.lic" do
-      to "/etc/rB.lic"
+      to "/etc/redborder/rB.lic"
     end if !File.exists? "/var/www/rb-rails/rB.lic"
 
-    if !File.exist? "/etc/rB.lic"
-      cookbook_file "/etc/rB.lic" do
+    if !File.exist? "/etc/redborder/rB.lic"
+      cookbook_file "/etc/redborder/rB.lic" do
         source "rB.lic"
         owner "root"
         group "root"
@@ -183,6 +184,41 @@ action :add do #Usually used to install and configure something
         cookbook "webui"
         notifies :restart, "service[webui]", :delayed
     end
+
+    template "/var/www/rb-rails/config/modules.yml" do
+        source "modules.yml.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[workers]", :delayed
+    end
+
+
+    template "/var/www/rb-rails/config/memcached_config.yml" do
+        source "memcached_config.yml.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        variables(:elasticache_hosts => elasticache_hosts)
+        notifies :restart, "service[webui]", :delayed
+    end
+
+    #[ "flow", "ips", "location", "monitor", "social", "iot", "vault", "malware" ].each do |x|
+    #    template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
+    #        source "#{x}_rbdruid_config.yml.erb"
+    #        owner "root"
+    #        group "root"
+    #        mode 0644
+    #        retries 2
+    #        notifies :restart, "service[rb-webui]", :delayed if manager_services["rb-webui"]
+    #        variables( :zk_hosts => zk_hosts)
+    #    end if Dir.exists?("/opt/rb/var/www/rb-rails/lib/modules/#{x}/config")
+    #end
 
     service "webui" do
       service_name "webui"
