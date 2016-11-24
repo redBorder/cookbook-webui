@@ -1,0 +1,9 @@
+<% [ "production", "development", "test" ].each do |x| %>
+<%= x %>:
+  traffics:
+    datasource: 'rb_flow'
+    #multidatasource: #TODO
+  state:
+    datasource: 'rb_state'
+    #multidatasource: #TODO
+<% end %>

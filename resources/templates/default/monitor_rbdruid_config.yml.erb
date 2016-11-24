@@ -1,0 +1,6 @@
+<% [ "production", "development", "test" ].each do |x| %>
+<%= x %>:
+  monitor:
+    datasource: 'rb_monitor'
+    #multidatasource: #TODO
+<% end %>

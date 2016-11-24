@@ -1,0 +1,10 @@
+<% [ "production", "development", "test" ].each do |x| %>
+<% [ "production", "development", "test" ].each do |x| %>
+<%= x %>:
+  social:
+    datasource: 'rb_social'
+    #multidatasource: #TODO
+  hashtag:
+    datasource: 'rb_hashtag'
+    #multidatasource: #TODO
+<% end %>
