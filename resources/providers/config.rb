@@ -46,18 +46,18 @@ action :add do #Usually used to install and configure something
       action :create
     end
 
-    [ "data", "tmp/pids", "tmp/delayed_job", "tmp/geodb", "public" ].each do |x|
+    %w[ data tmp/pids tmp/delayed_job tmp/geodb public ].each do |x|
       directory "/var/www/rb-rails/#{x}" do
         owner "webui"
         group "webui"
         mode 0755
         action :create
-      end if !Dir.exists? "/var/www/rb-rails/#{x}"
+      end
     end
 
-    link "/var/www/rb-rails/log" do
-      to "/var/log/rb-rails"
-    end if !File.exists? "/var/www/rb-rails/log"
+    link "/var/log/rb-rails" do
+      to "/var/www/rb-rails/log"
+    end
 
     ##########
     # LICENSE
@@ -65,16 +65,15 @@ action :add do #Usually used to install and configure something
 
     link "/var/www/rb-rails/rB.lic" do
       to "/etc/redborder/rB.lic"
-    end if !File.exists? "/var/www/rb-rails/rB.lic"
+    end
 
-    if !File.exist? "/etc/redborder/rB.lic"
-      cookbook_file "/etc/redborder/rB.lic" do
-        source "rB.lic"
-        owner "root"
-        group "root"
-        mode "0644"
-        cookbook "webui"
-      end
+    cookbook_file "/etc/redborder/rB.lic" do
+      source "rB.lic"
+      owner "root"
+      group "root"
+      mode "0644"
+      cookbook "webui"
+      action :create_if_missing
     end
 
     ####################
@@ -154,9 +153,9 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed if manager_services["rb-webui"]
         notifies :restart, "service[workers]", :delayed if manager_services["rb-webui"]
         variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
-                  :db_port_redborder => db_redborder_port, :db_username_redborder => db_username_redborder,
+                  :db_port_redborder => db_port_redborder, :db_username_redborder => db_username_redborder,
                   :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
-                  :db_hostname_druid => db_hostname_druid, :db_port_druid => db_druid_port,
+                  :db_hostname_druid => db_hostname_druid, :db_port_druid => db_port_druid,
                   :db_username_druid => db_username_druid, :db_pass_druid => db_pass_druid,
                   :memory => memory_kb)
     end
@@ -185,18 +184,6 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
-    template "/var/www/rb-rails/config/modules.yml" do
-        source "modules.yml.erb"
-        owner "root"
-        group "root"
-        mode 0644
-        retries 2
-        cookbook "webui"
-        notifies :restart, "service[webui]", :delayed
-        notifies :restart, "service[workers]", :delayed
-    end
-
-
     template "/var/www/rb-rails/config/memcached_config.yml" do
         source "memcached_config.yml.erb"
         owner "root"
@@ -208,17 +195,27 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
-    #[ "flow", "ips", "location", "monitor", "social", "iot", "vault", "malware" ].each do |x|
-    #    template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
-    #        source "#{x}_rbdruid_config.yml.erb"
-    #        owner "root"
-    #        group "root"
-    #        mode 0644
-    #        retries 2
-    #        notifies :restart, "service[rb-webui]", :delayed if manager_services["rb-webui"]
-    #        variables( :zk_hosts => zk_hosts)
-    #    end if Dir.exists?("/opt/rb/var/www/rb-rails/lib/modules/#{x}/config")
-    #end
+    template "/var/www/rb-rails/config/modules.yml" do
+        source "modules.yml.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        notifies :restart, "service[webui]", :delayed
+    end
+
+    [ "flow", "ips", "location", "monitor", "social", "iot" ].each do |x|
+        template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
+            source "#{x}_rbdruid_config.yml.erb"
+            owner "root"
+            group "root"
+            mode 0644
+            retries 2
+            cookbook "webui"
+            notifies :restart, "service[rb-webui]", :delayed
+        end if Dir.exists?("/var/www/rb-rails/lib/modules/#{x}/config")
+    end
 
     service "webui" do
       service_name "webui"
@@ -232,7 +229,7 @@ action :add do #Usually used to install and configure something
       action :nothing
     end
 
-    Chef::Log.info("Example cookbook has been processed")
+    Chef::Log.info("Webui cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -241,7 +238,7 @@ end
 action :remove do #Usually used to uninstall something
   begin
      # ... your code here ...
-     Chef::Log.info("Example cookbook has been processed")
+     Chef::Log.info("Webui cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -250,7 +247,7 @@ end
 action :register do #Usually used to register in consul
   begin
      # ... your code here ...
-     Chef::Log.info("Example cookbook has been processed")
+     Chef::Log.info("Webui cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -259,7 +256,7 @@ end
 action :deregister do #Usually used to deregister from consul
   begin
      # ... your code here ...
-     Chef::Log.info("Example cookbook has been processed")
+     Chef::Log.info("Webui cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
