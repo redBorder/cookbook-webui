@@ -1,0 +1,21 @@
+# What ports/sockets to listen on, and what options for them.
+listen "0.0.0.0:8001", :backlog => 1024, :tcp_nodelay => true
+
+working_directory '/var/www/rb-rails/'
+
+# What the timeout for killing busy workers is, in seconds
+timeout 3600
+
+# Whether the app should be pre-loaded
+preload_app false
+
+# How many worker processes
+worker_processes <%= @workers %>
+
+# Enable this flag to have unicorn test client connections by writing the
+# beginning of the HTTP headers before calling the application.  This
+# prevents calling the application for connections that have disconnected
+# while queued.  This is only guaranteed to detect clients on the same
+# host unicorn runs on, and unlikely to detect disconnects even on a
+# fast LAN.
+check_client_connection false

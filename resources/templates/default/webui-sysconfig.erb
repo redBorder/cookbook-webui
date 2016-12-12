@@ -1,0 +1,2 @@
+#MEMTOTAL=<%= @memory.nil? ? "" : @memory %>
+#WORKERS=<%= ([ [ node["cpu"]["total"].to_i-1, (@memory.nil? ? 1 : (@memory / 2000000 ).floor) ].min, 1 ].max).to_s %>
