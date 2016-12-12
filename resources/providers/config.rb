@@ -11,17 +11,17 @@ action :add do #Usually used to install and configure something
     elasticache_hosts = new_resource.elasticache_hosts
     cdomain = new_resource.cdomain
 
-    yum_package "redborder-webui" do #TODO Lo instala en /var/www/rb-rails
-      action :upgrade
-      flush_cache [:before]
-    end
+    #yum_package "redborder-webui" do #TODO install into /var/www/rb-rails
+    #  action :upgrade
+    #  flush_cache [:before]
+    #end
 
     user user do
       action :create
       system true
     end
 
-    # /var/www debe crearlo el RPM
+    # /var/www must to be created by the RPM
 
     directory "/var/www/rb-rails" do
       owner "root"
@@ -63,18 +63,18 @@ action :add do #Usually used to install and configure something
     # LICENSE
     ##########
 
-    link "/var/www/rb-rails/rB.lic" do
-      to "/etc/redborder/rB.lic"
-    end
+    #link "/var/www/rb-rails/rB.lic" do
+    #  to "/etc/redborder/rB.lic"
+    #end
 
-    cookbook_file "/etc/redborder/rB.lic" do
-      source "rB.lic"
-      owner "root"
-      group "root"
-      mode "0644"
-      cookbook "webui"
-      action :create_if_missing
-    end
+    #cookbook_file "/etc/redborder/rB.lic" do
+    #  source "rB.lic"
+    #  owner "root"
+    #  group "root"
+    #  mode "0644"
+    #  cookbook "webui"
+    #  action :create_if_missing
+    #end
 
     ####################
     # READ DATABAGS
@@ -127,8 +127,8 @@ action :add do #Usually used to install and configure something
         cookbook "webui"
         variables(:s3_bucket => s3_bucket, :s3_host => s3_host,
                   :s3_access_key => s3_access_key, :s3_secret_key => s3_secret_key)
-        notifies :restart, "service[webui]", :delayed
-        notifies :restart, "service[workers]", :delayed
+        #notifies :restart, "service[webui]", :delayed
+        #notifies :restart, "service[workers]", :delayed
     end
 
     template "/var/www/rb-rails/config/chef_config.yml" do
@@ -139,8 +139,8 @@ action :add do #Usually used to install and configure something
         retries 2
         cookbook "webui"
         variables(:nodename => hostname)
-        notifies :restart, "service[webui]", :delayed
-        notifies :restart, "service[workers]", :delayed
+        #notifies :restart, "service[webui]", :delayed
+        #notifies :restart, "service[workers]", :delayed
     end
 
     template "/var/www/rb-rails/config/database.yml" do
@@ -149,15 +149,15 @@ action :add do #Usually used to install and configure something
         group "root"
         mode 0644
         retries 2
-        cookbook "webui"
-        notifies :restart, "service[webui]", :delayed if manager_services["rb-webui"]
-        notifies :restart, "service[workers]", :delayed if manager_services["rb-webui"]
+        cookbook "weibui"
+        #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
+        #notifies :restart, "service[workers]", :delayed if manager_services["webui"]
         variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
                   :db_port_redborder => db_port_redborder, :db_username_redborder => db_username_redborder,
                   :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
                   :db_hostname_druid => db_hostname_druid, :db_port_druid => db_port_druid,
-                  :db_username_druid => db_username_druid, :db_pass_druid => db_pass_druid,
-                  :memory => memory_kb)
+                  :db_username_druid => db_username_druid, :db_pass_druid => db_pass_druid)
+                  #:memory => memory_kb)
     end
 
     template "/var/www/rb-rails/config/redborder_config.yml" do
@@ -170,8 +170,8 @@ action :add do #Usually used to install and configure something
         variables(:cdomain => cdomain,
                   :webui_secret_token => webui_secret_token)
                   #:proxy_insecure => proxy_insecure) #TODO when client proxy done. Set proxy_verify_cert in template
-        notifies :restart, "service[webui]", :delayed
-        notifies :restart, "service[workers]", :delayed
+        #notifies :restart, "service[webui]", :delayed
+        #notifies :restart, "service[workers]", :delayed
     end
 
     template "/var/www/rb-rails/config/rbdruid_config.yml" do
@@ -181,18 +181,28 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        notifies :restart, "service[webui]", :delayed
+        #notifies :restart, "service[webui]", :delayed
     end
 
-    template "/var/www/rb-rails/config/memcached_config.yml" do
-        source "memcached_config.yml.erb"
+    #template "/var/www/rb-rails/config/memcached_config.yml" do
+    #    source "memcached_config.yml.erb"
+    #    owner "root"
+    #    group "root"
+    #    mode 0644
+    #    retries 2
+    #    cookbook "webui"
+    #    variables(:elasticache_hosts => elasticache_hosts)
+    #    #notifies :restart, "service[webui]", :delayed
+    #end
+
+    template "/var/www/rb-rails/config/databags.yml" do
+        source "databags.yml"
         owner "root"
         group "root"
         mode 0644
         retries 2
         cookbook "webui"
-        variables(:elasticache_hosts => elasticache_hosts)
-        notifies :restart, "service[webui]", :delayed
+        #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
     end
 
     template "/var/www/rb-rails/config/modules.yml" do
@@ -202,7 +212,7 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        notifies :restart, "service[webui]", :delayed
+        #notifies :restart, "service[webui]", :delayed
     end
 
     [ "flow", "ips", "location", "monitor", "social", "iot" ].each do |x|
@@ -213,8 +223,32 @@ action :add do #Usually used to install and configure something
             mode 0644
             retries 2
             cookbook "webui"
-            notifies :restart, "service[rb-webui]", :delayed
+            #notifies :restart, "service[webui]", :delayed
         end if Dir.exists?("/var/www/rb-rails/lib/modules/#{x}/config")
+    end
+
+    #http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_services["webui"].nil? ? 1 : (memory_services["webui"] / (3*1024*1024) ).floor) ].min, 1 ].max).to_i
+    template "/var/www/rb-rails/config/unicorn.rb" do
+        source "unicorn.rb.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        #variables(:workers => http_workers)
+        variables(:workers => 2)
+        #notifies :restart, "service[rwebui]", :delayed if manager_services["webui"]
+    end
+
+    template "/etc/sysconfig/webui" do
+        source "webui_sysconfig.erb"
+        owner "root"
+        group "root"
+        mode 0644
+        retries 2
+        cookbook "webui"
+        #variables(:memory => memory_services["webui"])
+        #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
     end
 
     service "webui" do
@@ -223,8 +257,8 @@ action :add do #Usually used to install and configure something
       action :nothing
     end
 
-    service "workers" do
-      service_name "workers"
+    service "webiu_workers" do
+      service_name "webui_workers"
       supports :status => true, :reload => true, :restart => true, :enable => true
       action :nothing
     end
