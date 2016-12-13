@@ -11,10 +11,10 @@ action :add do #Usually used to install and configure something
     elasticache_hosts = new_resource.elasticache_hosts
     cdomain = new_resource.cdomain
 
-    #yum_package "redborder-webui" do #TODO install into /var/www/rb-rails
-    #  action :upgrade
-    #  flush_cache [:before]
-    #end
+    yum_package "redborder-webui" do
+      action :upgrade
+      flush_cache [:before]
+    end
 
     user user do
       action :create
