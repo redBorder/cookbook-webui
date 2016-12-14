@@ -11,6 +11,8 @@ action :add do #Usually used to install and configure something
     elasticache_hosts = new_resource.elasticache_hosts
     cdomain = new_resource.cdomain
 
+    #http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_services["webui"].nil? ? 1 : (memory_services["webui"] / (3*1024*1024) ).floor) ].min, 1 ].max).to_i
+
     yum_package "redborder-webui" do
       action :upgrade
       flush_cache [:before]
@@ -149,7 +151,7 @@ action :add do #Usually used to install and configure something
         group "root"
         mode 0644
         retries 2
-        cookbook "weibui"
+        cookbook "webui"
         #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
         #notifies :restart, "service[workers]", :delayed if manager_services["webui"]
         variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
@@ -157,6 +159,7 @@ action :add do #Usually used to install and configure something
                   :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
                   :db_hostname_druid => db_hostname_druid, :db_port_druid => db_port_druid,
                   :db_username_druid => db_username_druid, :db_pass_druid => db_pass_druid)
+                  #:http_workers => http_workers,
                   #:memory => memory_kb)
     end
 
@@ -196,7 +199,7 @@ action :add do #Usually used to install and configure something
     #end
 
     template "/var/www/rb-rails/config/databags.yml" do
-        source "databags.yml"
+        source "databags.yml.erb"
         owner "root"
         group "root"
         mode 0644
@@ -227,7 +230,6 @@ action :add do #Usually used to install and configure something
         end if Dir.exists?("/var/www/rb-rails/lib/modules/#{x}/config")
     end
 
-    #http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_services["webui"].nil? ? 1 : (memory_services["webui"] / (3*1024*1024) ).floor) ].min, 1 ].max).to_i
     template "/var/www/rb-rails/config/unicorn.rb" do
         source "unicorn.rb.erb"
         owner "root"
@@ -278,19 +280,40 @@ action :remove do #Usually used to uninstall something
   end
 end
 
-action :register do #Usually used to register in consul
+action :register do
   begin
-     # ... your code here ...
-     Chef::Log.info("Webui cookbook has been processed")
+    if !node["webui"]["registered"]
+      query = {}
+      query["ID"] = "webui-#{node["hostname"]}"
+      query["Name"] = "webui"
+      query["Address"] = "#{node["ipaddress"]}"
+      query["Port"] = 443
+      json_query = Chef::JSONCompat.to_json(query)
+
+      execute 'Register service in consul' do
+         command "curl http://localhost:8500/v1/agent/service/register -d '#{json_query}' &>/dev/null"
+         action :nothing
+      end.run_action(:run)
+
+      node.set["webui"]["registered"] = true
+      Chef::Log.info("Webui service has been registered to consul")
+    end
   rescue => e
     Chef::Log.error(e.message)
   end
 end
 
-action :deregister do #Usually used to deregister from consul
+action :deregister do
   begin
-     # ... your code here ...
-     Chef::Log.info("Webui cookbook has been processed")
+    if node["webui"]["registered"]
+      execute 'Deregister service in consul' do
+        command "curl http://localhost:8500/v1/agent/service/deregister/webui-#{node["hostname"]} &>/dev/null"
+        action :nothing
+      end.run_action(:run)
+
+      node.set["webui"]["registered"] = false
+      Chef::Log.info("Webui service has been deregistered from consul")
+    end
   rescue => e
     Chef::Log.error(e.message)
   end
