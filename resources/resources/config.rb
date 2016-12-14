@@ -7,6 +7,7 @@ actions :add, :remove, :register, :deregister
 default_action :add
 
 attribute :user, :kind_of => String, :default => "webui"
+attribute :group, :kind_of => String, :default => "webui"
 attribute :hostname, :kind_of => String
 attribute :cdomain, :kind_of => String, :default => "redborder.cluster"
 attribute :memory_kb, :kind_of => Integer

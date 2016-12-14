@@ -6,6 +6,7 @@
 action :add do #Usually used to install and configure something
   begin
     user = new_resource.user
+    group = new_resource.group
     hostname = new_resource.hostname
     memory_kb = new_resource.memory_kb
     elasticache_hosts = new_resource.elasticache_hosts
@@ -13,9 +14,26 @@ action :add do #Usually used to install and configure something
 
     #http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_services["webui"].nil? ? 1 : (memory_services["webui"] / (3*1024*1024) ).floor) ].min, 1 ].max).to_i
 
+    ####################
+    # INSTALLATION
+    ####################
+
+    yum_package "redborder-webui" do
+      action :install
+      flush_cache [:before]
+      notifies :run, "execute[db_migrate]", :delayed
+      notifies :run, "execute[db_migrate_modules]", :delayed
+      notifies :run, "execute[db_seed]", :delayed
+      notifies :run, "execute[db_seed_modules]", :delayed
+      notifies :run, "execute[redBorder_generate_server_key]", :delayed
+      notifies :run, "execute[redBorder_update]", :delayed
+      notifies :run, "execute[assets_precompile]", :delayed
+    end
+
     yum_package "redborder-webui" do
       action :upgrade
       flush_cache [:before]
+      notifies :run, "execute[redBorder_update]", :delayed
     end
 
     user user do
@@ -23,35 +41,41 @@ action :add do #Usually used to install and configure something
       system true
     end
 
+    group group do
+      action :create
+      members user
+      append true
+    end
+
     # /var/www must to be created by the RPM
 
     directory "/var/www/rb-rails" do
-      owner "root"
-      group "root"
+      owner user
+      group group
       mode 0755
       recursive true
       action :create
     end
 
     directory "/var/www/rb-rails/config" do
-      owner "webui"
-      group "webui"
+      owner user
+      group group
       mode 0755
       recursive true
       action :create
     end
 
     directory "/var/www/rb-rails/tmp" do
-      owner "webui"
-      group "webui"
+      owner user
+      group group
       mode 0755
       action :create
     end
 
     %w[ data tmp/pids tmp/delayed_job tmp/geodb public ].each do |x|
       directory "/var/www/rb-rails/#{x}" do
-        owner "webui"
-        group "webui"
+        owner user
+        group group
         mode 0755
         action :create
       end
@@ -135,8 +159,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/chef_config.yml" do
         source "chef_config.yml.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -147,8 +171,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/database.yml" do
         source "database.yml.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -165,8 +189,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/redborder_config.yml" do
         source "redborder_config.yml.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -179,8 +203,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/rbdruid_config.yml" do
         source "rbdruid_config.yml.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -200,8 +224,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/databags.yml" do
         source "databags.yml.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -210,8 +234,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/modules.yml" do
         source "modules.yml.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -221,8 +245,8 @@ action :add do #Usually used to install and configure something
     [ "flow", "ips", "location", "monitor", "social", "iot" ].each do |x|
         template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
             source "#{x}_rbdruid_config.yml.erb"
-            owner "root"
-            group "root"
+            owner user
+            group group
             mode 0644
             retries 2
             cookbook "webui"
@@ -232,8 +256,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/unicorn.rb" do
         source "unicorn.rb.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -244,14 +268,72 @@ action :add do #Usually used to install and configure something
 
     template "/etc/sysconfig/webui" do
         source "webui_sysconfig.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
         #variables(:memory => memory_services["webui"])
         #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
     end
+
+    ############
+    # RAKE TASKS
+    ############
+
+    execute "db_migrate" do
+      command "rake db:migrate"
+      cwd "/var/www/rb-rails"
+      environment "NO_MODULES" => "1"
+      environment "RAILS_ENV" => "production"
+      action :nothing
+    end
+
+    execute "db_migrate_modules" do
+      command "rake db:migrate:modules"
+      cwd "/var/www/rb-rails"
+      environment "NO_MODULES" => "1"
+      environment "RAILS_ENV" => "production"
+      action :nothing
+    end
+
+    execute "db_seed" do
+      command "rake db:seed"
+      cwd "/var/www/rb-rails"
+      environment "NO_MODULES" => "1"
+      environment "RAILS_ENV" => "production"
+      action :nothing
+    end
+
+    execute "db_seed_modules" do
+      command "rake db:seed:modules"
+      cwd "/var/www/rb-rails"
+      environment "RAILS_ENV" => "production"
+      action :nothing
+    end
+
+    execute "redBorder_generate_server_key" do
+      command "rake redBorder:generate_server_key"
+      cwd "/var/www/rb-rails"
+      action :nothing
+    end
+
+    execute "redBorder_update" do
+      command "rake redBorder:update"
+      cwd "/var/www/rb-rails"
+      action :nothing
+    end
+
+    execute "assets_precompile" do
+      command "rake assets:precompile"
+      cwd "/var/www/rb-rails"
+      environment "RAILS_ENV" => "production"
+      action :nothing
+    end
+
+    ############
+    # SERVICES
+    ############
 
     service "webui" do
       service_name "webui"
