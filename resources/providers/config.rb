@@ -153,7 +153,7 @@ action :add do #Usually used to install and configure something
         cookbook "webui"
         variables(:s3_bucket => s3_bucket, :s3_host => s3_host,
                   :s3_access_key => s3_access_key, :s3_secret_key => s3_secret_key)
-        #notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[webui]", :delayed
         #notifies :restart, "service[workers]", :delayed
     end
 
@@ -165,7 +165,7 @@ action :add do #Usually used to install and configure something
         retries 2
         cookbook "webui"
         variables(:nodename => hostname)
-        #notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[webui]", :delayed
         #notifies :restart, "service[workers]", :delayed
     end
 
@@ -176,8 +176,8 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
-        #notifies :restart, "service[workers]", :delayed if manager_services["webui"]
+        notifies :restart, "service[webui]", :delayed
+        #notifies :restart, "service[workers]", :delayed
         variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
                   :db_port_redborder => db_port_redborder, :db_username_redborder => db_username_redborder,
                   :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
@@ -197,7 +197,7 @@ action :add do #Usually used to install and configure something
         variables(:cdomain => cdomain,
                   :webui_secret_token => webui_secret_token)
                   #:proxy_insecure => proxy_insecure) #TODO when client proxy done. Set proxy_verify_cert in template
-        #notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[webui]", :delayed
         #notifies :restart, "service[workers]", :delayed
     end
 
@@ -208,7 +208,7 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        #notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[webui]", :delayed
     end
 
     #template "/var/www/rb-rails/config/memcached_config.yml" do
@@ -229,7 +229,7 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
+        notifies :restart, "service[webui]", :delayed
     end
 
     template "/var/www/rb-rails/config/modules.yml" do
@@ -239,7 +239,7 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        #notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[webui]", :delayed
     end
 
     [ "flow", "ips", "location", "monitor", "social", "iot" ].each do |x|
@@ -250,7 +250,7 @@ action :add do #Usually used to install and configure something
             mode 0644
             retries 2
             cookbook "webui"
-            #notifies :restart, "service[webui]", :delayed
+            notifies :restart, "service[webui]", :delayed
         end if Dir.exists?("/var/www/rb-rails/lib/modules/#{x}/config")
     end
 
@@ -263,7 +263,7 @@ action :add do #Usually used to install and configure something
         cookbook "webui"
         #variables(:workers => http_workers)
         variables(:workers => 2)
-        #notifies :restart, "service[rwebui]", :delayed if manager_services["webui"]
+        notifies :restart, "service[webui]", :delayed
     end
 
     template "/etc/sysconfig/webui" do
@@ -274,7 +274,7 @@ action :add do #Usually used to install and configure something
         retries 2
         cookbook "webui"
         #variables(:memory => memory_services["webui"])
-        #notifies :restart, "service[webui]", :delayed if manager_services["webui"]
+        notifies :restart, "service[webui]", :delayed
     end
 
     ############
@@ -282,7 +282,7 @@ action :add do #Usually used to install and configure something
     ############
 
     execute "db_migrate" do
-      command "rake db:migrate"
+      command "rake db:migrate &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
@@ -290,7 +290,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "db_migrate_modules" do
-      command "rake db:migrate:modules"
+      command "rake db:migrate:modules &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
@@ -298,7 +298,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "db_seed" do
-      command "rake db:seed"
+      command "rake db:seed &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
@@ -306,26 +306,26 @@ action :add do #Usually used to install and configure something
     end
 
     execute "db_seed_modules" do
-      command "rake db:seed:modules"
+      command "rake db:seed:modules &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "RAILS_ENV" => "production"
       action :nothing
     end
 
     execute "redBorder_generate_server_key" do
-      command "rake redBorder:generate_server_key"
+      command "rake redBorder:generate_server_key &>/dev/null"
       cwd "/var/www/rb-rails"
       action :nothing
     end
 
     execute "redBorder_update" do
-      command "rake redBorder:update"
+      command "rake redBorder:update &>/dev/null"
       cwd "/var/www/rb-rails"
       action :nothing
     end
 
     execute "assets_precompile" do
-      command "rake assets:precompile"
+      command "rake assets:precompile &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "RAILS_ENV" => "production"
       action :nothing
