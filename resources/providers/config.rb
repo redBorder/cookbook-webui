@@ -146,8 +146,8 @@ action :add do #Usually used to install and configure something
 
     template "/var/www/rb-rails/config/aws.yml" do
         source "aws.yml.erb"
-        owner "root"
-        group "root"
+        owner user
+        group group
         mode 0644
         retries 2
         cookbook "webui"
@@ -286,6 +286,8 @@ action :add do #Usually used to install and configure something
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
+      user user
+      group group
       action :nothing
     end
 
@@ -294,6 +296,8 @@ action :add do #Usually used to install and configure something
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
+      user user
+      group group
       action :nothing
     end
 
@@ -302,6 +306,8 @@ action :add do #Usually used to install and configure something
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
+      user user
+      group group
       action :nothing
     end
 
@@ -309,18 +315,24 @@ action :add do #Usually used to install and configure something
       command "rake db:seed:modules &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "RAILS_ENV" => "production"
+      user user
+      group group
       action :nothing
     end
 
     execute "redBorder_generate_server_key" do
       command "rake redBorder:generate_server_key &>/dev/null"
       cwd "/var/www/rb-rails"
+      user user
+      group group
       action :nothing
     end
 
     execute "redBorder_update" do
       command "rake redBorder:update &>/dev/null"
       cwd "/var/www/rb-rails"
+      user user
+      group group
       action :nothing
     end
 
@@ -328,6 +340,8 @@ action :add do #Usually used to install and configure something
       command "rake assets:precompile &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "RAILS_ENV" => "production"
+      user user
+      group group
       action :nothing
     end
 
