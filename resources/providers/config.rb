@@ -46,8 +46,6 @@ action :add do #Usually used to install and configure something
       append true
     end
 
-    # /var/www must to be created by the RPM
-
     directory "/var/www/rb-rails" do
       owner user
       group group
@@ -153,7 +151,7 @@ action :add do #Usually used to install and configure something
         variables(:s3_bucket => s3_bucket, :s3_host => s3_host,
                   :s3_access_key => s3_access_key, :s3_secret_key => s3_secret_key)
         notifies :restart, "service[webui]", :delayed
-        #notifies :restart, "service[workers]", :delayed
+        notifies :restart, "service[rb-workers]", :delayed
     end
 
     template "/var/www/rb-rails/config/chef_config.yml" do
@@ -165,7 +163,7 @@ action :add do #Usually used to install and configure something
         cookbook "webui"
         variables(:nodename => hostname)
         notifies :restart, "service[webui]", :delayed
-        #notifies :restart, "service[workers]", :delayed
+        notifies :restart, "service[rb-workers]", :delayed
     end
 
     template "/var/www/rb-rails/config/database.yml" do
@@ -176,7 +174,7 @@ action :add do #Usually used to install and configure something
         retries 2
         cookbook "webui"
         notifies :restart, "service[webui]", :delayed
-        #notifies :restart, "service[workers]", :delayed
+        notifies :restart, "service[rb-workers]", :delayed
         variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
                   :db_port_redborder => db_port_redborder, :db_username_redborder => db_username_redborder,
                   :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
@@ -197,7 +195,7 @@ action :add do #Usually used to install and configure something
                   :webui_secret_token => webui_secret_token)
                   #:proxy_insecure => proxy_insecure) #TODO when client proxy done. Set proxy_verify_cert in template
         notifies :restart, "service[webui]", :delayed
-        #notifies :restart, "service[workers]", :delayed
+        notifies :restart, "service[rb-workers]", :delayed
     end
 
     template "/var/www/rb-rails/config/rbdruid_config.yml" do
@@ -350,13 +348,13 @@ action :add do #Usually used to install and configure something
     service "webui" do
       service_name "webui"
       supports :status => true, :reload => true, :restart => true, :enable => true
-      action :nothing
+      action :enable
     end
 
-    service "webiu_workers" do
-      service_name "webui_workers"
-      supports :status => true, :reload => true, :restart => true, :enable => true
-      action :nothing
+    service "rb-workers" do
+      service_name "rb-workers"
+      supports :status => true, :restart => true, :enable => true
+      action :enable
     end
 
     Chef::Log.info("Webui cookbook has been processed")
@@ -372,7 +370,9 @@ action :remove do #Usually used to uninstall something
     yum_package 'redborder-webui' do
       action :remove
       notifies :stop, "service[webui]", :immediately
-      #notifies :stop, "service[webui_workers]", :immediately
+      notifies :stop, "service[rb-workers]", :immediately
+      notifies :disable, "service[webui]", :immediately
+      notifies :disable, "service[rb-workers]", :immediately
     end
 
     directory web_dir do
@@ -382,6 +382,12 @@ action :remove do #Usually used to uninstall something
 
     service "webui" do
       service_name "webui"
+      supports :stop => true, :disable => true
+      action :nothing
+    end
+
+    service "rb-workers" do
+      service_name "rb-workers"
       supports :stop => true, :disable => true
       action :nothing
     end
