@@ -382,6 +382,12 @@ action :remove do #Usually used to uninstall something
       action :delete
     end
 
+    service "webui" do
+      service_name "webui"
+      supports :stop => true, :disable => true
+      action :nothing
+    end
+
     Chef::Log.info("Webui cookbook has been processed")
   rescue => e
     Chef::Log.error(e.message)
