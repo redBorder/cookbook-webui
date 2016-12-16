@@ -278,7 +278,7 @@ action :add do #Usually used to install and configure something
     ############
 
     execute "db_migrate" do
-      command "rake db:migrate &>/dev/null"
+      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:migrate &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
@@ -288,7 +288,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "db_migrate_modules" do
-      command "rake db:migrate:modules &>/dev/null"
+      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:migrate:modules &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
@@ -298,7 +298,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "db_seed" do
-      command "rake db:seed &>/dev/null"
+      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:seed &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "NO_MODULES" => "1"
       environment "RAILS_ENV" => "production"
@@ -308,7 +308,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "db_seed_modules" do
-      command "rake db:seed:modules &>/dev/null"
+      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:seed:modules &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "RAILS_ENV" => "production"
       user user
@@ -317,7 +317,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "redBorder_generate_server_key" do
-      command "rake redBorder:generate_server_key &>/dev/null"
+      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake redBorder:generate_server_key &>/dev/null"
       cwd "/var/www/rb-rails"
       user user
       group group
@@ -325,7 +325,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "redBorder_update" do
-      command "rake redBorder:update &>/dev/null"
+      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake redBorder:update &>/dev/null"
       cwd "/var/www/rb-rails"
       user user
       group group
@@ -333,7 +333,7 @@ action :add do #Usually used to install and configure something
     end
 
     execute "assets_precompile" do
-      command "rake assets:precompile &>/dev/null"
+      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake assets:precompile &>/dev/null"
       cwd "/var/www/rb-rails"
       environment "RAILS_ENV" => "production"
       user user
