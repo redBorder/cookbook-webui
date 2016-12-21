@@ -20,19 +20,19 @@ action :add do #Usually used to install and configure something
     yum_package "redborder-webui" do
       action :install
       flush_cache [:before]
-      notifies :run, "execute[db_migrate]", :delayed
-      notifies :run, "execute[db_migrate_modules]", :delayed
-      notifies :run, "execute[db_seed]", :delayed
-      notifies :run, "execute[db_seed_modules]", :delayed
-      notifies :run, "execute[redBorder_generate_server_key]", :delayed
-      notifies :run, "execute[redBorder_update]", :delayed
-      notifies :run, "execute[assets_precompile]", :delayed
+      notifies :run, "bash[db_migrate]", :delayed
+      notifies :run, "bash[db_migrate_modules]", :delayed
+      notifies :run, "bash[db_seed]", :delayed
+      notifies :run, "bash[db_seed_modules]", :delayed
+      notifies :run, "bash[redBorder_generate_server_key]", :delayed
+      notifies :run, "bash[redBorder_update]", :delayed
+      notifies :run, "bash[assets_precompile]", :delayed
     end
 
     yum_package "redborder-webui" do
       action :upgrade
       flush_cache [:before]
-      notifies :run, "execute[redBorder_update]", :delayed
+      notifies :run, "bash[redBorder_update]", :delayed
     end
 
     user user do
@@ -277,65 +277,99 @@ action :add do #Usually used to install and configure something
     # RAKE TASKS
     ############
 
-    execute "db_migrate" do
-      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:migrate &>/dev/null"
-      cwd "/var/www/rb-rails"
-      environment "NO_MODULES" => "1"
-      environment "RAILS_ENV" => "production"
+    bash 'db_migrate' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile
+          pushd /var/www/rb-rails
+          rvm gemset use web
+          env NO_MODULES=1 RAILS_ENV=production rake db:migrate
+          popd
+        EOH
       user user
       group group
       action :nothing
     end
 
-    execute "db_migrate_modules" do
-      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:migrate:modules &>/dev/null"
-      cwd "/var/www/rb-rails"
-      environment "NO_MODULES" => "1"
-      environment "RAILS_ENV" => "production"
+    bash 'db_migrate_modules' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile
+          pushd /var/www/rb-rails
+          rvm gemset use web
+          env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules
+          popd
+        EOH
       user user
       group group
       action :nothing
     end
 
-    execute "db_seed" do
-      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:seed &>/dev/null"
-      cwd "/var/www/rb-rails"
-      environment "NO_MODULES" => "1"
-      environment "RAILS_ENV" => "production"
+    bash 'db_seed' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile
+          pushd /var/www/rb-rails
+          rvm gemset use web
+          env NO_MODULES=1 RAILS_ENV=production rake db:seed
+          popd
+        EOH
       user user
       group group
       action :nothing
     end
 
-    execute "db_seed_modules" do
-      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake db:seed:modules &>/dev/null"
-      cwd "/var/www/rb-rails"
-      environment "RAILS_ENV" => "production"
+    bash 'db_seed_modules' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile
+          pushd /var/www/rb-rails
+          rvm gemset use web
+          RAILS_ENV=production rake db:seed:modules
+          popd
+        EOH
       user user
       group group
       action :nothing
     end
 
-    execute "redBorder_generate_server_key" do
-      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake redBorder:generate_server_key &>/dev/null"
-      cwd "/var/www/rb-rails"
+    bash 'redBorder_generate_server_key' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile
+          pushd /var/www/rb-rails
+          rvm gemset use web
+          rake redBorder:generate_server_key
+          popd
+        EOH
       user user
       group group
       action :nothing
     end
 
-    execute "redBorder_update" do
-      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake redBorder:update &>/dev/null"
-      cwd "/var/www/rb-rails"
+    bash 'redBorder_update' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile
+          pushd /var/www/rb-rails
+          rvm gemset use web
+          rake redBorder:update
+          popd
+        EOH
       user user
       group group
       action :nothing
     end
 
-    execute "assets_precompile" do
-      command "source /etc/profile &>/dev/null && rvm gemset use web &>/dev/null && rake assets:precompile &>/dev/null"
-      cwd "/var/www/rb-rails"
-      environment "RAILS_ENV" => "production"
+    bash 'assets_precompile' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile
+          pushd /var/www/rb-rails
+          rvm gemset use web
+          rake assets:precompile
+          popd
+        EOH
       user user
       group group
       action :nothing
