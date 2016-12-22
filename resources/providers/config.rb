@@ -280,11 +280,11 @@ action :add do #Usually used to install and configure something
     bash 'db_migrate' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile
-          pushd /var/www/rb-rails
-          rvm gemset use web
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
           env NO_MODULES=1 RAILS_ENV=production rake db:migrate
-          popd
+          popd &>/dev/null
         EOH
       user user
       group group
@@ -294,11 +294,11 @@ action :add do #Usually used to install and configure something
     bash 'db_migrate_modules' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile
-          pushd /var/www/rb-rails
-          rvm gemset use web
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
           env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules
-          popd
+          popd &>/dev/null
         EOH
       user user
       group group
@@ -308,11 +308,11 @@ action :add do #Usually used to install and configure something
     bash 'db_seed' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile
-          pushd /var/www/rb-rails
-          rvm gemset use web
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
           env NO_MODULES=1 RAILS_ENV=production rake db:seed
-          popd
+          popd &>/dev/null
         EOH
       user user
       group group
@@ -322,11 +322,11 @@ action :add do #Usually used to install and configure something
     bash 'db_seed_modules' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile
-          pushd /var/www/rb-rails
-          rvm gemset use web
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
           RAILS_ENV=production rake db:seed:modules
-          popd
+          popd &>/dev/null
         EOH
       user user
       group group
@@ -336,11 +336,11 @@ action :add do #Usually used to install and configure something
     bash 'redBorder_generate_server_key' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile
-          pushd /var/www/rb-rails
-          rvm gemset use web
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
           rake redBorder:generate_server_key
-          popd
+          popd &>/dev/null
         EOH
       user user
       group group
@@ -350,11 +350,11 @@ action :add do #Usually used to install and configure something
     bash 'redBorder_update' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile
-          pushd /var/www/rb-rails
-          rvm gemset use web
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
           rake redBorder:update
-          popd
+          popd &>/dev/null
         EOH
       user user
       group group
@@ -364,11 +364,11 @@ action :add do #Usually used to install and configure something
     bash 'assets_precompile' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile
-          pushd /var/www/rb-rails
-          rvm gemset use web
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
           rake assets:precompile
-          popd
+          popd &>/dev/null &>/dev/null
         EOH
       user user
       group group
