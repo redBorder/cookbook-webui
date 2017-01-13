@@ -367,7 +367,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          rake assets:precompile
+          RAILS_ENV=production rake assets:precompile
           popd &>/dev/null &>/dev/null
         EOH
       user user
