@@ -401,29 +401,29 @@ action :remove do #Usually used to uninstall something
   begin
     web_dir = new_resource.web_dir
 
-    yum_package 'redborder-webui' do
-      action :remove
-      notifies :stop, "service[webui]", :immediately
-      notifies :stop, "service[rb-workers]", :immediately
-      notifies :disable, "service[webui]", :immediately
-      notifies :disable, "service[rb-workers]", :immediately
-    end
+    #yum_package 'redborder-webui' do
+    #  action :remove
+    #  notifies :stop, "service[webui]", :immediately
+    #  notifies :stop, "service[rb-workers]", :immediately
+    #  notifies :disable, "service[webui]", :immediately
+    #  notifies :disable, "service[rb-workers]", :immediately
+    #end
 
-    directory web_dir do
-      recursive true
-      action :delete
-    end
+    #directory web_dir do
+    #  recursive true
+    #  action :delete
+    #end
 
     service "webui" do
       service_name "webui"
       supports :stop => true, :disable => true
-      action :nothing
+      action [:stop, :disable]
     end
 
     service "rb-workers" do
       service_name "rb-workers"
       supports :stop => true, :disable => true
-      action :nothing
+      action [:stop, :disable]
     end
 
     Chef::Log.info("Webui cookbook has been processed")
