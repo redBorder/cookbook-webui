@@ -294,10 +294,13 @@ action :add do #Usually used to install and configure something
     bash 'db_migrate_modules' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile &>/dev/null
-          pushd /var/www/rb-rails &>/dev/null
-          rvm gemset use web &>/dev/null
+          source /etc/profile 
+          pushd /var/www/rb-rails
+          rvm gemset use web 
+          echo "IM DOING THE MIGRATE"
+          sleep 10
           env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules
+          echo "END OF MIGRATE"
           popd &>/dev/null
         EOH
       user user
@@ -308,10 +311,13 @@ action :add do #Usually used to install and configure something
     bash 'db_seed' do
       ignore_failure false
       code <<-EOH
-          source /etc/profile &>/dev/null
-          pushd /var/www/rb-rails &>/dev/null
-          rvm gemset use web &>/dev/null
+          source /etc/profile 
+          pushd /var/www/rb-rails
+          rvm gemset use web 
+          echo "Im going to do the SEED"
+          sleep 10
           env NO_MODULES=1 RAILS_ENV=production rake db:seed
+          echo "SEED COMPLETED"
           popd &>/dev/null
         EOH
       user user
