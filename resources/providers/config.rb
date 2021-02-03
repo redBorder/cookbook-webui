@@ -315,8 +315,13 @@ action :add do #Usually used to install and configure something
           pushd /var/www/rb-rails
           rvm gemset use web 
           echo "Im going to do the SEED"
-          sleep 10
+          echo `date` >> /tmp/date.log
+          echo `systemctl status webui` >> /tmp/date.log
+          sleep 120
+          echo `date` >> /tmp/date.log
           env NO_MODULES=1 RAILS_ENV=production rake db:seed
+          echo `date` >> /tmp/date.log
+          echo `systemctl status webui` >> /tmp/date.log
           echo "SEED COMPLETED"
           popd &>/dev/null
         EOH
