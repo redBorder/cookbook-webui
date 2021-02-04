@@ -23,7 +23,7 @@ action :add do #Usually used to install and configure something
       notifies :run, "bash[db_migrate]", :delayed
       notifies :run, "bash[db_migrate_modules]", :delayed
       notifies :run, "bash[db_seed]", :delayed
-      notifies :run, "bash[db_seed_modules]", :delayed
+      #notifies :run, "bash[db_seed_modules]", :delayed
       notifies :run, "bash[redBorder_generate_server_key]", :delayed
       notifies :run, "bash[redBorder_update]", :delayed
       notifies :run, "bash[assets_precompile]", :delayed
@@ -317,9 +317,11 @@ action :add do #Usually used to install and configure something
           echo "Im going to do the SEED"
           echo `date` >> /tmp/date.log
           echo `systemctl status webui` >> /tmp/date.log
-          sleep 120
+          echo "Sleeping.." >> /tmp/date.log
+          sleep 600
+          echo "Wake up!.." >> /tmp/date.log
           echo `date` >> /tmp/date.log
-          env NO_MODULES=1 RAILS_ENV=production rake db:seed
+          echo "env NO_MODULES=1 RAILS_ENV=production rake db:seed"
           echo `date` >> /tmp/date.log
           echo `systemctl status webui` >> /tmp/date.log
           echo "SEED COMPLETED"
