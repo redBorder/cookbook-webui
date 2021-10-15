@@ -104,7 +104,7 @@ action :add do #Usually used to install and configure something
       retries 2
       cookbook "webui"
       action :create_if_missing
-      notifies :restart, "service[rb-webui]", :delayed
+      notifies :restart, "service[webui]", :delayed
     end
 
     #link "/var/www/rb-rails/rB.lic" do
