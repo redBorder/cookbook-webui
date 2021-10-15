@@ -20,10 +20,11 @@ action :add do #Usually used to install and configure something
     yum_package "redborder-webui" do
       action :install
       flush_cache [:before]
+      notifies :run, "bash[create_license_databag]", :delayed
       notifies :run, "bash[db_migrate]", :delayed
       notifies :run, "bash[db_migrate_modules]", :delayed
       notifies :run, "bash[db_seed]", :delayed
-      #notifies :run, "bash[db_seed_modules]", :delayed
+      notifies :run, "bash[db_seed_modules]", :delayed
       notifies :run, "bash[redBorder_generate_server_key]", :delayed
       notifies :run, "bash[redBorder_update]", :delayed
       notifies :run, "bash[assets_precompile]", :delayed
@@ -298,6 +299,20 @@ action :add do #Usually used to install and configure something
     # RAKE TASKS
     ############
 
+    bash 'create_license_databag' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
+          rake redBorder:create_license_databag
+          popd &>/dev/null
+        EOH
+      user user
+      group group
+      action :nothing
+    end
+
     bash 'db_migrate' do
       ignore_failure false
       code <<-EOH
@@ -318,10 +333,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile 
           pushd /var/www/rb-rails
           rvm gemset use web 
-          echo "IM DOING THE MIGRATE"
-          sleep 10
           env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules
-          echo "END OF MIGRATE"
           popd &>/dev/null
         EOH
       user user
@@ -335,17 +347,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile 
           pushd /var/www/rb-rails
           rvm gemset use web 
-          echo "Im going to do the SEED"
-          echo `date` >> /tmp/date.log
-          echo `systemctl status webui` >> /tmp/date.log
-          echo "Sleeping.." >> /tmp/date.log
-          sleep 600
-          echo "Wake up!.." >> /tmp/date.log
-          echo `date` >> /tmp/date.log
-          echo "env NO_MODULES=1 RAILS_ENV=production rake db:seed"
-          echo `date` >> /tmp/date.log
-          echo `systemctl status webui` >> /tmp/date.log
-          echo "SEED COMPLETED"
+          env NO_MODULES=1 RAILS_ENV=production rake db:seed
           popd &>/dev/null
         EOH
       user user
@@ -359,7 +361,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          RAILS_ENV=production rake db:seed:modules
+          NO_MODULES=bi RAILS_ENV=production rake db:seed:modules
           popd &>/dev/null
         EOH
       user user
