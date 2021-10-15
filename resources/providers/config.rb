@@ -86,6 +86,27 @@ action :add do #Usually used to install and configure something
     # LICENSE
     ##########
 
+    cookbook_file "/etc/license.key.pub" do
+      source "license.key.pub"
+      owner "root"
+      group "root"
+      mode "0644"
+      retries 2
+      cookbook "webui"
+      action :create_if_missing
+    end
+   
+    cookbook_file "/var/www/rb-rails/config/license.key.pub" do
+      source "license.key.pub"
+      owner user
+      group user
+      mode "0644"
+      retries 2
+      cookbook "webui"
+      action :create_if_missing
+      notifies :restart, "service[rb-webui]", :delayed
+    end
+
     #link "/var/www/rb-rails/rB.lic" do
     #  to "/etc/redborder/rB.lic"
     #end
