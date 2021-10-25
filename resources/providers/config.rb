@@ -17,6 +17,11 @@ action :add do #Usually used to install and configure something
     # INSTALLATION
     ####################
 
+    licmode_dg = Chef::EncryptedDataBagItem.load("rBglobal", "licmode") rescue licmode_dg={}
+    licmode = licmode_dg["mode"]
+    licmode = "global" if (licmode!="global" and licmode!="organization")
+
+
     yum_package "redborder-webui" do
       action :install
       flush_cache [:before]
@@ -28,6 +33,8 @@ action :add do #Usually used to install and configure something
       notifies :run, "bash[redBorder_generate_server_key]", :delayed
       notifies :run, "bash[redBorder_update]", :delayed
       notifies :run, "bash[assets_precompile]", :delayed
+      notifies :run, "bash[generate_server_key]", :delayed
+      notifies :run, "bash[request_trial_license]", :delayed if licmode == "global"
     end
 
     yum_package "redborder-webui" do
@@ -261,6 +268,16 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
+    template "/var/www/rb-rails/config/licenses.yml" do
+      source "licenses.yml.erb"
+      owner user
+      group group
+      mode 0644
+      retries 2
+      cookbook "webui"
+      notifies :restart, "service[webui]", :delayed
+  end
+
     [ "flow", "ips", "location", "monitor", "social", "iot" ].each do |x|
         template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
             source "#{x}_rbdruid_config.yml.erb"
@@ -404,6 +421,34 @@ action :add do #Usually used to install and configure something
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
           RAILS_ENV=production rake assets:precompile
+          popd &>/dev/null &>/dev/null
+        EOH
+      user user
+      group group
+      action :nothing
+    end
+
+    bash 'generate_server_key' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
+          RAILS_ENV=production rake redBorder:generate_server_key
+          popd &>/dev/null &>/dev/null
+        EOH
+      user user
+      group group
+      action :nothing
+    end
+
+    bash 'request_trial_license' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
+          RAILS_ENV=production rake redBorder:request_trial_license
           popd &>/dev/null &>/dev/null
         EOH
       user user
