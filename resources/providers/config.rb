@@ -20,9 +20,9 @@ action :add do #Usually used to install and configure something
     yum_package "redborder-webui" do
       action :install
       flush_cache [:before]
-      notifies :run, "bash[create_license_databag]", :delayed
       notifies :run, "bash[db_migrate]", :delayed
       notifies :run, "bash[db_migrate_modules]", :delayed
+      notifies :run, "bash[create_license_databag]", :delayed
       notifies :run, "bash[db_seed]", :delayed
       notifies :run, "bash[db_seed_modules]", :delayed
       notifies :run, "bash[redBorder_generate_server_key]", :delayed
@@ -305,10 +305,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          sleep 10
-          echo "Sleeping.."
           rake redBorder:create_license_databag
-          sleep 300
           popd &>/dev/null
         EOH
       user user
