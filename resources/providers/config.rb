@@ -25,6 +25,7 @@ action :add do #Usually used to install and configure something
     yum_package "redborder-webui" do
       action :install
       flush_cache [:before]
+      notifies :run, "bash[run_ditto]", :delayed
       notifies :run, "bash[db_migrate]", :delayed
       notifies :run, "bash[db_migrate_modules]", :delayed
       notifies :run, "bash[create_license_databag]", :delayed
@@ -312,9 +313,24 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
+
     ############
-    # RAKE TASKS
+    # RAKE TASKS and OTHERS
     ############
+
+    bash 'run_ditto' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
+          dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/
+          popd &>/dev/null
+        EOH
+      user user
+      group group
+      action :nothing
+    end
 
     bash 'create_license_databag' do
       ignore_failure false
