@@ -34,7 +34,7 @@ action :add do #Usually used to install and configure something
       notifies :run, "bash[redBorder_generate_server_key]", :delayed
       notifies :run, "bash[redBorder_update]", :delayed
       notifies :run, "bash[assets_precompile]", :delayed
-      notifies :run, "bash[generate_server_key]", :delayed
+      #notifies :run, "bash[generate_server_key]", :delayed
       notifies :run, "bash[request_trial_license]", :delayed if licmode == "global"
     end
 
@@ -324,7 +324,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/
+          dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/ &>>/root/.install-redborder-ditto.log
           popd &>/dev/null
         EOH
       user user
@@ -338,7 +338,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          rake redBorder:create_license_databag
+          rake redBorder:create_license_databag &>>/root/.install-redborder-license.log
           popd &>/dev/null
         EOH
       user user
@@ -352,7 +352,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          env NO_MODULES=1 RAILS_ENV=production rake db:migrate
+          env NO_MODULES=1 RAILS_ENV=production rake db:migrate &>>/root/.install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -366,7 +366,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile 
           pushd /var/www/rb-rails
           rvm gemset use web 
-          env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules
+          env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules &>>/root/.install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -380,7 +380,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile 
           pushd /var/www/rb-rails
           rvm gemset use web 
-          env NO_MODULES=1 RAILS_ENV=production rake db:seed
+          env NO_MODULES=1 RAILS_ENV=production rake db:seed &>>/root/.install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -394,7 +394,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          NO_MODULES=bi RAILS_ENV=production rake db:seed:modules
+          NO_MODULES=bi RAILS_ENV=production rake db:seed:modules &>>/root/.install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -408,7 +408,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          rake redBorder:generate_server_key
+          rake redBorder:generate_server_key &>>/root/.install-redborder-server-key.log
           popd &>/dev/null
         EOH
       user user
@@ -422,7 +422,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          rake redBorder:update
+          rake redBorder:update &>>/root/.install-redborder-update.log
           popd &>/dev/null
         EOH
       user user
@@ -436,7 +436,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          RAILS_ENV=production rake assets:precompile
+          RAILS_ENV=production rake assets:precompile &>>/root/.install-redborder-assets.log
           popd &>/dev/null &>/dev/null
         EOH
       user user
@@ -444,19 +444,19 @@ action :add do #Usually used to install and configure something
       action :nothing
     end
 
-    bash 'generate_server_key' do
-      ignore_failure false
-      code <<-EOH
-          source /etc/profile &>/dev/null
-          pushd /var/www/rb-rails &>/dev/null
-          rvm gemset use web &>/dev/null
-          RAILS_ENV=production rake redBorder:generate_server_key
-          popd &>/dev/null &>/dev/null
-        EOH
-      user user
-      group group
-      action :nothing
-    end
+    # bash 'generate_server_key' do
+    #   ignore_failure false
+    #   code <<-EOH
+    #       source /etc/profile &>/dev/null
+    #       pushd /var/www/rb-rails &>/dev/null
+    #       rvm gemset use web &>/dev/null
+    #       RAILS_ENV=production rake redBorder:generate_server_key &>>/root/.install-redborder-server-key.log
+    #       popd &>/dev/null &>/dev/null
+    #     EOH
+    #   user user
+    #   group group
+    #   action :nothing
+    # end
 
     bash 'request_trial_license' do
       ignore_failure false
@@ -464,7 +464,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          RAILS_ENV=production rake redBorder:request_trial_license
+          RAILS_ENV=production rake redBorder:request_trial_license &>>/root/.install-redborder-license.log
           popd &>/dev/null &>/dev/null
         EOH
       user user
