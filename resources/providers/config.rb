@@ -338,9 +338,9 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          echo "[i] `date` - executing: redBorder:create_license_databag" &>>/var/www/rb-rails/log/install-redborder-license.log
+          echo "### `date` - COMMAND: redBorder:create_license_databag" &>>/var/www/rb-rails/log/install-redborder-license.log
           rake redBorder:create_license_databag &>>/var/www/rb-rails/log/install-redborder-license.log
-          echo "[i] `date` - finish create_license_databag" &>>/var/www/rb-rails/log/install-redborder-license.log
+          echo "### `date` - finish create_license_databag" &>>/var/www/rb-rails/log/install-redborder-license.log
           popd &>/dev/null
         EOH
       user user
@@ -354,10 +354,10 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          echo "[i] `date` -  ===== db_migrate ====="&>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  executing: env NO_MODULES=1 RAILS_ENV=production rake db:migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  ===== db_migrate ====="&>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
           env NO_MODULES=1 RAILS_ENV=production rake db:migrate &>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  finish db_migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  finish db_migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -371,10 +371,10 @@ action :add do #Usually used to install and configure something
           source /etc/profile 
           pushd /var/www/rb-rails
           rvm gemset use web 
-          echo "[i] `date` -  ===== db_migrate_modules ====="&>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  executing: env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  ===== db_migrate_modules ====="&>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules" &>>/var/www/rb-rails/log/install-redborder-db.log
           env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules &>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  finish db_migrate_modules" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  finish db_migrate_modules" &>>/var/www/rb-rails/log/install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -388,10 +388,10 @@ action :add do #Usually used to install and configure something
           source /etc/profile 
           pushd /var/www/rb-rails
           rvm gemset use web 
-          echo "[i] `date` -  ===== db_seed ====="&>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  exeuting: env NO_MODULES=1 RAILS_ENV=production rake db:seed" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  ===== db_seed ====="&>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:seed" &>>/var/www/rb-rails/log/install-redborder-db.log
           env NO_MODULES=1 RAILS_ENV=production rake db:seed &>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  finish db_seed" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  finish db_seed" &>>/var/www/rb-rails/log/install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -405,12 +405,12 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null   
-          echo "[i] `date` -  ===== db_seed_modules ====="&>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  executing: cat /var/www/rb-rails/config/modules.yml" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  ===== db_seed_modules ====="&>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  COMMAND: cat /var/www/rb-rails/config/modules.yml" &>>/var/www/rb-rails/log/install-redborder-db.log
           cat /var/www/rb-rails/config/modules.yml &>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  executing: env NO_MODULES=1 RAILS_ENV=production rake db:seed:modules"  &>>/var/www/rb-rails/log/install-redborder-db.log
-          env NO_MODULES=1 RAILS_ENV=production rake db:seed:modules &>>/var/www/rb-rails/log/install-redborder-db.log
-          echo "[i] `date` -  finish db_seed_modules" &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  COMMAND: RAILS_ENV=production rake db:seed:modules"  &>>/var/www/rb-rails/log/install-redborder-db.log
+          env RAILS_ENV=production rake db:seed:modules &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  finish db_seed_modules" &>>/var/www/rb-rails/log/install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
