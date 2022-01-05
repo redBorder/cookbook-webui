@@ -394,7 +394,7 @@ action :add do #Usually used to install and configure something
           source /etc/profile &>/dev/null
           pushd /var/www/rb-rails &>/dev/null
           rvm gemset use web &>/dev/null
-          NO_MODULES=bi RAILS_ENV=production rake db:seed:modules &>>/var/www/rb-rails/log/.install-redborder-db.log
+          env NO_MODULES=1 RAILS_ENV=production rake db:seed:modules &>>/var/www/rb-rails/log/.install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
