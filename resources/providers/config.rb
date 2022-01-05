@@ -28,8 +28,8 @@ action :add do #Usually used to install and configure something
       notifies :run, "bash[run_ditto]", :delayed
       notifies :run, "bash[db_migrate]", :delayed
       notifies :run, "bash[db_migrate_modules]", :delayed
-      notifies :run, "bash[db_seed]", :delayed
       notifies :run, "bash[create_license_databag]", :delayed
+      notifies :run, "bash[db_seed]", :delayed
       notifies :run, "bash[db_seed_modules]", :delayed
       notifies :run, "bash[redBorder_generate_server_key]", :delayed
       notifies :run, "bash[redBorder_update]", :delayed
