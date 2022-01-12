@@ -509,6 +509,21 @@ action :configure_db do
       action :run
     end
 
+    bash 'assets_precompile' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
+          echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:precompile" &>>/var/www/rb-rails/log/install-redborder-assets.log
+          RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
+          popd &>/dev/null &>/dev/null
+        EOH
+      user user
+      group group
+      action :run
+    end
+
     bash 'db_seed' do
       ignore_failure false
       code <<-EOH
