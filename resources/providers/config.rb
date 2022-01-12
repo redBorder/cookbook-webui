@@ -346,6 +346,21 @@ action :add do #Usually used to install and configure something
       group group
       action :nothing
     end
+    
+    bash 'redBorder_update' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
+          echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
+          rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
+          popd &>/dev/null
+        EOH
+      user user
+      group group
+      action :nothing
+    end
 
 
     ############
