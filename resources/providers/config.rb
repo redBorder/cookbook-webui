@@ -27,8 +27,9 @@ action :add do #Usually used to install and configure something
       flush_cache [:before]
       notifies :run, "bash[run_ditto]", :delayed
       notifies :run, "bash[assets_precompile]", :delayed
-      #notifies :run, "bash[db_migrate]", :delayed
-      #notifies :run, "bash[db_migrate_modules]", :delayed
+      notifies :run, "bash[db_migrate]", :delayed
+      notifies :run, "bash[db_migrate_modules]", :delayed
+      notifies :run, "bash[assets_precompile]", :delayed
       #notifies :run, "bash[create_license_databag]", :delayed
       #notifies :run, "bash[db_seed]", :delayed
       #notifies :run, "bash[db_seed_modules]", :delayed
@@ -325,6 +326,36 @@ action :add do #Usually used to install and configure something
           rvm gemset use web &>/dev/null
           echo "### `date` - COMMAND: dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/" &>>/var/www/rb-rails/log/install-redborder-ditto.log
           dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/ &>>/var/www/rb-rails/log/install-redborder-ditto.log
+          popd &>/dev/null
+        EOH
+      user user
+      group group
+      action :nothing
+    end
+
+    bash 'db_migrate' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          pushd /var/www/rb-rails &>/dev/null
+          rvm gemset use web &>/dev/null
+          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
+          env NO_MODULES=1 RAILS_ENV=production rake db:migrate &>>/var/www/rb-rails/log/install-redborder-db.log
+          popd &>/dev/null
+        EOH
+      user user
+      group group
+      action :nothing
+    end
+
+    bash 'db_migrate_modules' do
+      ignore_failure false
+      code <<-EOH
+          source /etc/profile 
+          pushd /var/www/rb-rails
+          rvm gemset use web 
+          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules" &>>/var/www/rb-rails/log/install-redborder-db.log
+          env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules &>>/var/www/rb-rails/log/install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
