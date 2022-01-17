@@ -162,6 +162,16 @@ action :add do #Usually used to install and configure something
       db_pass_druid = db_druid["pass"]
     end
 
+    #Obtaining radius database configuration from databag
+    db_radius = Chef::DataBagItem.load("passwords", "db_radius") rescue db_radius = {}
+    if !db_radius.empty?
+      db_name_radius = db_radius["database"]
+      db_hostname_radius = db_radius["hostname"]
+      db_port_radius = db_radius["port"]
+      db_username_radius = db_radius["username"]
+      db_pass_radius = db_radius["pass"]
+    end
+
     webui_secret = Chef::DataBagItem.load("passwords", "webui_secret") rescue webui_secret = {}
     if !webui_secret.empty?
       webui_secret_token = webui_secret["secret"]
@@ -197,21 +207,25 @@ action :add do #Usually used to install and configure something
     end
 
     template "/var/www/rb-rails/config/database.yml" do
-        source "database.yml.erb"
-        owner user
-        group group
-        mode 0644
-        retries 2
-        cookbook "webui"
-        notifies :restart, "service[webui]", :delayed
-        notifies :restart, "service[rb-workers]", :delayed
-        variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
-                  :db_port_redborder => db_port_redborder, :db_username_redborder => db_username_redborder,
-                  :db_pass_redborder => db_pass_redborder, :db_name_druid => db_name_druid,
-                  :db_hostname_druid => db_hostname_druid, :db_port_druid => db_port_druid,
-                  :db_username_druid => db_username_druid, :db_pass_druid => db_pass_druid,
-                  :http_workers => http_workers,
-                  :memory => memory_kb)
+      source "database.yml.erb"
+      owner user
+      group group
+      mode 0644
+      retries 2
+      cookbook "webui"
+      notifies :restart, "service[webui]", :delayed
+      notifies :restart, "service[rb-workers]", :delayed
+      variables(:db_name_redborder => db_name_redborder, :db_hostname_redborder => db_hostname_redborder,
+                :db_port_redborder => db_port_redborder, :db_username_redborder => db_username_redborder,
+                :db_pass_redborder => db_pass_redborder,
+                :db_name_druid => db_name_druid, :db_hostname_druid => db_hostname_druid,
+                :db_port_druid => db_port_druid, :db_username_druid => db_username_druid,
+                :db_pass_druid => db_pass_druid,
+                :db_name_radius => db_name_radius, :db_hostname_radius => db_hostname_radius,
+                :db_port_radius => db_port_radius, :db_username_radius => db_username_radius,
+                :db_pass_radius => db_pass_radius,
+                :http_workers => http_workers,
+                :memory => memory_kb)
     end
 
     template "/var/www/rb-rails/config/redborder_config.yml" do
