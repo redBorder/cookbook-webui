@@ -313,6 +313,21 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
+    rsa_pem = Chef::DataBagItem.load("certs", "rsa_pem") rescue rsa_pem = nil
+
+    if !rsa_pem.nil? and !rsa_pem["private_rsa"].nil?
+      template "/var/www/rb-rails/config/rsa" do
+        source "rsa_cert.pem.erb"
+        owner user
+        group group
+        mode 0600
+        retries 2
+        cookbook "webui"
+        notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[rb-workers]", :delayed
+        variables(:private_rsa => rsa_pem["private_rsa"])
+      end
+    end
 
     ############
     # RAKE TASKS and OTHERS

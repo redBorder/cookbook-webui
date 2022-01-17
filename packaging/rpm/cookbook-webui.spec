@@ -25,6 +25,7 @@ install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/webui/README.md
 %pre
 
 %post
+su - -s /bin/bash -c 'source /etc/profile && rvm gemset use default && ! env knife data bag show certs rsa_pem &>/dev/null && [ -f /usr/lib/redborder/bin/rb_create_rsa.sh ] && sudo /usr/lib/redborder/bin/rb_create_rsa.sh -f'
 case "$1" in
   1)
     # This is an initial install.
