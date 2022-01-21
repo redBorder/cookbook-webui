@@ -505,6 +505,22 @@ action :deregister do
   end
 end
 
+action :configure_rsa do
+  begin
+    rsa_pem = Chef::DataBagItem.load("certs", "rsa_pem") rescue rsa_pem = nil
+    if rsa_pem.nil?
+      execute 'Check RSA certificate' do
+        command "/usr/lib/redborder/bin/rb_create_rsa.sh -f"
+        action :nothing
+      end.run_action(:run)
+    end
+    Chef::Log.info("Webui cookbook - RSA cert has been processed")
+
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
+
 action :configure_db do
   begin
     user = new_resource.user
