@@ -313,6 +313,21 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
+    rsa_pem = Chef::DataBagItem.load("certs", "rsa_pem") rescue rsa_pem = nil
+
+    if !rsa_pem.nil? and !rsa_pem["private_rsa"].nil?
+      template "/var/www/rb-rails/config/rsa" do
+        source "rsa_cert.pem.erb"
+        owner user
+        group group
+        mode 0600
+        retries 2
+        cookbook "webui"
+        notifies :restart, "service[webui]", :delayed
+        notifies :restart, "service[rb-workers]", :delayed
+        variables(:private_rsa => rsa_pem["private_rsa"])
+      end
+    end
 
     ############
     # RAKE TASKS and OTHERS
@@ -485,6 +500,22 @@ action :deregister do
       node.set["webui"]["registered"] = false
       Chef::Log.info("Webui service has been deregistered from consul")
     end
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
+
+action :configure_rsa do
+  begin
+    rsa_pem = Chef::DataBagItem.load("certs", "rsa_pem") rescue rsa_pem = nil
+    if rsa_pem.nil?
+      execute 'Check RSA certificate' do
+        command "/usr/lib/redborder/bin/rb_create_rsa.sh -f"
+        action :nothing
+      end.run_action(:run)
+    end
+    Chef::Log.info("Webui cookbook - RSA cert has been processed")
+
   rescue => e
     Chef::Log.error(e.message)
   end
