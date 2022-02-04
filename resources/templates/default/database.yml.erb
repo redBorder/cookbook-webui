@@ -4,6 +4,7 @@ threads = [ [((@memory/workers)/(300*1024)), 1].max, 32 ].min
 memory_per_thread = (@memory/workers)/threads
 pool_rb = [ [ ( memory_per_thread * 8 / 200000).ceil, 4 ].max, 32 ].min
 pool_druid = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
+pool_radius = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
 %>
 
 <% [ "production", "development" ].each do |x| %>
@@ -29,3 +30,12 @@ druid:
   password: <%= @db_pass_druid %>
   host: <%= @db_hostname_druid %>
   port: <%= @db_port_druid.nil? ? "5432" : @db_port_druid %>
+
+radius:
+  database: <%= @db_name_radius.nil? ? "radius" : @db_name_radius  %>
+  pool: <%= [ pool_radius, @http_workers ].max %>
+  timeout: 5000
+  username: <%= @db_username_radius %>
+  password: <%= @db_pass_radius %>
+  host: <%= @db_hostname_radius %>
+  port: <%= @db_port_radius.nil? ? "5432" : @db_port_radius %>
