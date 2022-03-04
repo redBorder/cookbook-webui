@@ -10,7 +10,7 @@ action :add do #Usually used to install and configure something
     hostname = new_resource.hostname
     memory_kb = new_resource.memory_kb
     cdomain = new_resource.cdomain
-    #elasticache_hosts = new_resource.elasticache_hosts
+    elasticache_hosts = new_resource.elasticache_hosts
     http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_kb / (3*1024*1024)).floor ].min, 1 ].max).to_i
 
     ####################
@@ -252,16 +252,16 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
-    #template "/var/www/rb-rails/config/memcached_config.yml" do
-    #    source "memcached_config.yml.erb"
-    #    owner "root"
-    #    group "root"
-    #    mode 0644
-    #    retries 2
-    #    cookbook "webui"
-    #    variables(:elasticache_hosts => elasticache_hosts)
-    #    #notifies :restart, "service[webui]", :delayed
-    #end
+    template "/var/www/rb-rails/config/memcached_config.yml" do
+       source "memcached_config.yml.erb"
+       owner user
+       group group
+       mode 0644
+       retries 2
+       cookbook "webui"
+       variables(:elasticache_hosts => elasticache_hosts)
+       notifies :restart, "service[webui]", :delayed
+    end
 
     template "/var/www/rb-rails/config/databags.yml" do
         source "databags.yml.erb"
