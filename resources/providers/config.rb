@@ -11,6 +11,7 @@ action :add do #Usually used to install and configure something
     memory_kb = new_resource.memory_kb
     cdomain = new_resource.cdomain
     #elasticache_hosts = new_resource.elasticache_hosts
+    s3_local_storage = new_resource.s3_local_storage
     http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_kb / (3*1024*1024)).floor ].min, 1 ].max).to_i
 
     ####################
@@ -188,7 +189,7 @@ action :add do #Usually used to install and configure something
         mode 0644
         retries 2
         cookbook "webui"
-        variables(:s3_bucket => s3_bucket, :s3_host => s3_host,
+        variables(:s3_local_storage => s3_local_storage, :s3_bucket => s3_bucket, :s3_host => s3_host,
                   :s3_access_key => s3_access_key, :s3_secret_key => s3_secret_key)
         notifies :restart, "service[webui]", :delayed
         notifies :restart, "service[rb-workers]", :delayed
