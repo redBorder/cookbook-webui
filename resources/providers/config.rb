@@ -44,6 +44,11 @@ action :add do #Usually used to install and configure something
       notifies :run, "bash[redBorder_update]", :delayed
     end
 
+    yum_package "wkhtmltox" do
+      action :install
+      flush_cache [:before]
+    end
+
     user user do
       action :create
       system true
