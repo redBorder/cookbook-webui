@@ -3,6 +3,8 @@
 # Provider:: config
 #
 
+include Webui::Helper
+
 action :add do #Usually used to install and configure something
   begin
     user = new_resource.user
@@ -12,6 +14,8 @@ action :add do #Usually used to install and configure something
     cdomain = new_resource.cdomain
     #elasticache_hosts = new_resource.elasticache_hosts
     http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_kb / (3*1024*1024)).floor ].min, 1 ].max).to_i
+    webui_port = new_resource.webui_port
+    routes = local_routes()
 
     ####################
     # INSTALLATION
@@ -343,6 +347,26 @@ action :add do #Usually used to install and configure something
       end
     end
 
+    template "/etc/nginx/conf.d/webui.conf" do
+      source "webui.conf.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      cookbook "webui"
+      variables(:webui_port => webui_port, :cdomain => cdomain)
+      notifies :restart, "service[nginx]"
+    end
+
+    template "/etc/nginx/conf.d/redirect.conf" do
+      source "redirect.conf.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      cookbook "webui"
+      variables(:routes => routes)
+      notifies :restart, "service[nginx]"
+    end
+
     ############
     # RAKE TASKS and OTHERS
     ############
@@ -440,6 +464,42 @@ action :add do #Usually used to install and configure something
     end
 
     Chef::Log.info("Webui cookbook has been processed")
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
+
+action :configure_certs do
+  begin
+
+    cdomain = new_resource.cdomain
+    json_cert = nginx_certs("webui",cdomain)
+
+    template "/etc/nginx/ssl/webui.crt" do
+      source "cert.crt.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      retries 2
+      cookbook "webui"
+      not_if {json_cert.empty?}
+      variables(:crt => json_cert["webui_crt"])
+      action :create
+    end
+
+    template "/etc/nginx/ssl/webui.key" do
+      source "cert.key.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      retries 2
+      cookbook "webui"
+      not_if {json_cert.empty?}
+      variables(:key => json_cert["webui_key"])
+      action :create
+    end
+
+    Chef::Log.info("Certs for service webui has been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
