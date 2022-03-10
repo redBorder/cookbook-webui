@@ -8,6 +8,7 @@ default_action :add
 
 attribute :user, :kind_of => String, :default => "webui"
 attribute :group, :kind_of => String, :default => "webui"
+attribute :webui_port, :kind_of => Integer, :default => 8001
 attribute :hostname, :kind_of => String
 attribute :cdomain, :kind_of => String, :default => "redborder.cluster"
 attribute :web_dir, :kind_of => String, :default => "/var/www/rb-rails"
