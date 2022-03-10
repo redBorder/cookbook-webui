@@ -499,7 +499,7 @@ action :configure_certs do
       action :create
     end
 
-    Chef::Log.info("Certs for service webui has been processed")
+    Chef::Log.info("Certs for service webui have been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
