@@ -3,7 +3,7 @@
 # Resource:: config
 #
 
-actions :add, :remove, :register, :deregister, :configure_db, :configure_rsa
+actions :add, :remove, :register, :deregister, :configure_db, :configure_rsa, :configure_certs
 default_action :add
 
 attribute :user, :kind_of => String, :default => "webui"
