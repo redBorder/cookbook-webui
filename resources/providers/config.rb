@@ -14,7 +14,7 @@ action :add do #Usually used to install and configure something
     cdomain = new_resource.cdomain
     #elasticache_hosts = new_resource.elasticache_hosts
     http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_kb / (3*1024*1024)).floor ].min, 1 ].max).to_i
-    webui_port = new_resource.webui_port
+    webui_port = new_resource.port
     routes = local_routes()
 
     ####################
