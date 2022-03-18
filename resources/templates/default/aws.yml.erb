@@ -1,12 +1,16 @@
 <% [ "production", "development" ].each do |x| %>
 <%= x %>:
-  bucket: <%= @s3_bucket %>
   access_key_id: <%= @s3_access_key %>
   secret_access_key: <%= @s3_secret_key %>
   s3_host_name: <%= @s3_host %>
   s3_protocol: https
+  generate_s3_url: <%= @s3_host.end_with?(".amazonaws.com") ? "true" : "false" %>
+<% if @s3_local_storage == "minio" %>
+  bucket: <%= @s3_bucket + "/" %>
   force_path_style: true
   ssl_verify_peer: false
   signature_version: v4
-  generate_s3_url: <%= @s3_host.end_with?(".amazonaws.com") ? "true" : "false" %>
+<% else %>
+  bucket: <%= @s3_bucket %>
+<% end %>
 <% end %>
