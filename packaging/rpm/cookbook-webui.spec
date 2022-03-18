@@ -2,6 +2,7 @@ Name: cookbook-webui
 Version: %{__version}
 Release: %{__release}%{?dist}
 BuildArch: noarch
+Requires: wkhtmltox
 Summary: WebUI cookbook to install and configure it in redborder environments
 
 License: AGPL 3.0
