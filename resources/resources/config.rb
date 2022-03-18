@@ -15,3 +15,4 @@ attribute :web_dir, :kind_of => String, :default => "/var/www/rb-rails"
 attribute :memory_kb, :kind_of => Integer
 attribute :elasticache_hosts, :kind_of => Object
 attribute :zk_hosts, :kind_of => String
+attribute :s3_local_storage, :kind_of => String, :default => "minio"
