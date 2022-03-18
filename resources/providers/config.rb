@@ -3,6 +3,8 @@
 # Provider:: config
 #
 
+include Webui::Helper
+
 action :add do #Usually used to install and configure something
   begin
     user = new_resource.user
@@ -10,8 +12,9 @@ action :add do #Usually used to install and configure something
     hostname = new_resource.hostname
     memory_kb = new_resource.memory_kb
     cdomain = new_resource.cdomain
-    #elasticache_hosts = new_resource.elasticache_hosts
     s3_local_storage = new_resource.s3_local_storage
+    elasticache_hosts = new_resource.elasticache_hosts
+
     http_workers = ([ [ 10 * node["cpu"]["total"].to_i, (memory_kb / (3*1024*1024)).floor ].min, 1 ].max).to_i
 
     ####################
@@ -253,16 +256,16 @@ action :add do #Usually used to install and configure something
         notifies :restart, "service[webui]", :delayed
     end
 
-    #template "/var/www/rb-rails/config/memcached_config.yml" do
-    #    source "memcached_config.yml.erb"
-    #    owner "root"
-    #    group "root"
-    #    mode 0644
-    #    retries 2
-    #    cookbook "webui"
-    #    variables(:elasticache_hosts => elasticache_hosts)
-    #    #notifies :restart, "service[webui]", :delayed
-    #end
+    template "/var/www/rb-rails/config/memcached_config.yml" do
+       source "memcached_config.yml.erb"
+       owner user
+       group group
+       mode 0644
+       retries 2
+       cookbook "webui"
+       variables(:elasticache_hosts => elasticache_hosts)
+       notifies :restart, "service[webui]", :delayed
+    end
 
     template "/var/www/rb-rails/config/databags.yml" do
         source "databags.yml.erb"
@@ -343,6 +346,7 @@ action :add do #Usually used to install and configure something
         variables(:private_rsa => rsa_pem["private_rsa"])
       end
     end
+
 
     ############
     # RAKE TASKS and OTHERS
@@ -441,6 +445,73 @@ action :add do #Usually used to install and configure something
     end
 
     Chef::Log.info("Webui cookbook has been processed")
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
+
+action :add_webui_conf_nginx do
+  begin
+    webui_port = new_resource.port
+    routes = local_routes()
+    cdomain = new_resource.cdomain
+
+    template "/etc/nginx/conf.d/webui.conf" do
+      source "webui.conf.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      cookbook "webui"
+      variables(:webui_port => webui_port, :cdomain => cdomain)
+      notifies :restart, "service[nginx]"
+    end
+
+    template "/etc/nginx/conf.d/redirect.conf" do
+      source "redirect.conf.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      cookbook "webui"
+      variables(:routes => routes)
+      notifies :restart, "service[nginx]"
+    end
+
+    Chef::Log.info("nginx webui configuration has been processed")
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
+
+action :configure_certs do
+  begin
+    cdomain = new_resource.cdomain
+    json_cert = nginx_certs("webui",cdomain)
+
+    template "/etc/nginx/ssl/webui.crt" do
+      source "cert.crt.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      retries 2
+      cookbook "webui"
+      not_if {json_cert.empty?}
+      variables(:crt => json_cert["webui_crt"])
+      action :create
+    end
+
+    template "/etc/nginx/ssl/webui.key" do
+      source "cert.key.erb"
+      owner "nginx"
+      group "nginx"
+      mode 0644
+      retries 2
+      cookbook "webui"
+      not_if {json_cert.empty?}
+      variables(:key => json_cert["webui_key"])
+      action :create
+    end
+
+    Chef::Log.info("Certs for service webui have been processed")
   rescue => e
     Chef::Log.error(e.message)
   end
