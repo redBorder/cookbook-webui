@@ -9,5 +9,5 @@
 
 webui_config "config" do
   hostname node["hostname"]
-  action [:add, :register, :configure_rsa]
+  action :add
 end
