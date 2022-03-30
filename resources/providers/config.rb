@@ -289,6 +289,16 @@ action :add do #Usually used to install and configure something
        notifies :restart, "service[webui]", :delayed
     end
 
+    template "/var/www/rb-rails/config/plugins_config.yml" do
+      source "plugins_config.yml.erb"
+      owner user
+      group group
+      mode 0644
+      retries 2
+      cookbook "webui"
+      notifies :restart, "service[webui]", :delayed
+    end
+
     template "/var/www/rb-rails/config/databags.yml" do
         source "databags.yml.erb"
         owner user
