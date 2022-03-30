@@ -120,6 +120,28 @@ action :add do #Usually used to install and configure something
       notifies :restart, "service[webui]", :delayed
     end
 
+    # RB-EXTENSIONS
+    directory "/var/www/rb-rails/plugins" do
+      owner user
+      group group
+      mode 0755
+      action :create
+    end
+
+    directory "/var/www/rb-rails/plugins/plugins" do
+      owner user
+      group group
+      mode 0755
+      action :create
+    end
+
+    directory "/var/www/rb-rails/plugins/cache" do
+      owner user
+      group group
+      mode 0755
+      action :create
+    end
+
     #link "/var/www/rb-rails/rB.lic" do
     #  to "/etc/redborder/rB.lic"
     #end
