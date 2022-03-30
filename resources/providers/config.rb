@@ -121,21 +121,21 @@ action :add do #Usually used to install and configure something
     end
 
     # RB-EXTENSIONS
-    directory "/var/www/rb-rails/plugins" do
+    directory "/var/www/plugins" do
       owner user
       group group
       mode 0755
       action :create
     end
 
-    directory "/var/www/rb-rails/plugins/plugins" do
+    directory "/var/www/plugins/plugins" do
       owner user
       group group
       mode 0755
       action :create
     end
 
-    directory "/var/www/rb-rails/plugins/cache" do
+    directory "/var/www/plugins/cache" do
       owner user
       group group
       mode 0755
