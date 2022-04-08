@@ -91,6 +91,16 @@ action :add do #Usually used to install and configure something
       end
     end
 
+    # Directories for download snort rules
+    %w[ snortrules snortrules/cache snortrules/so_rules snortrules/gen_msg ].each do |x|
+      directory "/var/www/#{x}" do
+        owner user
+        group group
+        mode 0755
+        action :create
+      end
+    end
+
     link "/var/log/rb-rails" do
       to "/var/www/rb-rails/log"
     end
