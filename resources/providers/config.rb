@@ -130,6 +130,28 @@ action :add do #Usually used to install and configure something
       notifies :restart, "service[webui]", :delayed
     end
 
+    # RB-EXTENSIONS
+    directory "/var/www/plugins" do
+      owner user
+      group group
+      mode 0755
+      action :create
+    end
+
+    directory "/var/www/plugins/plugins" do
+      owner user
+      group group
+      mode 0755
+      action :create
+    end
+
+    directory "/var/www/plugins/cache" do
+      owner user
+      group group
+      mode 0755
+      action :create
+    end
+
     #link "/var/www/rb-rails/rB.lic" do
     #  to "/etc/redborder/rB.lic"
     #end
@@ -275,6 +297,16 @@ action :add do #Usually used to install and configure something
        cookbook "webui"
        variables(:elasticache_hosts => elasticache_hosts)
        notifies :restart, "service[webui]", :delayed
+    end
+
+    template "/var/www/rb-rails/config/plugins_config.yml" do
+      source "plugins_config.yml.erb"
+      owner user
+      group group
+      mode 0644
+      retries 2
+      cookbook "webui"
+      notifies :restart, "service[webui]", :delayed
     end
 
     template "/var/www/rb-rails/config/databags.yml" do
