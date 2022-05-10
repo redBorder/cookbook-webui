@@ -1,14 +1,21 @@
-modules:
-  - flow
-  - ips
-  - social
-  - monitor
-  - ap_state
-  - location
-  - scanner
-  - bi
-  - vault
-  - correlation_engine_rule
-  - api
-  - malware
-  
+modules: 
+<% if !node["redborder"]["license"].nil? and !node["redborder"]["license"]["modules"].nil? %>
+<% modules = node["redborder"]["license"]["modules"] %>
+<% else %>
+<% modules = ["ips", "flow", "ap_state", "monitor", "location", "api", "social", "iot", "vault", "correlation_engine_rule","bi","scanner"] %>
+<% end %>
+<% if File.exist?"/var/www/rb-rails/lib/modules" %>
+<% modules=Dir.entries("/var/www/rb-rails/lib/modules").select{|x| x!="." and x!=".." and x!="aalicense"} if modules.include?"all" %>
+<% else %>
+<% modules=["all"] %>
+<% end %>
+<% modules.each do |x| %>
+<% if !node["redborder"].nil? and !node["redborder"]["manager"].nil? and !node["redborder"]["manager"]["modules"].nil? and !node["redborder"]["manager"]["modules"][x].nil? and x!="all" %>
+<% if node["redborder"]["manager"]["modules"][x] %>
+  - <%= x %>
+<% end %>
+<% else %>
+  - <%= x %>
+<% end %>
+<% end %>
+
