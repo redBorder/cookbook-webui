@@ -712,6 +712,7 @@ action :configure_db do
       user user
       group group
       action :run
+      notifies :restart, "service[webui]", :delayed
     end
 
     bash 'db_seed' do
@@ -788,6 +789,13 @@ action :configure_db do
       group group
       action :run
     end
+
+    service "webui" do
+      service_name "webui"
+      supports :status => true, :reload => true, :restart => true, :enable => true
+      action :nothing
+    end
+
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -808,8 +816,14 @@ action :configure_modules do
       user user
       group group
       action :run
+      notifies :restart, "service[webui]", :delayed
     end
 
+    service "webui" do
+      service_name "webui"
+      supports :status => true, :reload => true, :restart => true, :enable => true
+      action :nothing
+    end
    
   rescue => e
     Chef::Log.error(e.message)
