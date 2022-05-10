@@ -790,12 +790,6 @@ action :configure_db do
       action :run
     end
 
-    service "webui" do
-      service_name "webui"
-      supports :status => true, :reload => true, :restart => true, :enable => true
-      action :nothing
-    end
-
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -817,12 +811,6 @@ action :configure_modules do
       group group
       action :run
       notifies :restart, "service[webui]", :delayed
-    end
-
-    service "webui" do
-      service_name "webui"
-      supports :status => true, :reload => true, :restart => true, :enable => true
-      action :nothing
     end
    
   rescue => e
