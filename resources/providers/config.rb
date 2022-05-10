@@ -793,3 +793,25 @@ action :configure_db do
   end
 end
 
+
+action :configure_modules do
+  begin
+    user = new_resource.user
+    group = new_resource.group
+
+    bash 'set_modules' do
+      ignore_failure true
+      code <<-EOH
+          source /etc/profile &>/dev/null
+          /usr/lib/redborder/bin/rb_set_modules bi:0 scanner:0
+        EOH
+      user user
+      group group
+      action :run
+    end
+
+   
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
