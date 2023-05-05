@@ -389,6 +389,29 @@ action :add do #Usually used to install and configure something
       end
     end
 
+    ############
+    # DASHBOARDS
+    ############
+
+    directory "/var/www/rb-rails/files/dashboards" do
+      owner user
+      group group
+      mode 0755
+      recursive true
+      action :create
+    end
+
+    #default.tar.gz is a default dashboard from a old version
+    cookbook_file "/var/www/rb-rails/files/dashboards/default.tar.gz" do
+      source "default-dashboard.tar.gz"
+      owner user
+      group group
+      mode "0644"
+      retries 2
+      cookbook "webui"
+      backup false
+      ignore_failure true
+    end
 
     ############
     # RAKE TASKS and OTHERS
