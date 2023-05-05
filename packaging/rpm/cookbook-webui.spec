@@ -47,6 +47,8 @@ esac
 %doc
 
 %changelog
+* Fri May 05 2023 Luis J. Blanco Mier <ljblanco@redborder.com> - 0.1.2
+- default dashboard
 * Fri Jan 07 2022 David Vanhoucke <dvanhoucke@redborder.com> - 0.0.10-1
 - change register to consul
 * Tue Nov 08 2016 Your name <cjmateos@redborder.com> - 1.0.0-1
