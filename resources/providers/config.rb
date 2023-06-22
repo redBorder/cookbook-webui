@@ -834,7 +834,7 @@ action :configure_modules do
       ignore_failure true
       code <<-EOH
           source /etc/profile &>/dev/null
-          /usr/lib/redborder/bin/rb_set_modules bi:0 malware:0
+          /usr/lib/redborder/bin/rb_set_modules bi:0 malware:0 social:0
         EOH
       user user
       group group
