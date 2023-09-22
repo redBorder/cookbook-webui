@@ -339,7 +339,7 @@ action :add do #Usually used to install and configure something
       notifies :restart, "service[webui]", :delayed
   end
 
-    [ "flow", "ips", "location", "monitor", "social", "iot" ].each do |x|
+    [ "flow", "ips", "location", "monitor", "iot" ].each do |x|
         template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
             source "#{x}_rbdruid_config.yml.erb"
             owner user
@@ -834,7 +834,7 @@ action :configure_modules do
       ignore_failure true
       code <<-EOH
           source /etc/profile &>/dev/null
-          /usr/lib/redborder/bin/rb_set_modules bi:0 malware:0 social:0
+          /usr/lib/redborder/bin/rb_set_modules bi:0 malware:0
         EOH
       user user
       group group

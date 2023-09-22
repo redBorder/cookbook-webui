@@ -2,7 +2,7 @@ modules:
 <% if !node["redborder"]["license"].nil? and !node["redborder"]["license"]["modules"].nil? %>
 <% modules = node["redborder"]["license"]["modules"] %>
 <% else %>
-<% modules = ["ips", "flow", "ap_state", "monitor", "location", "api", "social", "iot", "vault", "correlation_engine_rule","bi","scanner", "malware"] %>
+<% modules = ["ips", "flow", "ap_state", "monitor", "location", "api", "iot", "vault", "correlation_engine_rule","bi","scanner", "malware"] %>
 <% end %>
 <% if File.exist?"/var/www/rb-rails/lib/modules" %>
 <% modules=Dir.entries("/var/www/rb-rails/lib/modules").select{|x| x!="." and x!=".." and x!="aalicense"} if modules.include?"all" %>

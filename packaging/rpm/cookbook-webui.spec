@@ -47,6 +47,7 @@ esac
 %doc
 
 %changelog
+* Fri Sep 22 2023 Miguel Negrón <manegron@redborder.com> - 1.0.0-1
 * Fri May 05 2023 Luis J. Blanco Mier <ljblanco@redborder.com> - 0.1.4
 - default dashboard
 * Fri Jan 07 2022 David Vanhoucke <dvanhoucke@redborder.com> - 0.0.10-1
