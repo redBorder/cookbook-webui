@@ -26,7 +26,7 @@ action :add do #Usually used to install and configure something
     licmode = "global" if (licmode!="global" and licmode!="organization")
 
 
-    yum_package "redborder-webui" do
+    dnf_package "redborder-webui" do
       action :install
       flush_cache [:before]
       notifies :run, "bash[run_ditto]", :delayed
@@ -42,7 +42,7 @@ action :add do #Usually used to install and configure something
       #notifies :run, "bash[request_trial_license]", :delayed if licmode == "global"
     end
 
-    yum_package "redborder-webui" do
+    dnf_package "redborder-webui" do
       action :upgrade
       flush_cache [:before]
       notifies :run, "bash[redBorder_update]", :delayed
@@ -586,7 +586,7 @@ action :remove do #Usually used to uninstall something
   begin
     web_dir = new_resource.web_dir
 
-    #yum_package 'redborder-webui' do
+    #dnf_package 'redborder-webui' do
     #  action :remove
     #  notifies :stop, "service[webui]", :immediately
     #  notifies :stop, "service[rb-workers]", :immediately
