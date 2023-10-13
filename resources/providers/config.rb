@@ -632,7 +632,7 @@ action :register do
          action :nothing
       end.run_action(:run)
 
-      node.set["webui"]["registered"] = true
+      node.default["webui"]["registered"] = true
       Chef::Log.info("Webui service has been registered to consul")
     end
   rescue => e
@@ -648,7 +648,7 @@ action :deregister do
         action :nothing
       end.run_action(:run)
 
-      node.set["webui"]["registered"] = false
+      node.default["webui"]["registered"] = false
       Chef::Log.info("Webui service has been deregistered from consul")
     end
   rescue => e
