@@ -1,18 +1,23 @@
 module Webui
   module Helper
-    require 'net/ip'
     require 'openssl'
     require 'resolv'
     require 'base64'
 
-    def local_routes()
-      # return all local routes that exist in the system
+    def local_routes
       routes = []
-      Net::IP.routes.each do |r|
-        next if routes.include?(r.to_h[:prefix])
-        next if r.to_h[:scope].nil? or r.to_h[:scope] != "link"
-        routes.push(r.to_h[:prefix])
+
+      # Ejecuta el comando `ip route` y captura su salida
+      ip_route_output = `ip route`
+    
+      ip_route_output.each_line do |line|
+        if line.include?('link')
+          # Obtiene el prefijo (por ejemplo, "192.168.1.0/24")
+          prefix = line.split[0]
+          routes.push(prefix) unless routes.include?(prefix)
+        end
       end
+    
       routes
     end
 
