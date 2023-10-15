@@ -48,16 +48,17 @@ action :add do #Usually used to install and configure something
       notifies :run, "bash[redBorder_update]", :delayed
     end
 
-    user user do
-      action :create
-      system true
+    execute "create_user" do
+      command "/usr/sbin/useradd -r #{user}"
+      ignore_failure true
+      not_if "getent passwd #{user}"
     end
 
-    group group do
-      action :create
-      members user
-      append true
-    end
+    #group group do
+    #  action :create
+    #  members user
+    #  append true
+    #end
 
     directory "/var/www/rb-rails" do
       owner user
