@@ -678,6 +678,12 @@ action :configure_db do
     user = new_resource.user
     group = new_resource.group
 
+    execute "create_user" do
+      command "/usr/sbin/useradd -r #{user}"
+      ignore_failure true
+      not_if "getent passwd #{user}"
+    end
+
     #bash 'create_license_databag' do
     #  ignore_failure false
     #  code <<-EOH
