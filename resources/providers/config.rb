@@ -522,6 +522,12 @@ action :add_webui_conf_nginx do
     routes = local_routes()
     cdomain = new_resource.cdomain
 
+    service "nginx" do
+      service_name "nginx"
+      supports :status => true, :reload => true, :restart => true, :enable => true
+      action :nothing
+    end
+
     template "/etc/nginx/conf.d/webui.conf" do
       source "webui.conf.erb"
       owner "nginx"
