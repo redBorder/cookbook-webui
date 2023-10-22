@@ -462,7 +462,7 @@ action :add do #Usually used to install and configure something
       code <<-EOH
           pushd /var/www/rb-rails &>/dev/null
           echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:precompile" &>>/var/www/rb-rails/log/install-redborder-assets.log
-          rvm ruby-2.7.5@web do RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
+          RAILS_ENV=production rvm ruby-2.7.5@web do rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
           popd &>/dev/null &>/dev/null
         EOH
       user user
