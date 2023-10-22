@@ -32,6 +32,7 @@ druid:
   port: <%= @db_port_druid.nil? ? "5432" : @db_port_druid %>
 
 radius:
+  adapter: postgresql
   database: <%= @db_name_radius.nil? ? "radius" : @db_name_radius  %>
   pool: <%= [ pool_radius, @http_workers ].max %>
   timeout: 5000
