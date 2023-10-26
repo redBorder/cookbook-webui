@@ -99,6 +99,10 @@ action :add do #Usually used to install and configure something
       to "/var/www/rb-rails/log"
     end
 
+    link "/root/rb-rails" do
+      to "/var/www/rb-rails"
+    end
+
     ##########
     # LICENSE
     ##########
