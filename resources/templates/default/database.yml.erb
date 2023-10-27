@@ -6,7 +6,6 @@ pool_rb = [ [ ( memory_per_thread * 8 / 200000).ceil, 4 ].max, 32 ].min
 pool_druid = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
 pool_radius = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
 %>
-
 <% [ "production", "development" ].each do |x| %>
 <%= x %>:
   adapter: postgresql
@@ -18,7 +17,6 @@ pool_radius = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
   host: <%= @db_hostname_redborder %>
   port: <%= @db_port_redborder.nil? ? "5432" : @db_port_redborder %>
   encoding: utf8
-
 <% end %>
 
 druid:
@@ -32,6 +30,7 @@ druid:
   port: <%= @db_port_druid.nil? ? "5432" : @db_port_druid %>
 
 radius:
+  adapter: postgresql
   database: <%= @db_name_radius.nil? ? "radius" : @db_name_radius  %>
   pool: <%= [ pool_radius, @http_workers ].max %>
   timeout: 5000
