@@ -782,7 +782,7 @@ action :configure_db do
       code <<-EOH
           pushd /var/www/rb-rails &>/dev/null
           echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
-          rvm ruby-2.7.5@web do RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
+          rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
           popd &>/dev/null &>/dev/null
         EOH
       user user
