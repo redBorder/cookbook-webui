@@ -2,8 +2,8 @@
 <%= x %>:
   traffics:
     datasource: 'rb_flow'
-    #multidatasource: #TODO
+    multidatasource: '<%= ((node["redborder"]["manager"]["force_single_space"].nil? or node["redborder"]["manager"]["force_single_space"]=="1" or node["redborder"]["manager"]["force_single_space"]==true )) ? "true" : false %>'
   state:
     datasource: 'rb_state'
-    #multidatasource: #TODO
+    multidatasource: '<%= ((node["redborder"]["manager"]["force_single_space"].nil? or node["redborder"]["manager"]["force_single_space"]=="1" or node["redborder"]["manager"]["force_single_space"]==true )) ? "true" : false %>'
 <% end %>
