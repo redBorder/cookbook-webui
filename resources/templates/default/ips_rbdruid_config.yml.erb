@@ -2,5 +2,5 @@
 <%= x %>:
   events:
     datasource: 'rb_event'
-    #multidatasource: #TODO
+    multidatasource: '<%= ((node["redborder"]["manager"]["force_single_space"].nil? or node["redborder"]["manager"]["force_single_space"]=="1" or node["redborder"]["manager"]["force_single_space"]==true )) ? "true" : false %>'
 <% end %>
