@@ -47,6 +47,8 @@ esac
 %doc
 
 %changelog
+* Thu Jan 18 2024 Miguel Negrón <manegron@redborder.com> - 0.1.7-1
+- Fix multidatasource and location druid datastore name
 * Thu Nov 16 2023 Miguel Negrón <manegron@redborder.com> - 0.1.6-1
 - Add optional audits for webui
 * Fri Sep 22 2023 Miguel Negrón <manegron@redborder.com> - 0.1.5-1
