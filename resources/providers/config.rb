@@ -665,8 +665,8 @@ action :configure_rsa do
     rsa_pem = data_bag_item('certs', 'rsa_pem')
   rescue
     rsa_pem = nil
-  en
-  d
+  end
+
   begin
     unless rsa_pem
       execute 'Check RSA certificate' do
