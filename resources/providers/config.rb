@@ -13,18 +13,18 @@ action :add do
     s3_local_storage = new_resource.s3_local_storage
     elasticache_hosts = new_resource.elasticache_hosts
 
-    http_workers = ([[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1 ].max).to_i
+    http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
 
     # INSTALLATION
-    begin
-      licmode_dg = data_bag_item('rBglobal', 'licmode')
-    rescue
-      licmode_dg={}
-    end
-    licmode = licmode_dg['mode']
-    if (licmode != 'global' && licmode != 'organization')
-      licmode = 'global' if (licmode != 'global' && licmode != 'organization')
-    end
+    # begin
+    #   licmode_dg = data_bag_item('rBglobal', 'licmode')
+    # rescue
+    #   licmode_dg = {}
+    # end
+    # licmode = licmode_dg['mode']
+    # if licmode != 'global' && licmode != 'organization'
+    #   licmode = 'global' if (licmode != 'global' && licmode != 'organization')
+    # end
 
     dnf_package 'redborder-webui' do
       action :install
@@ -113,7 +113,7 @@ action :add do
       cookbook 'webui'
       action :create_if_missing
     end
-   
+
     cookbook_file '/var/www/rb-rails/config/license.key.pub' do
       source 'license.key.pub'
       owner user
@@ -245,7 +245,7 @@ action :add do
     end
 
     template '/var/www/rb-rails/config/chef_config.yml' do
-      source "chef_config.yml.erb"
+      source 'chef_config.yml.erb'
       owner user
       group group
       mode '0644'
@@ -279,17 +279,16 @@ action :add do
     end
 
     template '/var/www/rb-rails/config/redborder_config.yml' do
-        source 'redborder_config.yml.erb'
-        owner user
-        group group
-        mode '0644'
-        retries 2
-        cookbook 'webui'
-        variables(cdomain: cdomain,
-                  webui_secret_token: webui_secret_token)
-                  # :proxy_insecure => proxy_insecure) #TODO when client proxy done. Set proxy_verify_cert in template
-        notifies :restart, 'service[webui]', :delayed
-        notifies :restart, 'service[rb-workers]', :delayed
+      source 'redborder_config.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(cdomain: cdomain,
+                webui_secret_token: webui_secret_token)
+      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[rb-workers]', :delayed
     end
 
     template '/var/www/rb-rails/config/rbdruid_config.yml' do
@@ -351,7 +350,7 @@ action :add do
       retries 2
       cookbook 'webui'
       notifies :restart, 'service[webui]', :delayed
-  end
+    end
 
     %w(flow ips location monitor iot).each do |x|
       template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
@@ -362,29 +361,29 @@ action :add do
         retries 2
         cookbook 'webui'
         notifies :restart, 'service[webui]', :delayed
-      end if Dir.exists?("/var/www/rb-rails/lib/modules/#{x}/config")
+      end if Dir.exist?("/var/www/rb-rails/lib/modules/#{x}/config")
     end
 
     template '/var/www/rb-rails/config/unicorn.rb' do
-        source 'unicorn.rb.erb'
-        owner user
-        group group
-        mode '0644'
-        retries 2
-        cookbook 'webui'
-        variables(workers: http_workers)
-        notifies :restart, 'service[webui]', :delayed
+      source 'unicorn.rb.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(workers: http_workers)
+      notifies :restart, 'service[webui]', :delayed
     end
 
     template '/etc/sysconfig/webui' do
-        source 'webui_sysconfig.erb'
-        owner user
-        group group
-        mode '0644'
-        retries 2
-        cookbook 'webui'
-        variables(memory: memory_kb)
-        notifies :restart, 'service[webui]', :delayed
+      source 'webui_sysconfig.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(memory: memory_kb)
+      notifies :restart, 'service[webui]', :delayed
     end
 
     begin
@@ -393,7 +392,7 @@ action :add do
       rsa_pem = nil
     end
 
-    if rsa_pem && rsa_pem["private_rsa"]
+    if rsa_pem && rsa_pem['private_rsa']
       template '/var/www/rb-rails/config/rsa' do
         source 'rsa_cert.pem.erb'
         owner user
@@ -403,7 +402,7 @@ action :add do
         cookbook 'webui'
         notifies :restart, 'service[webui]', :delayed
         notifies :restart, 'service[rb-workers]', :delayed
-        variables(:private_rsa => rsa_pem['private_rsa'])
+        variables(private_rsa: rsa_pem['private_rsa'])
       end
     end
 
@@ -480,7 +479,7 @@ action :add do
       group group
       action :nothing
     end
-    
+
     bash 'redBorder_update' do
       ignore_failure false
       code <<-EOH
@@ -554,7 +553,7 @@ end
 action :configure_certs do
   begin
     cdomain = new_resource.cdomain
-    json_cert = nginx_certs('webui',cdomain)
+    json_cert = nginx_certs('webui', cdomain)
 
     template '/etc/nginx/ssl/webui.crt' do
       source 'cert.crt.erb'
@@ -588,7 +587,7 @@ end
 
 action :remove do
   begin
-    web_dir = new_resource.web_dir
+    # web_dir = new_resource.web_dir
 
     # dnf_package 'redborder-webui' do
     #   action :remove
@@ -675,7 +674,6 @@ action :configure_rsa do
       end.run_action(:run)
     end
     Chef::Log.info('Webui cookbook - RSA cert has been processed')
-
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -817,7 +815,6 @@ action :configure_db do
       supports status: true, reload: true, restart: true, enable: true
       action :nothing
     end
-
   rescue => e
     Chef::Log.error(e.message)
   end
@@ -844,7 +841,6 @@ action :configure_modules do
       supports status: true, reload: true, restart: true, enable: true
       action :nothing
     end
-   
   rescue => e
     Chef::Log.error(e.message)
   end
