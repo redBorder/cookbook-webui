@@ -1,13 +1,9 @@
-#
-# Cookbook Name:: webui
+# Cookbook:: webui
 # Recipe:: default
-#
-# Copyright 2016, redborder
-#
-# All rights reserved - Do Not Redistribute
-#
+# Copyright:: 2024, redborder
+# License:: Affero General Public License, Version 3
 
-webui_config "config" do
-  hostname node["hostname"]
+webui_config 'config' do
+  hostname node['hostname']
   action :add
 end
