@@ -1,2 +1,2 @@
-#Flags
-default["webui"]["registered"] = false
+# Flags
+default['webui']['registered'] = false
