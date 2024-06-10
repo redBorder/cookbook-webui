@@ -529,7 +529,7 @@ action :add_webui_conf_nginx do
       source 'webui.conf.erb'
       owner 'nginx'
       group 'nginx'
-      mode '644'
+      mode '0644'
       cookbook 'webui'
       variables(webui_hosts: webui_hosts, webui_port: webui_port, cdomain: cdomain)
       notifies :restart, 'service[nginx]'
