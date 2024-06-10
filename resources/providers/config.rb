@@ -499,6 +499,7 @@ end
 action :add_webui_conf_nginx do
   begin
     webui_port = new_resource.port
+    webui_hosts = new_resource.hosts
     routes = local_routes()
     cdomain = new_resource.cdomain
 
@@ -514,7 +515,7 @@ action :add_webui_conf_nginx do
       group "nginx"
       mode 0644
       cookbook "webui"
-      variables(:webui_port => webui_port, :cdomain => cdomain)
+      variables(:webui_hosts => webui_hosts, :webui_port => webui_port, :cdomain => cdomain)
       notifies :restart, "service[nginx]"
     end
 
