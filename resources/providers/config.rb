@@ -525,14 +525,14 @@ action :add_webui_conf_nginx do
       action :nothing
     end
 
-    template "/etc/nginx/conf.d/webui.conf" do
-      source "webui.conf.erb"
-      owner "nginx"
-      group "nginx"
-      mode 0644
-      cookbook "webui"
-      variables(:webui_hosts => webui_hosts, :webui_port => webui_port, :cdomain => cdomain)
-      notifies :restart, "service[nginx]"
+    template '/etc/nginx/conf.d/webui.conf' do
+      source 'webui.conf.erb'
+      owner 'nginx'
+      group 'nginx'
+      mode '644'
+      cookbook 'webui'
+      variables(webui_hosts: webui_hosts, webui_port: webui_port, cdomain: cdomain)
+      notifies :restart, 'service[nginx]'
     end
 
     template '/etc/nginx/conf.d/redirect.conf' do
