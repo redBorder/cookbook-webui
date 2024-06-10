@@ -1,7 +1,5 @@
-# Cookbook Name:: webui
-#
+# Cookbook:: webui
 # Resource:: config
-#
 
 actions :add, :remove, :register, :deregister, :configure_db, :configure_modules, :configure_rsa, :configure_certs, :add_webui_conf_nginx
 default_action :add

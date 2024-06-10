@@ -1,5 +1,10 @@
-cookbook-example CHANGELOG
-==========================
+cookbook-webui CHANGELOG
+===============
+
+## 0.1.10
+
+  - Miguel Negron
+    - [02252f6] lint
 
 This file is used to list changes made in each version of the redborder webui cookbook.
 
