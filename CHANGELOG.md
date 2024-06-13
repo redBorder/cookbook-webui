@@ -1,6 +1,14 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.1.11
+
+  - Miguel Álvarez
+    - [1ef00f6] Update config.rb
+    - [0cb51ba] Merge branch 'development' into bugfix/17690_loadbalancer_webui
+    - [2690f6e] Fix lints
+    - [a794aac] Configure nginx load balancer with all nodes
+
 ## 0.1.10
 
   - Miguel Negron
