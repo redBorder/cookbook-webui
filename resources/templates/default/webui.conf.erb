@@ -3,7 +3,9 @@
 #######################################################
 
 upstream webui {
-    server localhost:<%= @webui_port %> weight=2 max_fails=3 fail_timeout=5s;
+    <% @webui_hosts.each do |server| %>
+      server <%= server %>:<%= @webui_port %> max_fails=3 fail_timeout=120;
+    <% end %>
   }
 
 server {
