@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.1.12
+
+  - Miguel Negron
+    - [f530cb2] Remove bi module
+
 ## 0.1.11
 
   - Miguel Álvarez
