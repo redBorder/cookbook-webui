@@ -12,7 +12,7 @@ action :add do
     cdomain = new_resource.cdomain
     s3_local_storage = new_resource.s3_local_storage
     elasticache_hosts = new_resource.elasticache_hosts
-
+    memcached_servers = new_resource.memcached_servers
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
 
     # INSTALLATION
@@ -308,7 +308,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      variables(elasticache_hosts: elasticache_hosts)
+      variables(elasticache_hosts: elasticache_hosts, memcached_servers: memcached_servers)
       notifies :restart, 'service[webui]', :delayed
     end
 
