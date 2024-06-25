@@ -2,7 +2,9 @@
 <%= x %>:
   servers:
   <% if @elasticache_hosts.nil? %>
-    - "memcached.service:11211"
+    <% @memcached_servers.each do |host| %>
+      - "<%= "#{host}.node:11211" %>"
+    <% end %>
   <% else %>
     - "<% @elasticache_hosts.map {|host| host} %>"
   <% end %>
