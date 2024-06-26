@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.1.13
+
+  - Miguel Alvarez
+    - [4edc69c] Add memcached servers to webui
+
 ## 0.1.12
 
   - Miguel Negron
