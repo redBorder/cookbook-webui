@@ -15,9 +15,9 @@ action :add do
     memcached_servers = new_resource.memcached_servers
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
     auth_mode = new_resource.sso_enabled
-    
+
     if node['redborder']['sso_enabled'] == '1'
-      auth_mode = "saml"
+      auth_mode = 'saml'
     end
 
     # INSTALLATION
