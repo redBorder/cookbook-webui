@@ -14,11 +14,9 @@ action :add do
     elasticache_hosts = new_resource.elasticache_hosts
     memcached_servers = new_resource.memcached_servers
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
-    auth_mode = new_resource.sso_enabled
+    auth_mode = new_resource.auth_mode
 
-    if node['redborder']['sso_enabled'] == '1'
-      auth_mode = 'saml'
-    end
+    auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
 
     # INSTALLATION
     # begin
