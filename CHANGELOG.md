@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.1.15
+
+  - Miguel Negron
+    - [28ce81e] Run assets precompile as root
+
 ## 0.1.14
 
   - Miguel Negrón
