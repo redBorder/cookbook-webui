@@ -486,6 +486,32 @@ action :add do
       action :nothing
     end
 
+    bash 'db_seed' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails
+        echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:seed" &>>/var/www/rb-rails/log/install-redborder-db.log
+        rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production rake db:seed &>>/var/www/rb-rails/log/install-redborder-db.log
+        popd &>/dev/null
+      EOH
+      user user
+      group group
+      action :run
+    end
+
+    bash 'db_seed_modules' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: RAILS_ENV=production rake db:seed:modules"  &>>/var/www/rb-rails/log/install-redborder-db.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production rake db:seed:modules &>>/var/www/rb-rails/log/install-redborder-db.log
+        popd &>/dev/null
+      EOH
+      user user
+      group group
+      action :run
+    end
+
     bash 'redBorder_update' do
       ignore_failure false
       code <<-EOH
