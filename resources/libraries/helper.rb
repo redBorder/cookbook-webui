@@ -4,7 +4,7 @@ module Webui
     require 'resolv'
     require 'base64'
     require 'securerandom'
-    
+
     def local_routes
       routes = []
 
