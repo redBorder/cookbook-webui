@@ -1,6 +1,17 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.1.14
+
+  - Miguel Negrón
+    - [5fede59] Merge pull request #36 from redBorder/bugfix/#18058_fix_call_migrate_dittoc_assets_on_updates
+  - JuanSheba
+    - [971b35a] Release 0.1.13
+  - Juan Soto
+    - [a8370bd] Merge pull request #31 from redBorder/bugfix/17836_webui_error_login_with_multiple_nodes
+  - Miguel Alvarez
+    - [4edc69c] Add memcached servers to webui
+
 ## 0.1.13
 
   - Miguel Alvarez
