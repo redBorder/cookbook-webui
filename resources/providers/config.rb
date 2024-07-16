@@ -481,8 +481,8 @@ action :add do
           rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
           popd &>/dev/null &>/dev/null
         EOH
-      user user
-      group group
+      user 'root'
+      group 'root'
       action :nothing
     end
 
@@ -772,8 +772,8 @@ action :configure_db do
         rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
         popd &>/dev/null &>/dev/null
       EOH
-      user user
-      group group
+      user 'root'
+      group 'root'
       action :run
       notifies :restart, 'service[webui]', :delayed
     end
