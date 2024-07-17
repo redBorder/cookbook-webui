@@ -1,6 +1,16 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.1.15
+
+  - Miguel Negron
+    - [28ce81e] Run assets precompile as root
+
+## 0.1.14
+
+  - Miguel Negrón
+    - [5fede59] Merge pull request #36 from redBorder/bugfix/#18058_fix_call_migrate_dittoc_assets_on_updates
+
 ## 0.1.13
 
   - Miguel Alvarez
