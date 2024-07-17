@@ -1,7 +1,7 @@
 <% [ "production", "development" ].each do |x| %>
 <%= x %>:
   mailer_sender: 'alarm@<%= @cdomain %>'
-  authentication_mode: database
+  authentication_mode: <%= @auth_mode %>
   secret: <%= @webui_secret_token %>
   rsa_filename: rsa
   url: '<%= @cdomain %>'

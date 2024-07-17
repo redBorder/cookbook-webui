@@ -14,6 +14,9 @@ action :add do
     elasticache_hosts = new_resource.elasticache_hosts
     memcached_servers = new_resource.memcached_servers
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
+    auth_mode = new_resource.auth_mode
+
+    auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
 
     # INSTALLATION
     # begin
@@ -292,7 +295,8 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(cdomain: cdomain,
-                webui_secret_token: webui_secret_token)
+                webui_secret_token: webui_secret_token,
+                auth_mode: auth_mode)
       notifies :restart, 'service[webui]', :delayed
       notifies :restart, 'service[rb-workers]', :delayed
     end
