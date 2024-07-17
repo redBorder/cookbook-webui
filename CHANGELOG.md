@@ -1,6 +1,12 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.2.0
+
+  - Pablo Pérez
+    - [15fc1b9] Rename of variable
+    - [7c11cdb] Adapt to support SSO
+
 ## 0.1.15
 
   - Miguel Negron
