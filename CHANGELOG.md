@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.2.3
+
+  - Miguel Negron
+    - [8c95c91] clean assets before precompile on updates
+
 ## 0.2.2
 
   - Miguel Negron

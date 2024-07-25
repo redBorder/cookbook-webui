@@ -50,6 +50,7 @@ action :add do
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
+      notifies :run, 'bash[clean_assets]', :delayed
       notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
@@ -474,6 +475,19 @@ action :add do
         EOH
       user user
       group group
+      action :nothing
+    end
+
+    bash 'clean_assets' do
+      ignore_failure false
+      code <<-EOH
+          pushd /var/www/rb-rails &>/dev/null
+          echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:clean[0]" &>>/var/www/rb-rails/log/install-redborder-assets.log
+          rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:clean[0] &>>/var/www/rb-rails/log/install-redborder-assets.log
+          popd &>/dev/null &>/dev/null
+        EOH
+      user 'root'
+      group 'root'
       action :nothing
     end
 
