@@ -8,7 +8,7 @@ attribute :user, kind_of: String, default: 'webui'
 attribute :group, kind_of: String, default: 'webui'
 attribute :port, kind_of: Integer, default: 8001
 attribute :hosts, kind_of: Array, default: ['localhost']
-attribute :memcached_servers, kind_of: Array, default: ['localhost']
+attribute :memcached_servers, kind_of: Array, default: lazy { [`hostname -s`.chomp] }
 attribute :hostname, kind_of: String
 attribute :cdomain, kind_of: String, default: 'redborder.cluster'
 attribute :web_dir, kind_of: String, default: '/var/www/rb-rails'
