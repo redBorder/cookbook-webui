@@ -1,6 +1,12 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.2.4
+
+  - JuanSheba
+    - [654414b] Fix lint
+    - [6db877f] Set hostname as memcached_server default value
+
 ## 0.2.3
 
   - Miguel Negron
