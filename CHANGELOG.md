@@ -1,6 +1,16 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.2.2
+
+  - Miguel Negron
+    - [6293c0c] Dont run seed everytime
+
+## 0.2.1
+
+  - Miguel Alvarez
+    - [c548465] Random 128 bit serial
+
 ## 0.2.0
 
   - Pablo Pérez

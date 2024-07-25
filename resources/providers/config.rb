@@ -500,7 +500,7 @@ action :add do
       EOH
       user user
       group group
-      action :run
+      action :nothing
     end
 
     bash 'db_seed_modules' do
@@ -513,7 +513,7 @@ action :add do
       EOH
       user user
       group group
-      action :run
+      action :nothing
     end
 
     bash 'redBorder_update' do
