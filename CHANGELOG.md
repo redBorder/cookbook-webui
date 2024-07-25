@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.2.2
+
+  - Miguel Negron
+    - [6293c0c] Dont run seed everytime
+
 ## 0.2.1
 
   - Miguel Alvarez
