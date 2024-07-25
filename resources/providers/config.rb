@@ -477,7 +477,7 @@ action :add do
       group group
       action :nothing
     end
-    
+
     bash 'clean_assets' do
       ignore_failure false
       code <<-EOH
