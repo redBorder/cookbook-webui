@@ -57,6 +57,13 @@ action :add do
       notifies :run, 'bash[redBorder_update]', :delayed
     end
 
+    utilities = %w(puppeteer-rpm redborder-nodenvm)
+    utilities.each do |utility|
+      dnf_package utility do
+        action :upgrade
+      end
+    end
+
     execute 'create_user' do
       command "/usr/sbin/useradd -r #{user}"
       ignore_failure true
