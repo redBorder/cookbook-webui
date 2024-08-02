@@ -93,6 +93,13 @@ action :add do
       action :create
     end
 
+    directory '/var/lib/redborder-ai/models/' do
+      owner user
+      group group
+      mode '0755'
+      action :create
+    end
+
     %w(data tmp/pids tmp/delayed_job tmp/geodb public).each do |x|
       directory "/var/www/rb-rails/#{x}" do
         owner user
