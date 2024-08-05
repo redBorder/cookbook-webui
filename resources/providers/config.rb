@@ -86,6 +86,13 @@ action :add do
       action :create
     end
 
+    directory '/var/www/redborder-ai' do
+      owner user
+      group group
+      mode '0755'
+      action :create
+    end
+
     directory '/var/www/redborder-ai/cache/' do
       owner user
       group group
