@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.2.5
+
+  - Miguel Negrón
+    - [88ef1a8] Merge pull request #44 from redBorder/feature/#18106_install_llamafile_as_service_wth_improve_download_models
+
 ## 0.2.4
 
   - JuanSheba
