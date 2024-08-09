@@ -727,18 +727,21 @@ end
 action :configure_rsa do
   begin
     rsa_pem = data_bag_item('certs', 'rsa_pem')
+    ssh_secrets = data_bag_item('passwords', 'ssh')
   rescue
     rsa_pem = nil
+    ssh_secrets = nil
   end
 
   begin
     if rsa_pem
-      file '/var/www/rb-rails/config/rsa.pub'
-      content rsa_pem['public_key']
-      owner 'webui'
-      group 'webui'
-      mode '0644'
-      action :create
+      file '/var/www/rb-rails/config/rsa.pub' do
+        content ssh_secrets['public_rsa']
+        owner 'webui'
+        group 'webui'
+        mode '0644'
+        action :create
+      end
     end
     unless rsa_pem
       execute 'Check RSA certificate' do
