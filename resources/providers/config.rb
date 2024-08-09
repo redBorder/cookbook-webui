@@ -732,6 +732,14 @@ action :configure_rsa do
   end
 
   begin
+    if rsa_pem
+      file '/var/www/rb-rails/config/rsa.pub'
+      content rsa_pem['public_key']
+      owner 'webui'
+      group 'webui'
+      mode '0644'
+      action :create
+    end
     unless rsa_pem
       execute 'Check RSA certificate' do
         command '/usr/lib/redborder/bin/rb_create_rsa.sh -f'
