@@ -619,7 +619,7 @@ action :configure_certs do
   begin
     cdomain = new_resource.cdomain
     json_cert = nginx_certs('webui', cdomain)
-    saml_cert = nginx_certs('saml', cdomain)
+    nginx_certs('saml', cdomain)
 
     template '/etc/nginx/ssl/webui.crt' do
       source 'cert.crt.erb'
