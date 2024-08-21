@@ -1,6 +1,13 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.3.0
+
+  - Pablo Pérez
+    - [c2fd5a6] Added the saml certificate
+  - nilsver
+    - [879db7a] Fix rsa key missing in nodes
+
 ## 0.2.5
 
   - Miguel Negrón
