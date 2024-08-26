@@ -378,14 +378,14 @@ action :add do
     end
 
     template '/var/www/rb-rails/config/newrelic.yml' do
-        source 'newrelic.yml.erb'
-        owner user
-        group group
-        mode '0644'
-        retries 2
-        cookbook 'webui'
-        variables(license: nil, group: nil, enabled: nil)
-        notifies :restart, 'service[webui]', :delayed
+      source 'newrelic.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(license: nil, group: nil, enabled: nil)
+      notifies :restart, 'service[webui]', :delayed
     end
 
     %w(flow ips location monitor iot).each do |x|
