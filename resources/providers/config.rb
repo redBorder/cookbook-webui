@@ -384,7 +384,7 @@ action :add do
         mode '0644'
         retries 2
         cookbook 'webui'
-        variables(:license => nil, :group => nil, :enabled => nil)
+        variables(license: nil, group: nil, enabled: nil)
         notifies :restart, 'service[webui]', :delayed
     end
 
