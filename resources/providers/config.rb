@@ -377,6 +377,18 @@ action :add do
       notifies :restart, 'service[webui]', :delayed
     end
 
+    template '/var/www/rb-rails/config/newrelic.yml' do
+        source 'newrelic.yml.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        # TODO variables(:license => newrelic_secrets['key'], :group => newrelic_secrets['group'], :enabled => newrelic_secrets['apm_enabled'])
+        variables(:license => nil, :group => nil, :enabled => nil)
+        notifies :restart, 'service[webui]', :delayed
+    end
+
     %w(flow ips location monitor iot).each do |x|
       template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
         source "#{x}_rbdruid_config.yml.erb"
@@ -619,7 +631,6 @@ action :configure_certs do
   begin
     cdomain = new_resource.cdomain
     json_cert = nginx_certs('webui', cdomain)
-    nginx_certs('saml', cdomain)
 
     template '/etc/nginx/ssl/webui.crt' do
       source 'cert.crt.erb'
@@ -728,22 +739,11 @@ end
 action :configure_rsa do
   begin
     rsa_pem = data_bag_item('certs', 'rsa_pem')
-    ssh_secrets = data_bag_item('passwords', 'ssh')
   rescue
     rsa_pem = nil
-    ssh_secrets = nil
   end
 
   begin
-    if rsa_pem
-      file '/var/www/rb-rails/config/rsa.pub' do
-        content ssh_secrets['public_rsa']
-        owner 'webui'
-        group 'webui'
-        mode '0644'
-        action :create
-      end
-    end
     unless rsa_pem
       execute 'Check RSA certificate' do
         command '/usr/lib/redborder/bin/rb_create_rsa.sh -f'
