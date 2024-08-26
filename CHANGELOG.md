@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.3.1
+
+  - Miguel Negrón
+    - [2d3ce75] Merge pull request #50 from redBorder/bugfix/#18253_newrelic.yml
+
 ## 0.3.0
 
   - Pablo Pérez
