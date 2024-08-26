@@ -384,7 +384,6 @@ action :add do
         mode '0644'
         retries 2
         cookbook 'webui'
-        # TODO variables(:license => newrelic_secrets['key'], :group => newrelic_secrets['group'], :enabled => newrelic_secrets['apm_enabled'])
         variables(:license => nil, :group => nil, :enabled => nil)
         notifies :restart, 'service[webui]', :delayed
     end
