@@ -740,12 +740,14 @@ action :configure_rsa do
 
   begin
     if rsa_pem
-      file '/var/www/rb-rails/config/rsa.pub' do
-        content ssh_secrets['public_rsa']
-        owner 'webui'
-        group 'webui'
-        mode '0644'
-        action :create
+      if ssh_secrets
+        file '/var/www/rb-rails/config/rsa.pub' do
+          content ssh_secrets['public_rsa']
+          owner 'webui'
+          group 'webui'
+          mode '0644'
+          action :create
+        end
       end
     else
       execute 'Check RSA certificate' do
