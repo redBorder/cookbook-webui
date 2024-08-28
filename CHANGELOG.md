@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.3.4
+
+  - Miguel Negron
+    - [c30c503] fix bug
+
 ## 0.3.3
 
   - Miguel Negron
