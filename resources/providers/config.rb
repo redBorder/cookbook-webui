@@ -619,6 +619,7 @@ action :configure_certs do
   begin
     cdomain = new_resource.cdomain
     json_cert = nginx_certs('webui', cdomain)
+    nginx_certs('saml', cdomain)
 
     template '/etc/nginx/ssl/webui.crt' do
       source 'cert.crt.erb'
@@ -732,7 +733,21 @@ action :configure_rsa do
   end
 
   begin
-    unless rsa_pem
+    ssh_secrets = data_bag_item('passwords', 'ssh')
+  rescue
+    ssh_secrets = nil
+  end
+
+  begin
+    if rsa_pem
+      file '/var/www/rb-rails/config/rsa.pub' do
+        content ssh_secrets['public_rsa']
+        owner 'webui'
+        group 'webui'
+        mode '0644'
+        action :create
+      end
+    else
       execute 'Check RSA certificate' do
         command '/usr/lib/redborder/bin/rb_create_rsa.sh -f'
         action :nothing
