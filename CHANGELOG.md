@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.3.3
+
+  - Miguel Negron
+    - [c7971ff] Add and improve delete code by accident
+
 ## 0.3.2
 
   - Miguel Negrón
