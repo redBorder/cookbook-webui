@@ -619,6 +619,13 @@ action :configure_certs do
   begin
     cdomain = new_resource.cdomain
     json_cert = nginx_certs('webui', cdomain)
+    webui_external_json_cert = nginx_certs('external_webui')
+    
+    # In case there is an external one we use it
+    if webui_external_json_cert && !webui_external_json_cert.empty?
+      json_cert = webui_external_json_cert
+    end
+
     nginx_certs('saml', cdomain)
 
     template '/etc/nginx/ssl/webui.crt' do
