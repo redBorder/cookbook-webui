@@ -618,12 +618,16 @@ end
 action :configure_certs do
   begin
     cdomain = new_resource.cdomain
-    webui_external_json_cert = nginx_certs('external_webui')
-
+    webui_crt, webui_key = nil
+    webui_external_json_cert = nginx_certs('webui_external')
+    
     if webui_external_json_cert && !webui_external_json_cert.empty?
-      json_cert = webui_external_json_cert
+      webui_crt = webui_external_json_cert['webui_external_crt']
+      webui_key = webui_external_json_cert['webui_external_key']
     else
-      json_cert = nginx_certs('webui', cdomain)
+      webui_json_cert = nginx_certs('webui', cdomain)
+      webui_crt = webui_json_cert['webui_crt']
+      webui_key = webui_json_cert['webui_key']
     end
 
     nginx_certs('saml', cdomain)
@@ -636,7 +640,7 @@ action :configure_certs do
       retries 2
       cookbook 'webui'
       not_if { json_cert.empty? }
-      variables(crt: json_cert['webui_crt'])
+      variables(crt: webui_crt)
       action :create
     end
 
@@ -648,7 +652,7 @@ action :configure_certs do
       retries 2
       cookbook 'webui'
       not_if { json_cert.empty? }
-      variables(key: json_cert['webui_key'])
+      variables(key: webui_key)
       action :create
     end
 
