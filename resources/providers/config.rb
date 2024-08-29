@@ -639,7 +639,7 @@ action :configure_certs do
       mode '0644'
       retries 2
       cookbook 'webui'
-      not_if { json_cert.empty? }
+      not_if { webui_crt.nil? || webui_crt.empty? }
       variables(crt: webui_crt)
       action :create
     end
@@ -651,7 +651,7 @@ action :configure_certs do
       mode '0644'
       retries 2
       cookbook 'webui'
-      not_if { json_cert.empty? }
+      not_if { webui_key.nil? || webui_key.empty? }
       variables(key: webui_key)
       action :create
     end
