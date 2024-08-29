@@ -50,9 +50,9 @@ module Webui
       ret_json
     end
 
-    # Note: Normally you want to pass cdomain to this method but 
-    # if cdomain is not passed then it will not create the cert 
-    # in case id doesnt exists (p.e. external certificates)
+    # Normally you want to pass cdomain to this method but
+    # you can avoid to pass it if you dont want to create the cert
+    # when dont exists
     def nginx_certs(app, cdomain = nil)
       ret_json = {}
       # Check if certs exists in a data bag
