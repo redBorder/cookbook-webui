@@ -664,7 +664,7 @@ action :configure_certs do
       not_if { webui_key.nil? || webui_key.empty? }
       variables(key: webui_key)
       action :create
-      notifies :restart, 'service[nginx]',:delayed
+      notifies :restart, 'service[nginx]', :delayed
     end
 
     Chef::Log.info('Certs for service webui have been processed')
