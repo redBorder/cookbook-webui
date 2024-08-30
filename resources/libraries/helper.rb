@@ -50,7 +50,10 @@ module Webui
       ret_json
     end
 
-    def nginx_certs(app, cdomain)
+    # Normally you want to pass cdomain to this method but
+    # you can avoid to pass it if you dont want to create the cert
+    # when dont exists
+    def nginx_certs(app, cdomain = nil)
       ret_json = {}
       # Check if certs exists in a data bag
       begin
@@ -59,7 +62,7 @@ module Webui
         nginx_cert_item = {}
       end
 
-      if nginx_cert_item.empty?
+      if nginx_cert_item.empty? && cdomain
         unless File.exist?("/var/chef/data/data_bag/certs/#{app}.json")
           # Create S3 certificate
           ret_json = create_json_cert(app, cdomain)

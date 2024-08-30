@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.3.5
+
+  - Miguel Negrón
+    - [24d586f] Merge pull request #55 from redBorder/feature/#18514_add_upload_external_cert
+
 ## 0.3.4
 
   - Miguel Negron

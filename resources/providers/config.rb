@@ -618,7 +618,27 @@ end
 action :configure_certs do
   begin
     cdomain = new_resource.cdomain
-    json_cert = nginx_certs('webui', cdomain)
+
+    service 'nginx' do
+      service_name 'nginx'
+      supports status: true, reload: true, restart: true, enable: true
+      action :nothing
+    end
+
+    webui_crt, webui_key = nil
+    webui_external_json_cert = nginx_certs('webui_external')
+
+    if webui_external_json_cert && !webui_external_json_cert.empty?
+      webui_crt = webui_external_json_cert['webui_external_crt']
+      webui_key = webui_external_json_cert['webui_external_key']
+    end
+
+    unless webui_crt && webui_key
+      webui_json_cert = nginx_certs('webui', cdomain)
+      webui_crt = webui_json_cert['webui_crt']
+      webui_key = webui_json_cert['webui_key']
+    end
+
     nginx_certs('saml', cdomain)
 
     template '/etc/nginx/ssl/webui.crt' do
@@ -628,9 +648,10 @@ action :configure_certs do
       mode '0644'
       retries 2
       cookbook 'webui'
-      not_if { json_cert.empty? }
-      variables(crt: json_cert['webui_crt'])
+      not_if { webui_crt.nil? || webui_crt.empty? }
+      variables(crt: webui_crt)
       action :create
+      notifies :restart, 'service[nginx]', :delayed
     end
 
     template '/etc/nginx/ssl/webui.key' do
@@ -640,9 +661,10 @@ action :configure_certs do
       mode '0644'
       retries 2
       cookbook 'webui'
-      not_if { json_cert.empty? }
-      variables(key: json_cert['webui_key'])
+      not_if { webui_key.nil? || webui_key.empty? }
+      variables(key: webui_key)
       action :create
+      notifies :restart, 'service[nginx]', :delayed
     end
 
     Chef::Log.info('Certs for service webui have been processed')
