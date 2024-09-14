@@ -1,6 +1,13 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.3.6
+
+  - Miguel Negrón
+    - [cce4c28] Merge pull request #57 from redBorder/bugfix/#18648_dont_use_point_node_in_nginx
+  - Miguel Negron
+    - [e01cb56] dont use .node in nginx
+
 ## 0.3.5
 
   - Miguel Negrón
