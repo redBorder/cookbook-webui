@@ -62,7 +62,7 @@ action :add do
     end
 
     execute 'upgrade redborder-webui' do
-      command "echo $(date) >> /root/.upgrade-redborder-webui-date"
+      command 'echo $(date) >> /root/.upgrade-redborder-webui-date'
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
