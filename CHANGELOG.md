@@ -1,6 +1,15 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.3.7
+
+  - Miguel Negron
+    - [6ab4784] Add new way to trigger webui upgrade steps
+    - [fd31222] Bump version & CHANGELOG
+    - [e01cb56] dont use .node in nginx
+  - Miguel Negrón
+    - [cce4c28] Merge pull request #57 from redBorder/bugfix/#18648_dont_use_point_node_in_nginx
+
 ## 0.3.6
 
   - Miguel Negrón

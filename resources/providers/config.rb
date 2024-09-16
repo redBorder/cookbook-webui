@@ -57,6 +57,25 @@ action :add do
       notifies :run, 'bash[redBorder_update]', :delayed
     end
 
+    file '/root/.upgrade-redborder-webui' do
+      action :nothing
+    end
+
+    execute 'upgrade redborder-webui' do
+      command 'echo $(date) >> /root/.upgrade-redborder-webui-date'
+      notifies :run, 'bash[run_ditto]', :delayed
+      notifies :run, 'bash[db_migrate]', :delayed
+      notifies :run, 'bash[db_migrate_modules]', :delayed
+      notifies :run, 'bash[clean_assets]', :delayed
+      notifies :run, 'bash[assets_precompile]', :delayed
+      notifies :run, 'bash[db_seed]', :delayed
+      notifies :run, 'bash[db_seed_modules]', :delayed
+      notifies :run, 'bash[redBorder_update]', :delayed
+      only_if { ::File.exist?('/root/.upgrade-redborder-webui') }
+      notifies :delete, 'file[/root/.upgrade-redborder-webui]', :immediately
+      ignore_failure true
+    end
+
     execute 'create_user' do
       command "/usr/sbin/useradd -r #{user}"
       ignore_failure true
