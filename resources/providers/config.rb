@@ -62,7 +62,7 @@ action :add do
       notifies :restart, 'service[webui]', :delayed
     end
 
-    dnf_package 'puppeteer-rpm' do
+    dnf_package 'redborder-webui-node-modules' do
       action :upgrade
       notifies :restart, 'service[webui]', :delayed
     end
