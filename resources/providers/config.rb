@@ -57,6 +57,16 @@ action :add do
       notifies :run, 'bash[redBorder_update]', :delayed
     end
 
+    dnf_package 'redborder-nodenvm' do
+      action :upgrade
+      notifies :restart, 'service[webui]', :delayed
+    end
+
+    dnf_package 'redborder-webui-node-modules' do
+      action :upgrade
+      notifies :restart, 'service[webui]', :delayed
+    end
+
     file '/root/.upgrade-redborder-webui' do
       action :nothing
     end

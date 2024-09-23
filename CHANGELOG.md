@@ -1,6 +1,23 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.4.0
+
+  - Miguel Negrón
+    - [2701d25] Merge pull request #45 from redBorder/feature/#18077_addPuppeteerGrover
+    - [cce4c28] Merge pull request #57 from redBorder/bugfix/#18648_dont_use_point_node_in_nginx
+  - Miguel Negron
+    - [59ad767] Rename puppeteer RPM to redborder-webui-node-modules
+    - [493e0c1] resolve conflicts with development
+    - [1f1c52f] Update provider to pass lint
+    - [ac74500] Bump version
+    - [6ab4784] Add new way to trigger webui upgrade steps
+    - [fd31222] Bump version & CHANGELOG
+    - [e01cb56] dont use .node in nginx
+  - Daniel Castro
+    - [8779206] Increase version to 0.2.5
+    - [4b04076] Add puppeteer-rpm and redborder-nodenvm
+
 ## 0.3.7
 
   - Miguel Negron
