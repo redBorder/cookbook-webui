@@ -57,11 +57,33 @@ action :add do
       notifies :run, 'bash[redBorder_update]', :delayed
     end
 
-    utilities = %w(puppeteer-rpm redborder-nodenvm)
-    utilities.each do |utility|
-      dnf_package utility do
-        action :upgrade
-      end
+    dnf_package 'redborder-nodenvm' do
+      action :upgrade
+      notifies :restart, 'service[webui]', :delayed
+    end
+
+    dnf_package 'puppeteer-rpm' do
+      action :upgrade
+      notifies :restart, 'service[webui]', :delayed
+    end
+
+    file '/root/.upgrade-redborder-webui' do
+      action :nothing
+    end
+
+    execute 'upgrade redborder-webui' do
+      command 'echo $(date) >> /root/.upgrade-redborder-webui-date'
+      notifies :run, 'bash[run_ditto]', :delayed
+      notifies :run, 'bash[db_migrate]', :delayed
+      notifies :run, 'bash[db_migrate_modules]', :delayed
+      notifies :run, 'bash[clean_assets]', :delayed
+      notifies :run, 'bash[assets_precompile]', :delayed
+      notifies :run, 'bash[db_seed]', :delayed
+      notifies :run, 'bash[db_seed_modules]', :delayed
+      notifies :run, 'bash[redBorder_update]', :delayed
+      only_if { ::File.exist?('/root/.upgrade-redborder-webui') }
+      notifies :delete, 'file[/root/.upgrade-redborder-webui]', :immediately
+      ignore_failure true
     end
 
     execute 'create_user' do
@@ -87,6 +109,20 @@ action :add do
     end
 
     directory '/var/www/rb-rails/tmp' do
+      owner user
+      group group
+      mode '0755'
+      action :create
+    end
+
+    directory '/var/www/redborder-ai' do
+      owner user
+      group group
+      mode '0755'
+      action :create
+    end
+
+    directory '/var/www/redborder-ai/cache/' do
       owner user
       group group
       mode '0755'
@@ -611,7 +647,28 @@ end
 action :configure_certs do
   begin
     cdomain = new_resource.cdomain
-    json_cert = nginx_certs('webui', cdomain)
+
+    service 'nginx' do
+      service_name 'nginx'
+      supports status: true, reload: true, restart: true, enable: true
+      action :nothing
+    end
+
+    webui_crt, webui_key = nil
+    webui_external_json_cert = nginx_certs('webui_external')
+
+    if webui_external_json_cert && !webui_external_json_cert.empty?
+      webui_crt = webui_external_json_cert['webui_external_crt']
+      webui_key = webui_external_json_cert['webui_external_key']
+    end
+
+    unless webui_crt && webui_key
+      webui_json_cert = nginx_certs('webui', cdomain)
+      webui_crt = webui_json_cert['webui_crt']
+      webui_key = webui_json_cert['webui_key']
+    end
+
+    nginx_certs('saml', cdomain)
 
     template '/etc/nginx/ssl/webui.crt' do
       source 'cert.crt.erb'
@@ -620,9 +677,10 @@ action :configure_certs do
       mode '0644'
       retries 2
       cookbook 'webui'
-      not_if { json_cert.empty? }
-      variables(crt: json_cert['webui_crt'])
+      not_if { webui_crt.nil? || webui_crt.empty? }
+      variables(crt: webui_crt)
       action :create
+      notifies :restart, 'service[nginx]', :delayed
     end
 
     template '/etc/nginx/ssl/webui.key' do
@@ -632,9 +690,10 @@ action :configure_certs do
       mode '0644'
       retries 2
       cookbook 'webui'
-      not_if { json_cert.empty? }
-      variables(key: json_cert['webui_key'])
+      not_if { webui_key.nil? || webui_key.empty? }
+      variables(key: webui_key)
       action :create
+      notifies :restart, 'service[nginx]', :delayed
     end
 
     Chef::Log.info('Certs for service webui have been processed')
@@ -725,7 +784,23 @@ action :configure_rsa do
   end
 
   begin
-    unless rsa_pem
+    ssh_secrets = data_bag_item('passwords', 'ssh')
+  rescue
+    ssh_secrets = nil
+  end
+
+  begin
+    if rsa_pem
+      if ssh_secrets
+        file '/var/www/rb-rails/config/rsa.pub' do
+          content ssh_secrets['public_rsa']
+          owner 'webui'
+          group 'webui'
+          mode '0644'
+          action :create
+        end
+      end
+    else
       execute 'Check RSA certificate' do
         command '/usr/lib/redborder/bin/rb_create_rsa.sh -f'
         action :nothing
