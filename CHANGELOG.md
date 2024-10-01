@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.4.1
+
+  - Daniel Castro
+    - [eab76b2] Change rb-rails ownership to webui after assets:precompile
+
 ## 0.4.0
 
   - Miguel Negrón

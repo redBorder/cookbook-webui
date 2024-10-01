@@ -540,6 +540,7 @@ action :add do
           pushd /var/www/rb-rails &>/dev/null
           echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:precompile" &>>/var/www/rb-rails/log/install-redborder-assets.log
           rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
+          chown webui:webui -R /var/www/rb-rails
           popd &>/dev/null &>/dev/null
         EOH
       user 'root'
@@ -870,6 +871,7 @@ action :configure_db do
         pushd /var/www/rb-rails &>/dev/null
         echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:precompile" &>>/var/www/rb-rails/log/install-redborder-assets.log
         rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
+        chown webui:webui -R /var/www/rb-rails
         popd &>/dev/null &>/dev/null
       EOH
       user 'root'
