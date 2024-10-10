@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 0.4.2
+
+  - Miguel Negrón
+    - [8481910] Add pre and postun to clean the cookbook
+
 ## 0.4.1
 
   - Daniel Castro
@@ -11,7 +16,7 @@ cookbook-webui CHANGELOG
   - Miguel Negrón
     - [2701d25] Merge pull request #45 from redBorder/feature/#18077_addPuppeteerGrover
     - [cce4c28] Merge pull request #57 from redBorder/bugfix/#18648_dont_use_point_node_in_nginx
-  - Miguel Negron
+  - Miguel Negrón
     - [59ad767] Rename puppeteer RPM to redborder-webui-node-modules
     - [493e0c1] resolve conflicts with development
     - [1f1c52f] Update provider to pass lint
@@ -25,7 +30,7 @@ cookbook-webui CHANGELOG
 
 ## 0.3.7
 
-  - Miguel Negron
+  - Miguel Negrón
     - [6ab4784] Add new way to trigger webui upgrade steps
     - [fd31222] Bump version & CHANGELOG
     - [e01cb56] dont use .node in nginx
@@ -36,7 +41,7 @@ cookbook-webui CHANGELOG
 
   - Miguel Negrón
     - [cce4c28] Merge pull request #57 from redBorder/bugfix/#18648_dont_use_point_node_in_nginx
-  - Miguel Negron
+  - Miguel Negrón
     - [e01cb56] dont use .node in nginx
 
 ## 0.3.5
@@ -46,12 +51,12 @@ cookbook-webui CHANGELOG
 
 ## 0.3.4
 
-  - Miguel Negron
+  - Miguel Negrón
     - [c30c503] fix bug
 
 ## 0.3.3
 
-  - Miguel Negron
+  - Miguel Negrón
     - [c7971ff] Add and improve delete code by accident
 
 ## 0.3.2
@@ -84,12 +89,12 @@ cookbook-webui CHANGELOG
 
 ## 0.2.3
 
-  - Miguel Negron
+  - Miguel Negrón
     - [8c95c91] clean assets before precompile on updates
 
 ## 0.2.2
 
-  - Miguel Negron
+  - Miguel Negrón
     - [6293c0c] Dont run seed everytime
 
 ## 0.2.1
@@ -105,7 +110,7 @@ cookbook-webui CHANGELOG
 
 ## 0.1.15
 
-  - Miguel Negron
+  - Miguel Negrón
     - [28ce81e] Run assets precompile as root
 
 ## 0.1.14
@@ -120,7 +125,7 @@ cookbook-webui CHANGELOG
 
 ## 0.1.12
 
-  - Miguel Negron
+  - Miguel Negrón
     - [f530cb2] Remove bi module
 
 ## 0.1.11
@@ -133,7 +138,7 @@ cookbook-webui CHANGELOG
 
 ## 0.1.10
 
-  - Miguel Negron
+  - Miguel Negrón
     - [02252f6] lint
 
 This file is used to list changes made in each version of the redborder webui cookbook.
