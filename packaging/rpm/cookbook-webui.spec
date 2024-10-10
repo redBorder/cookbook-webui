@@ -24,6 +24,9 @@ chmod -R 0755 %{buildroot}/var/chef/cookbooks/webui
 install -D -m 0644 README.md %{buildroot}/var/chef/cookbooks/webui/README.md
 
 %pre
+if [ -d /var/chef/cookbooks/webui ]; then
+    rm -rf /var/chef/cookbooks/webui
+fi
 
 %post
 case "$1" in
@@ -37,6 +40,12 @@ case "$1" in
   ;;
 esac
 
+%postun
+# Deletes directory when uninstall the package
+if [ "$1" = 0 ] && [ -d /var/chef/cookbooks/webui ]; then
+  rm -rf /var/chef/cookbooks/webui
+fi
+
 %files
 %defattr(0755,root,root)
 /var/chef/cookbooks/webui
@@ -47,14 +56,20 @@ esac
 %doc
 
 %changelog
-* Thu Jan 18 2024 Miguel Negrón <manegron@redborder.com> - 0.1.7-1
+* Thu Oct 10 2024 Miguel Negrón <manegron@redborder.com>
+- Add pre and postun
+
+* Thu Jan 18 2024 Miguel Negrón <manegron@redborder.com>
 - Fix multidatasource and location druid datastore name
-* Thu Nov 16 2023 Miguel Negrón <manegron@redborder.com> - 0.1.6-1
+
+* Thu Nov 16 2023 Miguel Negrón <manegron@redborder.com>
 - Add optional audits for webui
-* Fri Sep 22 2023 Miguel Negrón <manegron@redborder.com> - 0.1.5-1
-* Fri May 05 2023 Luis J. Blanco Mier <ljblanco@redborder.com> - 0.1.4
+
+* Fri May 05 2023 Luis J. Blanco Mier <ljblanco@redborder.com>
 - default dashboard
-* Fri Jan 07 2022 David Vanhoucke <dvanhoucke@redborder.com> - 0.0.10-1
+
+* Fri Jan 07 2022 David Vanhoucke <dvanhoucke@redborder.com>
 - change register to consul
-* Tue Nov 08 2016 Your name <cjmateos@redborder.com> - 1.0.0-1
+
+* Tue Nov 08 2016 Your name <cjmateos@redborder.com>
 - first spec version
