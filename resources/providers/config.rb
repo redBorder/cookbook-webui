@@ -906,6 +906,40 @@ action :configure_db do
       action :run
     end
 
+    bash 'redBorder_update' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
+        rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
+        popd &>/dev/null
+      EOH
+      user user
+      group group
+      action :run
+    end
+
+    service 'webui' do
+      service_name 'webui'
+      supports status: true, reload: true, restart: true, enable: true
+      action :nothing
+    end
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end
+
+action :configure_server_key_trial_license do
+  begin
+    user = new_resource.user
+    group = new_resource.group
+
+    execute 'create_user' do
+      command "/usr/sbin/useradd -r #{user}"
+      ignore_failure true
+      not_if "getent passwd #{user}"
+    end
+
     bash 'redBorder_generate_server_key' do
       ignore_failure false
       code <<-EOH
