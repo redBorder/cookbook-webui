@@ -37,10 +37,10 @@ action :add do
       notifies :run, 'bash[db_migrate_modules]', :delayed
       notifies :run, 'bash[assets_precompile]', :delayed
       # notifies :run, 'bash[create_license_databag]', :delayed
-      notifies :run, 'bash[db_seed]', :delayed
-      notifies :run, 'bash[db_seed_modules]', :delayed
+      # notifies :run, 'bash[db_seed]', :delayed
+      # notifies :run, 'bash[db_seed_modules]', :delayed
       # notifies :run, 'bash[redBorder_generate_server_key]', :delayed
-      notifies :run, 'bash[redBorder_update]', :delayed
+      # notifies :run, 'bash[redBorder_update]', :delayed
       # notifies :run, 'bash[request_trial_license]', :delayed
     end
 
@@ -578,17 +578,18 @@ action :add do
       action :nothing
     end
 
-    bash 'redBorder_generate_server_key' do
+    bash 'redBorder_generate_server_key_first_time' do
       ignore_failure false
       code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: rake redBorder:generate_server_key" &>>/var/www/rb-rails/log/install-redborder-server-key.log
-        rvm ruby-2.7.5@web do rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
-        popd &>/dev/null
+        if [ ! -f /var/www/rb-rails/log/install-redborder-server-key.log ] && [ -f /var/lock/leader-configuring.lock ]; then
+          pushd /var/www/rb-rails &>/dev/null
+          echo "### $(date) -  COMMAND: rake redBorder:generate_server_key (first time)" &>>/var/www/rb-rails/log/install-redborder-server-key.log
+          rvm ruby-2.7.5@web do rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
+          popd &>/dev/null
+        fi
       EOH
       user user
       group group
-      only_if { !File.exists?('/var/www/rb-rails/log/install-redborder-server-key.log') && File.exists?('/var/lock/leader-configuring.lock') }
       action :nothing
     end
 
@@ -605,17 +606,18 @@ action :add do
       action :nothing
     end
 
-    bash 'request_trial_license' do
+    bash 'request_trial_license_first_time' do
       ignore_failure false
       code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
-        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
-        popd &>/dev/null &>/dev/null
+        if [ ! -f /var/www/rb-rails/log/install-redborder-license.log ] && [ -f /var/lock/leader-configuring.lock ]; then
+          pushd /var/www/rb-rails &>/dev/null
+          echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
+          rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
+          popd &>/dev/null &>/dev/null
+        fi
       EOH
       user user
       group group
-      only_if { !File.exists?('/var/www/rb-rails/log/install-redborder-license.log') && File.exists?('/var/lock/leader-configuring.lock') }
       action :nothing
     end
 
