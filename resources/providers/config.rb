@@ -39,9 +39,9 @@ action :add do
       # notifies :run, 'bash[create_license_databag]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
-      notifies :run, 'bash[redBorder_generate_server_key]', :delayed
+      # notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
-      notifies :run, 'bash[request_trial_license]', :delayed
+      # notifies :run, 'bash[request_trial_license]', :delayed
     end
 
     dnf_package 'redborder-webui' do
@@ -54,9 +54,9 @@ action :add do
       notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
-      notifies :run, 'bash[redBorder_generate_server_key]', :delayed
+      # notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
-      notifies :run, 'bash[request_trial_license]', :delayed
+      # notifies :run, 'bash[request_trial_license]', :delayed
     end
 
     dnf_package 'redborder-nodenvm' do
@@ -82,10 +82,9 @@ action :add do
       notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
+      # notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
-      notifies :run, 'bash[redBorder_generate_server_key]', :delayed
-      notifies :run, 'bash[redBorder_update]', :delayed
-      notifies :run, 'bash[request_trial_license]', :delayed
+      # notifies :run, 'bash[request_trial_license]', :delayed
       only_if { ::File.exist?('/root/.upgrade-redborder-webui') }
       notifies :delete, 'file[/root/.upgrade-redborder-webui]', :immediately
       ignore_failure true
