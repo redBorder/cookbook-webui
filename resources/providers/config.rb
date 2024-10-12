@@ -54,13 +54,9 @@ action :add do
       notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
-      if !File.exists('/var/www/rb-rails/log/install-redborder-server-key.log') && File.exists('/var/lock/leader-configuring.lock')
-        notifies :run, 'bash[redBorder_generate_server_key]', :delayed
-      end
+      notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
-      if !File.exists('/var/www/rb-rails/log/install-redborder-license.log') && File.exists('/var/lock/leader-configuring.lock')
-        notifies :run, 'bash[request_trial_license]', :delayed
-      end
+      notifies :run, 'bash[request_trial_license]', :delayed
     end
 
     dnf_package 'redborder-nodenvm' do
@@ -590,6 +586,7 @@ action :add do
       EOH
       user user
       group group
+      only_if { !File.exists?('/var/www/rb-rails/log/install-redborder-server-key.log') && File.exists?('/var/lock/leader-configuring.lock') }
       action :nothing
     end
 
@@ -616,6 +613,7 @@ action :add do
       EOH
       user user
       group group
+      only_if { !File.exists?('/var/www/rb-rails/log/install-redborder-license.log') && File.exists?('/var/lock/leader-configuring.lock') }
       action :nothing
     end
 
