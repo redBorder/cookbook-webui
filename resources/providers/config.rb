@@ -15,8 +15,8 @@ action :add do
     memcached_servers = new_resource.memcached_servers
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
     auth_mode = new_resource.auth_mode
-
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
+    initializing_first_node = (!File.exists('/var/www/rb-rails/log/install-redborder-server-key.log') && File.exists('/var/lock/leader-configuring.lock'))
 
     # INSTALLATION
     # begin
@@ -54,7 +54,13 @@ action :add do
       notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
+      if !File.exists('/var/www/rb-rails/log/install-redborder-server-key.log') && File.exists('/var/lock/leader-configuring.lock')
+        notifies :run, 'bash[redBorder_generate_server_key]', :delayed
+      end
       notifies :run, 'bash[redBorder_update]', :delayed
+      if !File.exists('/var/www/rb-rails/log/install-redborder-license.log') && File.exists('/var/lock/leader-configuring.lock')
+        notifies :run, 'bash[request_trial_license]', :delayed
+      end
     end
 
     dnf_package 'redborder-nodenvm' do
@@ -574,14 +580,40 @@ action :add do
       action :nothing
     end
 
+    bash 'redBorder_generate_server_key' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: rake redBorder:generate_server_key" &>>/var/www/rb-rails/log/install-redborder-server-key.log
+        rvm ruby-2.7.5@web do rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
+        popd &>/dev/null
+      EOH
+      user user
+      group group
+      action :nothing
+    end
+
     bash 'redBorder_update' do
       ignore_failure false
       code <<-EOH
-          pushd /var/www/rb-rails &>/dev/null
-          echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
-          rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
-          popd &>/dev/null
-        EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
+        rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
+        popd &>/dev/null
+      EOH
+      user user
+      group group
+      action :nothing
+    end
+
+    bash 'request_trial_license' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
+        popd &>/dev/null &>/dev/null
+      EOH
       user user
       group group
       action :nothing
