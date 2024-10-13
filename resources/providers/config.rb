@@ -585,7 +585,7 @@ action :add do
       EOH
       user user
       group group
-      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-server-key.log') && node['redborder']['leader_configuring']  }
+      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-server-key.log') && node['redborder']['leader_configuring'] }
       action :nothing
     end
 
@@ -622,7 +622,7 @@ action :add do
     service 'webui' do
       service_name 'webui'
       supports status: true, reload: true, restart: true, enable: true, start: true, stop: true
-      if node['redborder']['leader_configuring'] 
+      if node['redborder']['leader_configuring']
         action [:enable, :stop]
       else
         action [:enable, :start]
@@ -632,7 +632,7 @@ action :add do
     service 'rb-workers' do
       service_name 'rb-workers'
       supports status: true, restart: true, enable: true, stop: true
-      if node['redborder']['leader_configuring'] 
+      if node['redborder']['leader_configuring']
         action [:enable, :stop]
       else
         action [:enable, :start]
