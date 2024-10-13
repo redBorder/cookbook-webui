@@ -613,6 +613,8 @@ action :add do
       user user
       group group
       only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-license.log') && ::File.exist?('/var/lock/leader-configuring.lock') }
+      notifies :stop, 'service[webui]', :delayed
+      notifies :stop, 'service[rb-workers]', :delayed
       action :nothing
     end
 
