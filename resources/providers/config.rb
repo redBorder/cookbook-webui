@@ -294,8 +294,8 @@ action :add do
       cookbook 'webui'
       variables(s3_local_storage: s3_local_storage, s3_bucket: s3_bucket, s3_host: s3_host,
                 s3_access_key: s3_access_key, s3_secret_key: s3_secret_key)
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/chef_config.yml' do
@@ -306,8 +306,8 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(nodename: hostname)
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/database.yml' do
@@ -317,8 +317,8 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
       variables(db_name_redborder: db_name_redborder, db_hostname_redborder: db_hostname_redborder,
                 db_port_redborder: db_port_redborder, db_username_redborder: db_username_redborder,
                 db_pass_redborder: db_pass_redborder,
@@ -342,8 +342,8 @@ action :add do
       variables(cdomain: cdomain,
                 webui_secret_token: webui_secret_token,
                 auth_mode: auth_mode)
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/rbdruid_config.yml' do
@@ -353,7 +353,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/memcached_config.yml' do
@@ -364,7 +364,7 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(elasticache_hosts: elasticache_hosts, memcached_servers: memcached_servers)
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/plugins_config.yml' do
@@ -374,7 +374,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/databags.yml' do
@@ -384,7 +384,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/modules.yml' do
@@ -394,7 +394,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/licenses.yml' do
@@ -404,7 +404,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     %w(flow ips location monitor iot).each do |x|
@@ -415,7 +415,7 @@ action :add do
         mode '0644'
         retries 2
         cookbook 'webui'
-        notifies :restart, 'service[webui]', :delayed
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       end if Dir.exist?("/var/www/rb-rails/lib/modules/#{x}/config")
     end
 
@@ -427,7 +427,7 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(workers: http_workers)
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/etc/sysconfig/webui' do
@@ -438,7 +438,7 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(memory: memory_kb)
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     begin
@@ -455,8 +455,8 @@ action :add do
         mode '0600'
         retries 2
         cookbook 'webui'
-        notifies :restart, 'service[webui]', :delayed
-        notifies :restart, 'service[rb-workers]', :delayed
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
         variables(private_rsa: rsa_pem['private_rsa'])
       end
     end
