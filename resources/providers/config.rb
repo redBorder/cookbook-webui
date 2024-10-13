@@ -585,7 +585,7 @@ action :add do
       EOH
       user user
       group group
-      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-server-key.log') && ::File.exist?('/var/lock/leader-configuring.lock') }
+      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-server-key.log') && node['redborder']['leader_configuring']  }
       action :nothing
     end
 
@@ -612,7 +612,7 @@ action :add do
       EOH
       user user
       group group
-      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-license.log') && ::File.exist?('/var/lock/leader-configuring.lock') }
+      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-license.log') && node['redborder']['leader_configuring'] }
       notifies :stop, 'service[webui]', :delayed
       notifies :stop, 'service[rb-workers]', :delayed
       action :nothing
@@ -622,7 +622,7 @@ action :add do
     service 'webui' do
       service_name 'webui'
       supports status: true, reload: true, restart: true, enable: true, start: true, stop: true
-      if ::File.exist?('/var/lock/leader-configuring.lock')
+      if node['redborder']['leader_configuring'] 
         action [:enable, :stop]
       else
         action [:enable, :start]
@@ -632,7 +632,7 @@ action :add do
     service 'rb-workers' do
       service_name 'rb-workers'
       supports status: true, restart: true, enable: true, stop: true
-      if ::File.exist?('/var/lock/leader-configuring.lock')
+      if node['redborder']['leader_configuring'] 
         action [:enable, :stop]
       else
         action [:enable, :start]
