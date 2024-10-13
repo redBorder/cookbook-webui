@@ -587,7 +587,7 @@ action :add do
       EOH
       user user
       group group
-      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-server-key.log') && File.exist?('/var/lock/leader-configuring.lock') }
+      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-server-key.log') && ::File.exist?('/var/lock/leader-configuring.lock') }
       action :nothing
     end
 
@@ -614,7 +614,7 @@ action :add do
       EOH
       user user
       group group
-      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-license.log') && File.exist?('/var/lock/leader-configuring.lock') }
+      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-license.log') && ::File.exist?('/var/lock/leader-configuring.lock') }
       action :nothing
     end
 
