@@ -619,14 +619,22 @@ action :add do
     # SERVICES
     service 'webui' do
       service_name 'webui'
-      supports status: true, reload: true, restart: true, enable: true
-      action :enable
+      supports status: true, reload: true, restart: true, enable: true, start: true, stop: true
+      if ::File.exist?('/var/lock/leader-configuring.lock')
+        action [:enable, :stop]
+      else
+        action [:enable, :start]
+      end
     end
 
     service 'rb-workers' do
       service_name 'rb-workers'
-      supports status: true, restart: true, enable: true
-      action :enable
+      supports status: true, restart: true, enable: true, stop: true
+      if ::File.exist?('/var/lock/leader-configuring.lock')
+        action [:enable, :stop]
+      else
+        action [:enable, :start]
+      end
     end
 
     Chef::Log.info('Webui cookbook has been processed')
