@@ -1,7 +1,7 @@
 # Cookbook:: webui
 # Resource:: config
 
-actions :add, :remove, :register, :deregister, :configure_db, :configure_server_key_trial_license, :configure_modules, :configure_rsa, :configure_certs, :add_webui_conf_nginx
+actions :add, :remove, :register, :deregister, :configure_modules, :configure_rsa, :configure_certs, :add_webui_conf_nginx
 default_action :add
 
 attribute :user, kind_of: String, default: 'webui'
