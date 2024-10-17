@@ -1,6 +1,64 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.0.0
+
+  - Miguel Negrón
+    - [74e9b01] Merge pull request #63 from redBorder/improvement/boost_installation_stage_1
+    - [c8fc762] Merge pull request #60 from redBorder/development
+    - [2701d25] Merge pull request #45 from redBorder/feature/#18077_addPuppeteerGrover
+    - [6c2ddac] Merge pull request #59 from redBorder/development
+    - [3a1d1c5] Merge pull request #58 from redBorder/development
+    - [cce4c28] Merge pull request #57 from redBorder/bugfix/#18648_dont_use_point_node_in_nginx
+    - [74e9b01] Merge pull request #63 from redBorder/improvement/boost_installation_stage_1
+    - [76968fc] Fix lint
+    - [d2c5a5c] Not notify restart if leader still in configuring
+    - [ba072c2] Adapt leader configuring
+    - [c8cadd6] Add support to stop
+    - [b723c97] Add support to stop
+    - [88e230b] remove configure_db and configure_server_key_trial_license
+    - [05c0b45] remove configure_db and configure_server_key_trial_license
+    - [b2907d2] Testing
+    - [696af1b] Testing
+    - [64ca979] Testing
+    - [f76c802] Testing
+    - [efb1b54] Fix typo
+    - [2e39842] Fix typo
+    - [64dc8e6] Change webui init
+    - [8ec1a8a] Add configure_server_key_trial_license
+    - [4379c74] Bump version
+    - [8481910] Add pre and postun to clean the cookbook
+    - [c8fc762] Merge pull request #60 from redBorder/development
+    - [442939d] Bump version
+    - [2701d25] Merge pull request #45 from redBorder/feature/#18077_addPuppeteerGrover
+    - [59ad767] Rename puppeteer RPM to redborder-webui-node-modules
+    - [493e0c1] resolve conflicts with development
+    - [6c2ddac] Merge pull request #59 from redBorder/development
+    - [1f1c52f] Update provider to pass lint
+    - [ac74500] Bump version
+    - [6ab4784] Add new way to trigger webui upgrade steps
+    - [3a1d1c5] Merge pull request #58 from redBorder/development
+    - [fd31222] Bump version & CHANGELOG
+    - [cce4c28] Merge pull request #57 from redBorder/bugfix/#18648_dont_use_point_node_in_nginx
+    - [e01cb56] dont use .node in nginx
+  - Rafael Gomez
+    - [4588098] Release 0.4.1
+  - Rafa Gómez
+    - [4e52599] Merge pull request #61 from redBorder/bugfix/18751_fix_webui_ownership
+  - Daniel Castro
+    - [eab76b2] Change rb-rails ownership to webui after assets:precompile
+    - [8779206] Increase version to 0.2.5
+    - [4b04076] Add puppeteer-rpm and redborder-nodenvm
+  - Miguel Negron
+    - [442939d] Bump version
+    - [59ad767] Rename puppeteer RPM to redborder-webui-node-modules
+    - [493e0c1] resolve conflicts with development
+    - [1f1c52f] Update provider to pass lint
+    - [ac74500] Bump version
+    - [6ab4784] Add new way to trigger webui upgrade steps
+    - [fd31222] Bump version & CHANGELOG
+    - [e01cb56] dont use .node in nginx
+
 ## 0.4.2
 
   - Miguel Negrón
