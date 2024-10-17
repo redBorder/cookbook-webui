@@ -15,7 +15,6 @@ action :add do
     memcached_servers = new_resource.memcached_servers
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
     auth_mode = new_resource.auth_mode
-
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
 
     # INSTALLATION
@@ -41,7 +40,7 @@ action :add do
       # notifies :run, 'bash[db_seed_modules]', :delayed
       # notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       # notifies :run, 'bash[redBorder_update]', :delayed
-      # notifies :run, 'bash[request_trial_license]', :delayed if licmode == 'global'
+      # notifies :run, 'bash[request_trial_license]', :delayed
     end
 
     dnf_package 'redborder-webui' do
@@ -54,7 +53,9 @@ action :add do
       notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
+      notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
+      notifies :run, 'bash[request_trial_license]', :delayed
     end
 
     dnf_package 'redborder-nodenvm' do
@@ -293,8 +294,8 @@ action :add do
       cookbook 'webui'
       variables(s3_local_storage: s3_local_storage, s3_bucket: s3_bucket, s3_host: s3_host,
                 s3_access_key: s3_access_key, s3_secret_key: s3_secret_key)
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/chef_config.yml' do
@@ -305,8 +306,8 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(nodename: hostname)
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/database.yml' do
@@ -316,8 +317,8 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
       variables(db_name_redborder: db_name_redborder, db_hostname_redborder: db_hostname_redborder,
                 db_port_redborder: db_port_redborder, db_username_redborder: db_username_redborder,
                 db_pass_redborder: db_pass_redborder,
@@ -341,8 +342,8 @@ action :add do
       variables(cdomain: cdomain,
                 webui_secret_token: webui_secret_token,
                 auth_mode: auth_mode)
-      notifies :restart, 'service[webui]', :delayed
-      notifies :restart, 'service[rb-workers]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/rbdruid_config.yml' do
@@ -352,7 +353,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/memcached_config.yml' do
@@ -363,7 +364,7 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(elasticache_hosts: elasticache_hosts, memcached_servers: memcached_servers)
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/plugins_config.yml' do
@@ -373,7 +374,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/databags.yml' do
@@ -383,7 +384,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/modules.yml' do
@@ -393,7 +394,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/var/www/rb-rails/config/licenses.yml' do
@@ -403,7 +404,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     %w(flow ips location monitor iot).each do |x|
@@ -414,7 +415,7 @@ action :add do
         mode '0644'
         retries 2
         cookbook 'webui'
-        notifies :restart, 'service[webui]', :delayed
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       end if Dir.exist?("/var/www/rb-rails/lib/modules/#{x}/config")
     end
 
@@ -426,7 +427,7 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(workers: http_workers)
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     template '/etc/sysconfig/webui' do
@@ -437,7 +438,7 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(memory: memory_kb)
-      notifies :restart, 'service[webui]', :delayed
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     begin
@@ -454,8 +455,8 @@ action :add do
         mode '0600'
         retries 2
         cookbook 'webui'
-        notifies :restart, 'service[webui]', :delayed
-        notifies :restart, 'service[rb-workers]', :delayed
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
         variables(private_rsa: rsa_pem['private_rsa'])
       end
     end
@@ -574,30 +575,68 @@ action :add do
       action :nothing
     end
 
+    bash 'redBorder_generate_server_key' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### $(date) -  COMMAND: rake redBorder:generate_server_key (first time)" &>>/var/www/rb-rails/log/install-redborder-server-key.log
+        rvm ruby-2.7.5@web do rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
+        popd &>/dev/null
+      EOH
+      user user
+      group group
+      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-server-key.log') && node['redborder']['leader_configuring'] }
+      action :nothing
+    end
+
     bash 'redBorder_update' do
       ignore_failure false
       code <<-EOH
-          pushd /var/www/rb-rails &>/dev/null
-          echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
-          rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
-          popd &>/dev/null
-        EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
+        rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
+        popd &>/dev/null
+      EOH
       user user
       group group
+      action :nothing
+    end
+
+    bash 'request_trial_license' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
+        popd &>/dev/null &>/dev/null
+      EOH
+      user user
+      group group
+      only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-license.log') && node['redborder']['leader_configuring'] }
+      notifies :stop, 'service[webui]', :delayed
+      notifies :stop, 'service[rb-workers]', :delayed
       action :nothing
     end
 
     # SERVICES
     service 'webui' do
       service_name 'webui'
-      supports status: true, reload: true, restart: true, enable: true
-      action :enable
+      supports status: true, reload: true, restart: true, enable: true, start: true, stop: true
+      if node['redborder']['leader_configuring']
+        action [:enable, :stop]
+      else
+        action [:enable, :start]
+      end
     end
 
     service 'rb-workers' do
       service_name 'rb-workers'
-      supports status: true, restart: true, enable: true
-      action :enable
+      supports status: true, restart: true, enable: true, stop: true
+      if node['redborder']['leader_configuring']
+        action [:enable, :stop]
+      else
+        action [:enable, :start]
+      end
     end
 
     Chef::Log.info('Webui cookbook has been processed')
@@ -808,148 +847,6 @@ action :configure_rsa do
       end.run_action(:run)
     end
     Chef::Log.info('Webui cookbook - RSA cert has been processed')
-  rescue => e
-    Chef::Log.error(e.message)
-  end
-end
-
-action :configure_db do
-  begin
-    user = new_resource.user
-    group = new_resource.group
-
-    execute 'create_user' do
-      command "/usr/sbin/useradd -r #{user}"
-      ignore_failure true
-      not_if "getent passwd #{user}"
-    end
-
-    # bash 'create_license_databag' do
-    #   ignore_failure false
-    #   code <<-EOH
-    #     source /etc/profile &>/dev/null
-    #     pushd /var/www/rb-rails &>/dev/null
-    #     rvm gemset use web &>/dev/null
-    #     echo "### `date` - COMMAND: redBorder:create_license_databag" &>>/var/www/rb-rails/log/install-redborder-license.log
-    #     rake redBorder:create_license_databag &>>/var/www/rb-rails/log/install-redborder-license.log
-    #     popd &>/dev/null
-    #   EOH
-    #   user user
-    #   group group
-    #   action :run
-    # end
-
-    bash 'db_migrate' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
-        rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production rake db:migrate &>>/var/www/rb-rails/log/install-redborder-db.log
-        popd &>/dev/null
-      EOH
-      user user
-      group group
-      action :run
-    end
-
-    bash 'db_migrate_modules' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails
-        echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules" &>>/var/www/rb-rails/log/install-redborder-db.log
-        rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules &>>/var/www/rb-rails/log/install-redborder-db.log
-        popd &>/dev/null
-      EOH
-      user user
-      group group
-      action :run
-    end
-
-    bash 'assets_precompile' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:precompile" &>>/var/www/rb-rails/log/install-redborder-assets.log
-        rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
-        chown webui:webui -R /var/www/rb-rails
-        popd &>/dev/null &>/dev/null
-      EOH
-      user 'root'
-      group 'root'
-      action :run
-      notifies :restart, 'service[webui]', :delayed
-    end
-
-    bash 'db_seed' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails
-        echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:seed" &>>/var/www/rb-rails/log/install-redborder-db.log
-        rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production rake db:seed &>>/var/www/rb-rails/log/install-redborder-db.log
-        popd &>/dev/null
-      EOH
-      user user
-      group group
-      action :run
-    end
-
-    bash 'db_seed_modules' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: RAILS_ENV=production rake db:seed:modules"  &>>/var/www/rb-rails/log/install-redborder-db.log
-        rvm ruby-2.7.5@web do env RAILS_ENV=production rake db:seed:modules &>>/var/www/rb-rails/log/install-redborder-db.log
-        popd &>/dev/null
-      EOH
-      user user
-      group group
-      action :run
-    end
-
-    bash 'redBorder_generate_server_key' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: rake redBorder:generate_server_key" &>>/var/www/rb-rails/log/install-redborder-server-key.log
-        rvm ruby-2.7.5@web do rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
-        popd &>/dev/null
-      EOH
-      user user
-      group group
-      action :run
-    end
-
-    bash 'redBorder_update' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
-        rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
-        popd &>/dev/null
-      EOH
-      user user
-      group group
-      action :run
-    end
-
-    bash 'request_trial_license' do
-      ignore_failure false
-      code <<-EOH
-        pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
-        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
-        popd &>/dev/null &>/dev/null
-      EOH
-      user user
-      group group
-      action :run
-    end
-
-    service 'webui' do
-      service_name 'webui'
-      supports status: true, reload: true, restart: true, enable: true
-      action :nothing
-    end
   rescue => e
     Chef::Log.error(e.message)
   end
