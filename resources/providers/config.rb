@@ -332,6 +332,30 @@ action :add do
                 memory: memory_kb)
     end
 
+    if webui_version
+      template '/var/www/rb-rails/config/webui_version' do
+        source 'webui_version.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        variables(webui_version: webui_version)
+      end
+    end
+
+    if node_name
+      template '/var/www/rb-rails/config/node_name' do
+        source 'node_name.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        variables(node_name: node_name)
+      end
+    end
+
     template '/var/www/rb-rails/config/redborder_config.yml' do
       source 'redborder_config.yml.erb'
       owner user
