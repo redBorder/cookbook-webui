@@ -344,15 +344,15 @@ action :add do
       end
     end
 
-    if node_name
-      template '/var/www/rb-rails/config/node_name' do
-        source 'node_name.erb'
+    if hostname
+      template '/var/www/rb-rails/config/hostname' do
+        source 'hostname.erb'
         owner user
         group group
         mode '0644'
         retries 2
         cookbook 'webui'
-        variables(node_name: node_name)
+        variables(hostname: hostname)
       end
     end
 
