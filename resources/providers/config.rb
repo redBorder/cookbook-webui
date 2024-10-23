@@ -8,6 +8,8 @@ action :add do
     user = new_resource.user
     group = new_resource.group
     hostname = new_resource.hostname
+    webui_version = new_resource.webui_version
+    redborder_version = new_resource.redborder_version
     memory_kb = new_resource.memory_kb
     cdomain = new_resource.cdomain
     s3_local_storage = new_resource.s3_local_storage
@@ -333,7 +335,7 @@ action :add do
     end
 
     if webui_version
-      template '/var/www/rb-rails/config/webui_version' do
+      template '/var/www/rb-rails/webui_version' do
         source 'webui_version.erb'
         owner user
         group group
@@ -345,7 +347,7 @@ action :add do
     end
 
     if hostname
-      template '/var/www/rb-rails/config/hostname' do
+      template '/var/www/rb-rails/hostname' do
         source 'hostname.erb'
         owner user
         group group
@@ -353,6 +355,18 @@ action :add do
         retries 2
         cookbook 'webui'
         variables(hostname: hostname)
+      end
+    end
+
+    if redborder_version
+      template '/var/www/rb-rails/version' do
+        source 'version.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        variables(redborder_version: redborder_version)
       end
     end
 

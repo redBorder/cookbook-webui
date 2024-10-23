@@ -18,3 +18,4 @@ attribute :zk_hosts, kind_of: String
 attribute :s3_local_storage, kind_of: String, default: 'minio'
 attribute :auth_mode, kind_of: String, default: 'database'
 attribute :webui_version, kind_of: String
+attribute :redborder_version, kind_of: String
