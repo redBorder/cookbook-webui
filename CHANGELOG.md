@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.1.0
+
+  - manegron
+    - [ecf9bd7] Add version
+
 ## 1.0.0
 
   - Miguel Negrón
