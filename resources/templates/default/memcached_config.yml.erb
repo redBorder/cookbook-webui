@@ -1,7 +1,7 @@
 <% [ "production", "development" ].each do |x| %>
 <%= x %>:
   servers:
-  <% if @elasticache_hosts.nil? %>
+  <% if @elasticache_hosts.nil? && @elasticache_hosts.empty? %>
     <% @memcached_servers.each do |host| %>
       - "<%= "#{host}.node:11211" %>"
     <% end %>
