@@ -6,6 +6,6 @@
       - "<%= "#{host}.node:11211" %>"
     <% end %>
   <% else %>
-    - "<% @elasticache_hosts.map {|host| host} %>"
+    "<%= @elasticache_hosts %>"
   <% end %>
 <% end %>
