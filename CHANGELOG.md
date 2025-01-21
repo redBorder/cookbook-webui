@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.1.1
+
+  - Miguel Alvarez
+    - [3c0c83f] Fix assets
+
 ## 1.1.0
 
   - manegron
