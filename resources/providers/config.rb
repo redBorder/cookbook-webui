@@ -58,6 +58,8 @@ action :add do
       notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
       notifies :run, 'bash[request_trial_license]', :delayed
+      notifies :run, 'bash[create_all_domain_environment]', :delayed
+      notifies :run, 'bash[assign_environment_to_sensors]', :delayed
     end
 
     dnf_package 'redborder-nodenvm' do
@@ -653,6 +655,32 @@ action :add do
       only_if { !::File.exist?('/var/www/rb-rails/log/install-redborder-license.log') && node['redborder']['leader_configuring'] }
       notifies :stop, 'service[webui]', :delayed
       notifies :stop, 'service[rb-workers]', :delayed
+      action :nothing
+    end
+
+    bash 'create_all_domain_environment' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:create_all_domain_environment" &>>/var/www/rb-rails/log/install-redborder-env.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:create_all_domain_environment &>>/var/www/rb-rails/log/install-redborder-env.log
+        popd &>/dev/null &>/dev/null
+      EOH
+      user user
+      group group
+      action :nothing
+    end
+
+    bash 'assign_environment_to_sensors' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:assign_environment_to_sensors" &>>/var/www/rb-rails/log/install-redborder-assign-env.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:assign_environment_to_sensors &>>/var/www/rb-rails/log/install-redborder-assign-env.log
+        popd &>/dev/null &>/dev/null
+      EOH
+      user user
+      group group
       action :nothing
     end
 
