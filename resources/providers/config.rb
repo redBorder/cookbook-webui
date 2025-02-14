@@ -118,14 +118,14 @@ action :add do
       action :create
     end
 
-    directory '/var/www/redborder-ai' do
+    directory '/var/www/redborder-llm' do
       owner user
       group group
       mode '0755'
       action :create
     end
 
-    directory '/var/www/redborder-ai/cache/' do
+    directory '/var/www/redborder-llm/cache/' do
       owner user
       group group
       mode '0755'

@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.2.0
+
+  - Pablo Pérez
+    - [1929715] Rename redborder-ai to redborder-llm
+
 ## 1.1.1
 
   - Miguel Alvarez
