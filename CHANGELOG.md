@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.2.1
+
+  - Miguel Alvarez
+    - [c4a94ae] Add autoforward in nginx
+
 ## 1.2.0
 
   - Pablo Pérez
