@@ -1,6 +1,13 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.2.1
+
+  - nilsver
+    - [7c2f64a] Merge pull request #69 from redBorder/bugfix/19829_auto_redir_to_https
+  - Miguel Alvarez
+    - [c4a94ae] Add autoforward in nginx
+
 ## 1.2.0
 
   - Pablo Pérez
