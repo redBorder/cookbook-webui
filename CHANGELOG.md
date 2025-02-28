@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.2.2
+
+  - Pablo Pérez
+    - [c51e9e7] Added sso_sensor_map.yml
+
 ## 1.2.1
 
   - Miguel Alvarez
