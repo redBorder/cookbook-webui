@@ -18,6 +18,7 @@ action :add do
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
     auth_mode = new_resource.auth_mode
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
+    user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     druid_query_logging_file_path = "#{web_dir}/log/druid_query_logging.json"
 
@@ -499,6 +500,17 @@ action :add do
         notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
         variables(private_rsa: rsa_pem['private_rsa'])
       end
+    end
+
+    template '/var/www/rb-rails/config/sso_user_sensor_map.yml' do
+      source 'sso_user_sensor_map.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(user_sensor_map: user_sensor_map)
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     # DASHBOARDS
