@@ -557,9 +557,11 @@ action :add do
     bash 'db_migrate' do
       ignore_failure false
       code <<-EOH
+          source /etc/profile.d/rvm.sh
+          export HOME=/var/www/rb-rails
           pushd /var/www/rb-rails &>/dev/null
-          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
-          rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production rake db:migrate &>>/var/www/rb-rails/log/install-redborder-db.log
+          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production bundle exec rake db:migrate" &>>/var/www/rb-rails/log/install-redborder-db.log
+          rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production bundle exec rake db:migrate &>>/var/www/rb-rails/log/install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -570,9 +572,11 @@ action :add do
     bash 'db_migrate_modules' do
       ignore_failure false
       code <<-EOH
-          pushd /var/www/rb-rails
-          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules" &>>/var/www/rb-rails/log/install-redborder-db.log
-          rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production rake db:migrate:modules &>>/var/www/rb-rails/log/install-redborder-db.log
+          source /etc/profile.d/rvm.sh
+          export HOME=/var/www/rb-rails
+          pushd /var/www/rb-rails &>/dev/null
+          echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production bundle exec rake db:migrate:modules" &>>/var/www/rb-rails/log/install-redborder-db.log
+          rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production bundle exec rake db:migrate:modules &>>/var/www/rb-rails/log/install-redborder-db.log
           popd &>/dev/null
         EOH
       user user
@@ -583,11 +587,13 @@ action :add do
     bash 'clean_assets' do
       ignore_failure false
       code <<-EOH
+          source /etc/profile.d/rvm.sh
+          export HOME=/root
           pushd /var/www/rb-rails &>/dev/null
-          echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:clean[0]" &>>/var/www/rb-rails/log/install-redborder-assets.log
-          rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:clean[0] &>>/var/www/rb-rails/log/install-redborder-assets.log
-          popd &>/dev/null &>/dev/null
-        EOH
+          echo "### `date` - COMMAND: RAILS_ENV=production bundle exec rake assets:clean[0]" &>>/var/www/rb-rails/log/install-redborder-assets.log
+          rvm ruby-2.7.5@web do env RAILS_ENV=production bundle exec rake assets:clean[0] &>>/var/www/rb-rails/log/install-redborder-assets.log
+          popd &>/dev/null
+      EOH
       user 'root'
       group 'root'
       action :nothing
@@ -596,12 +602,14 @@ action :add do
     bash 'assets_precompile' do
       ignore_failure false
       code <<-EOH
+          source /etc/profile.d/rvm.sh
+          export HOME=/root
           pushd /var/www/rb-rails &>/dev/null
-          echo "### `date` -  COMMAND: RAILS_ENV=production rake assets:precompile" &>>/var/www/rb-rails/log/install-redborder-assets.log
-          rvm ruby-2.7.5@web do env RAILS_ENV=production rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
+          echo "### `date` - COMMAND: RAILS_ENV=production bundle exec rake assets:precompile" &>>/var/www/rb-rails/log/install-redborder-assets.log
+          rvm ruby-2.7.5@web do env RAILS_ENV=production bundle exec rake assets:precompile &>>/var/www/rb-rails/log/install-redborder-assets.log
           chown webui:webui -R /var/www/rb-rails
-          popd &>/dev/null &>/dev/null
-        EOH
+          popd &>/dev/null
+      EOH
       user 'root'
       group 'root'
       action :nothing
@@ -610,9 +618,11 @@ action :add do
     bash 'db_seed' do
       ignore_failure false
       code <<-EOH
-        pushd /var/www/rb-rails
-        echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production rake db:seed" &>>/var/www/rb-rails/log/install-redborder-db.log
-        rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production rake db:seed &>>/var/www/rb-rails/log/install-redborder-db.log
+        source /etc/profile.d/rvm.sh
+        export HOME=/var/www/rb-rails
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` -  COMMAND: env NO_MODULES=1 RAILS_ENV=production bundle exec rake db:seed" &>>/var/www/rb-rails/log/install-redborder-db.log
+        rvm ruby-2.7.5@web do env NO_MODULES=1 RAILS_ENV=production bundle exec rake db:seed &>>/var/www/rb-rails/log/install-redborder-db.log
         popd &>/dev/null
       EOH
       user user
@@ -623,9 +633,11 @@ action :add do
     bash 'db_seed_modules' do
       ignore_failure false
       code <<-EOH
+        source /etc/profile.d/rvm.sh
+        export HOME=/var/www/rb-rails
         pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: RAILS_ENV=production rake db:seed:modules"  &>>/var/www/rb-rails/log/install-redborder-db.log
-        rvm ruby-2.7.5@web do env RAILS_ENV=production rake db:seed:modules &>>/var/www/rb-rails/log/install-redborder-db.log
+        echo "### `date` -  COMMAND: RAILS_ENV=production bundle exec rake db:seed:modules"  &>>/var/www/rb-rails/log/install-redborder-db.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production bundle exec rake db:seed:modules &>>/var/www/rb-rails/log/install-redborder-db.log
         popd &>/dev/null
       EOH
       user user
@@ -636,6 +648,8 @@ action :add do
     bash 'redBorder_generate_server_key' do
       ignore_failure false
       code <<-EOH
+        source /etc/profile.d/rvm.sh
+        export HOME=/var/www/rb-rails
         pushd /var/www/rb-rails &>/dev/null
         echo "### $(date) -  COMMAND: rake redBorder:generate_server_key (first time)" &>>/var/www/rb-rails/log/install-redborder-server-key.log
         rvm ruby-2.7.5@web do rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
@@ -650,6 +664,8 @@ action :add do
     bash 'redBorder_update' do
       ignore_failure false
       code <<-EOH
+        source /etc/profile.d/rvm.sh
+        export HOME=/var/www/rb-rails
         pushd /var/www/rb-rails &>/dev/null
         echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
         rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
@@ -663,10 +679,12 @@ action :add do
     bash 'request_trial_license' do
       ignore_failure false
       code <<-EOH
+        source /etc/profile.d/rvm.sh
+        export HOME=/var/www/rb-rails
         pushd /var/www/rb-rails &>/dev/null
         echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
         rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
-        popd &>/dev/null &>/dev/null
+        popd &>/dev/null
       EOH
       user user
       group group
