@@ -19,6 +19,8 @@ action :add do
     auth_mode = new_resource.auth_mode
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
     user_sensor_map = new_resource.user_sensor_map
+    web_dir = new_resource.web_dir
+    druid_query_logging_file_path = "#{web_dir}/log/druid_query_logging.json"
 
     # INSTALLATION
     # begin
@@ -530,6 +532,12 @@ action :add do
       cookbook 'webui'
       backup false
       ignore_failure true
+    end
+
+    if ::File.exist?(druid_query_logging_file_path)
+      file_size = ::File.size(druid_query_logging_file_path)
+      file_size_limit = 50 * 1024 * 1024 # 50 MB
+      ::File.delete(druid_query_logging_file_path) if file_size > file_size_limit
     end
 
     # RAKE TASKS and OTHERS
