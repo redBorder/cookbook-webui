@@ -1,7 +1,7 @@
 cookbook-webui CHANGELOG
 ===============
 
-## 1.2.3
+## 1.3.0
 
   - Rafael Gomez
     - [186c973] Add druid query logging file size check and cleanup
