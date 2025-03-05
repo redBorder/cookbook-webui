@@ -601,7 +601,7 @@ action :add do
         'db:seed:modules',
         'install-redborder-db.log',
         web_dir,
-        { 'NO_MODULES' => 1, 'RAILS_ENV' => 'production' }
+        { 'RAILS_ENV' => 'production' }
       )
       user user
       group group
