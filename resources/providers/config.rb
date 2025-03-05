@@ -54,10 +54,10 @@ action :add do
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
-      notifies :run, 'bash[clean_assets]', :delayed
-      notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
+      notifies :run, 'bash[clean_assets]', :delayed
+      notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[redBorder_generate_server_key]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
       notifies :run, 'bash[request_trial_license]', :delayed
@@ -82,10 +82,10 @@ action :add do
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
-      notifies :run, 'bash[clean_assets]', :delayed
-      notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[db_seed]', :delayed
       notifies :run, 'bash[db_seed_modules]', :delayed
+      notifies :run, 'bash[clean_assets]', :delayed
+      notifies :run, 'bash[assets_precompile]', :delayed
       notifies :run, 'bash[redBorder_update]', :delayed
       only_if { ::File.exist?('/root/.upgrade-redborder-webui') }
       notifies :delete, 'file[/root/.upgrade-redborder-webui]', :immediately
