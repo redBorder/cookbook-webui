@@ -651,8 +651,8 @@ action :add do
         source /etc/profile.d/rvm.sh
         export HOME=/var/www/rb-rails
         pushd /var/www/rb-rails &>/dev/null
-        echo "### $(date) -  COMMAND: rake redBorder:generate_server_key (first time)" &>>/var/www/rb-rails/log/install-redborder-server-key.log
-        rvm ruby-2.7.5@web do rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
+        echo "### $(date) -  COMMAND: bundle exec rake redBorder:generate_server_key (first time)" &>>/var/www/rb-rails/log/install-redborder-server-key.log
+        rvm ruby-2.7.5@web do bundle exec rake redBorder:generate_server_key &>>/var/www/rb-rails/log/install-redborder-server-key.log
         popd &>/dev/null
       EOH
       user user
@@ -667,8 +667,8 @@ action :add do
         source /etc/profile.d/rvm.sh
         export HOME=/var/www/rb-rails
         pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
-        rvm ruby-2.7.5@web do rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
+        echo "### `date` -  COMMAND: bundle exec rake redBorder:update" &>>/var/www/rb-rails/log/install-redborder-update.log
+        rvm ruby-2.7.5@web do bundle exec rake redBorder:update &>>/var/www/rb-rails/log/install-redborder-update.log
         popd &>/dev/null
       EOH
       user user
@@ -682,8 +682,8 @@ action :add do
         source /etc/profile.d/rvm.sh
         export HOME=/var/www/rb-rails
         pushd /var/www/rb-rails &>/dev/null
-        echo "### `date` -  COMMAND: RAILS_ENV=production rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
-        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
+        echo "### `date` -  COMMAND: RAILS_ENV=production bundle exec rake redBorder:request_trial_license" &>>/var/www/rb-rails/log/install-redborder-license.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production bundle exec rake redBorder:request_trial_license &>>/var/www/rb-rails/log/install-redborder-license.log
         popd &>/dev/null
       EOH
       user user
