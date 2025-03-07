@@ -676,6 +676,20 @@ action :add do
       action :nothing
     end
 
+    bash 'clean_stale_delayed_jobs' do
+      ignore_failure false
+      code <<-EOH
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### $(date) - COMMAND: RAILS_ENV=production rake redBorder:terminate_without_workers" &>> /var/www/rb-rails/log/redborder-worker-logs.log
+        rvm ruby-2.7.5@web do env RAILS_ENV=production rake redBorder:terminate_without_workers &>> /var/www/rb-rails/log/redborder-worker-logs.log
+        popd &>/dev/null
+      EOH
+      only_if { !node['redborder']['leader_configuring'] }
+      user user
+      group group
+      action :run
+    end
+
     # SERVICES
     service 'webui' do
       service_name 'webui'
