@@ -540,6 +540,14 @@ action :add do
       ::File.delete(druid_query_logging_file_path) if file_size > file_size_limit
     end
 
+    file druid_query_logging_file_path do
+      owner user
+      group group
+      mode '0644'
+      action :create
+      only_if { ::File.exist?(druid_query_logging_file_path) }
+    end
+
     # RAKE TASKS and OTHERS
     bash 'run_ditto' do
       ignore_failure false
@@ -623,12 +631,10 @@ action :add do
 
     bash 'assets_precompile' do
       ignore_failure false
-      code execute_rake_task(
-        'assets:precompile',
-        'install-redborder-assets.log',
-        '/root',
-        { 'RAILS_ENV' => 'production' }
-      )
+      code <<-EOH
+        #{execute_rake_task('assets:precompile', 'install-redborder-assets.log', '/root', { 'RAILS_ENV' => 'production' })}
+        chown webui:webui -R /var/www/rb-rails
+      EOH
       user 'root'
       group 'root'
       action :nothing
