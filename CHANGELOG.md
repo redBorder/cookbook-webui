@@ -1,6 +1,13 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.4.0
+
+  - Rafael Gomez
+    - [8cb661f] Refactor clean_stale_delayed_jobs rake task execution in config.rb to use execute_rake_task method
+  - nilsver
+    - [bc0a257] check for stale jobs every chef run
+
 ## 1.3.1
 
   - Rafael Gomez
