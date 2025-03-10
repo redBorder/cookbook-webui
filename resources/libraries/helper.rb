@@ -80,5 +80,25 @@ module Webui
       end
       ret_json
     end
+
+    # Executes a Rake task with the specified parameters.
+    #
+    # @param task_name [String] The name of the Rake task to execute.
+    # @param log_file  [String] The log file where the output of the Rake task will be appended.
+    # @param home_path [String] The home directory path to set as the HOME environment variable.
+    # @param env_vars  [Hash]   Optional. Environment variables to set before executing the Rake task.
+    def execute_rake_task(task_name, log_file, home_path, env_vars = {})
+      env_vars_string = env_vars.map { |k, v| "#{k}=#{v}" }.join(' ')
+      env_prefix = env_vars_string.empty? ? '' : "env #{env_vars_string}"
+
+      <<-EOH
+        source /etc/profile.d/rvm.sh
+        export HOME=#{home_path}
+        pushd /var/www/rb-rails &>/dev/null
+        echo "### `date` - COMMAND: #{env_prefix} bundle exec rake #{task_name}" &>>/var/www/rb-rails/log/#{log_file}
+        rvm ruby-2.7.5@web do #{env_prefix} bundle exec rake #{task_name} &>>/var/www/rb-rails/log/#{log_file}
+        popd &>/dev/null
+      EOH
+    end
   end
 end
