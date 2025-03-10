@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.3.1
+
+  - Rafael Gomez
+    - [487e2d1] Update database migration and asset management commands to use 'bundle exec', 'source' and 'export'
+
 ## 1.3.0
 
   - Rafael Gomez
