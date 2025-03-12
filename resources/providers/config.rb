@@ -536,7 +536,7 @@ action :add do
 
     if ::File.exist?(druid_query_logging_file_path)
       file_size = ::File.size(druid_query_logging_file_path)
-      file_size_limit = 50 * 1024 * 1024 # 50 MB
+      file_size_limit = 10 * 1024 * 1024 # 10 MB
       ::File.delete(druid_query_logging_file_path) if file_size > file_size_limit
     end
 
