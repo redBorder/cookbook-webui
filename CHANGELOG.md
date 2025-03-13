@@ -1,6 +1,12 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.4.1
+
+  - Rafael Gomez
+    - [833e644] Reduce druid_query_logging_file_path size limit from 50 MB to 10 MB
+    - [6de3ed1] Update druid_query_logging_file_path to use .log extension and remove file creation block
+
 ## 1.4.0
 
   - Rafael Gomez
