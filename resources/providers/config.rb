@@ -20,7 +20,7 @@ action :add do
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
-    druid_query_logging_file_path = "#{web_dir}/log/druid_query_logging.json"
+    druid_query_logging_file_path = "#{web_dir}/log/druid_query_logging.log"
 
     # INSTALLATION
     # begin
@@ -536,16 +536,8 @@ action :add do
 
     if ::File.exist?(druid_query_logging_file_path)
       file_size = ::File.size(druid_query_logging_file_path)
-      file_size_limit = 50 * 1024 * 1024 # 50 MB
+      file_size_limit = 10 * 1024 * 1024 # 10 MB
       ::File.delete(druid_query_logging_file_path) if file_size > file_size_limit
-    end
-
-    file druid_query_logging_file_path do
-      owner user
-      group group
-      mode '0644'
-      action :create
-      only_if { ::File.exist?(druid_query_logging_file_path) }
     end
 
     # RAKE TASKS and OTHERS
