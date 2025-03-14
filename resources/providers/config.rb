@@ -20,7 +20,6 @@ action :add do
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
-    druid_query_logging_file_path = "#{web_dir}/log/druid_query_logging.log"
 
     # INSTALLATION
     # begin
@@ -513,6 +512,25 @@ action :add do
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
+    # LOG ROTATION
+    template '/etc/logrotate.d/webui' do
+      source 'webui_log-rotate.erb'
+      owner 'root'
+      group 'root'
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(web_dir: web_dir)
+    end
+
+    directory '/var/www/rb-rails/log/rotated' do
+      owner user
+      group group
+      mode '0755'
+      action :create
+      recursive true
+    end
+
     # DASHBOARDS
     directory '/var/www/rb-rails/files/dashboards' do
       owner user
@@ -532,12 +550,6 @@ action :add do
       cookbook 'webui'
       backup false
       ignore_failure true
-    end
-
-    if ::File.exist?(druid_query_logging_file_path)
-      file_size = ::File.size(druid_query_logging_file_path)
-      file_size_limit = 10 * 1024 * 1024 # 10 MB
-      ::File.delete(druid_query_logging_file_path) if file_size > file_size_limit
     end
 
     # RAKE TASKS and OTHERS
