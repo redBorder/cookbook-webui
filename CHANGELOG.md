@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.4.2
+
+  - Rafael Gomez
+    - [24a05de] Add log rotation for webui logs and remove file size check
+
 ## 1.4.1
 
   - Rafael Gomez
