@@ -31,16 +31,16 @@ server {
     ssl_prefer_server_ciphers on;
     access_log /var/log/nginx/access.log main;
 
-    client_max_body_size <%= node["redborder"]["nginx_file_size"] %>;
+    client_max_body_size 512m;
 
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto https;
     proxy_pass_request_headers on;
-    proxy_connect_timeout  <%= node["redborder"]["nginx_timeout"] %>;
-    proxy_send_timeout     <%= node["redborder"]["nginx_timeout"] %>;
-    proxy_read_timeout     <%= node["redborder"]["nginx_timeout"] %>;
+    proxy_connect_timeout  90;
+    proxy_send_timeout     90;
+    proxy_read_timeout     90;
 
     proxy_buffer_size          128k;
     proxy_buffers              4 256k;
@@ -57,6 +57,22 @@ server {
       proxy_cache webui-cache;
       proxy_cache_valid 200 302 300m;
       proxy_cache_valid 404 1m;
+    }
+
+    location /monitor/segments {
+      proxy_redirect http://webui /;
+      proxy_pass http://webui;
+
+      client_max_body_size <%= node["redborder"]["nginx_file_size"] %>;
+      proxy_connect_timeout  <%= node["redborder"]["nginx_timeout"] %>;
+      proxy_send_timeout     90;
+      proxy_read_timeout     90;
+
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https;
+      proxy_pass_request_headers on;
     }
 
     location / {
