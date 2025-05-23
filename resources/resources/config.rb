@@ -19,4 +19,6 @@ attribute :s3_local_storage, kind_of: String, default: 'minio'
 attribute :auth_mode, kind_of: String, default: 'database'
 attribute :webui_version, kind_of: String
 attribute :redborder_version, kind_of: String
+attribute :nginx_segment_file_size, kind_of: Integer
+attribute :nginx_segment_timeout, kind_of: Integer
 attribute :user_sensor_map, kind_of: String, default: ''
