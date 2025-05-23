@@ -63,10 +63,10 @@ server {
       proxy_redirect http://webui /;
       proxy_pass http://webui;
 
-      client_max_body_size <%= node["redborder"]["default_nginx_file_size"] %>;
-      proxy_connect_timeout  <%= node["redborder"]["default_nginx_timeout"] %>;
-      proxy_send_timeout     <%= node["redborder"]["default_nginx_timeout"] %>;;
-      proxy_read_timeout     <%= node["redborder"]["default_nginx_timeout"] %>;;
+      client_max_body_size <%= @node["redborder"]["default_nginx_file_size"] %>m;
+      proxy_connect_timeout  <%= @node["redborder"]["default_nginx_timeout"] %>;
+      proxy_send_timeout     <%= @node["redborder"]["default_nginx_timeout"] %>;;
+      proxy_read_timeout     <%= @node["redborder"]["default_nginx_timeout"] %>;;
 
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
@@ -79,10 +79,10 @@ server {
       proxy_redirect http://webui /;
       proxy_pass http://webui;
 
-      client_max_body_size <%= node["redborder"]["default_nginx_file_size"] %>;
-      proxy_connect_timeout  <%= node["redborder"]["default_nginx_timeout"] %>;
-      proxy_send_timeout     <%= node["redborder"]["default_nginx_timeout"] %>;;
-      proxy_read_timeout     <%= node["redborder"]["default_nginx_timeout"] %>;;
+      client_max_body_size <%= @node["redborder"]["default_nginx_file_size"] %>m;
+      proxy_connect_timeout  <%= @node["redborder"]["default_nginx_timeout"] %>;
+      proxy_send_timeout     <%= @node["redborder"]["default_nginx_timeout"] %>;;
+      proxy_read_timeout     <%= @node["redborder"]["default_nginx_timeout"] %>;;
 
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
@@ -95,10 +95,10 @@ server {
       proxy_redirect http://webui /;
       proxy_pass http://webui;
 
-      client_max_body_size <%= node["redborder"]["default_nginx_file_size"] %>;
-      proxy_connect_timeout  <%= node["redborder"]["default_nginx_timeout"] %>;
-      proxy_send_timeout     <%= node["redborder"]["default_nginx_timeout"] %>;;
-      proxy_read_timeout     <%= node["redborder"]["default_nginx_timeout"] %>;;
+      client_max_body_size <%= @node["redborder"]["default_nginx_file_size"] %>m;
+      proxy_connect_timeout  <%= @node["redborder"]["default_nginx_timeout"] %>;
+      proxy_send_timeout     <%= @node["redborder"]["default_nginx_timeout"] %>;;
+      proxy_read_timeout     <%= @node["redborder"]["default_nginx_timeout"] %>;;
 
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
