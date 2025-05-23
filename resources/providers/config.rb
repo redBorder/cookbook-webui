@@ -20,9 +20,6 @@ action :add do
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
-    nginx_segment_max_timeout = new_resource.nginx_segment_max_timeout
-    nginx_segment_file_size = new_resource.nginx_segment_file_size
-
 
     # INSTALLATION
     # begin
@@ -734,6 +731,8 @@ action :add_webui_conf_nginx do
     webui_hosts = new_resource.hosts
     routes = local_routes()
     cdomain = new_resource.cdomain
+    nginx_segment_max_timeout = new_resource.nginx_segment_max_timeout
+    nginx_segment_file_size = new_resource.nginx_segment_file_size
 
     service 'nginx' do
       service_name 'nginx'
