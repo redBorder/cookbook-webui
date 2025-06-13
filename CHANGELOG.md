@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.5.0
+
+  - Rafa Gómez
+    - [d9897b8] Add custom error page handling for 504 errors in webui configuration (#87)
+
 ## 1.4.2
 
   - Rafael Gomez
