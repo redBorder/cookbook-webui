@@ -684,10 +684,10 @@ action :add do
       action :nothing
     end
 
-    bash 'clean_stale_delayed_jobs' do
+    bash 'manage_delayed_jobs' do
       ignore_failure false
       code execute_rake_task(
-        'redBorder:terminate_without_workers',
+        'redBorder:manage_jobs',
         'redborder-worker-logs.log',
         web_dir,
         { 'RAILS_ENV' => 'production' }
