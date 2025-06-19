@@ -693,8 +693,8 @@ action :add do
         { 'RAILS_ENV' => 'production' }
       )
       only_if { !node['redborder']['leader_configuring'] }
-      user user
-      group group
+      user 'root'
+      group 'root'
       action :run
     end
 
