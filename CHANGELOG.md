@@ -1,6 +1,12 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.5.1
+
+  - nilsver
+    - [28be65f] permission issue fix
+    - [20cf1e3] make name more indicative for task
+
 ## 1.5.0
 
   - Rafa Gómez
