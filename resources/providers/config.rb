@@ -775,7 +775,7 @@ action :configure_certs do
     end
 
     webui_crt = webui_key = nil
-    webui_external_json_cert = nginx_certs('nginx_external')
+    webui_external_json_cert = nginx_certs('external_webui')
 
     if webui_external_json_cert && !webui_external_json_cert.empty?
       webui_crt = webui_external_json_cert['webui_external_crt']
