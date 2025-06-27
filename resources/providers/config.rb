@@ -34,7 +34,6 @@ action :add do
 
     dnf_package 'redborder-webui' do
       action :install
-      flush_cache [:before]
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
@@ -49,7 +48,6 @@ action :add do
 
     dnf_package 'redborder-webui' do
       action :upgrade
-      flush_cache [:before]
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
