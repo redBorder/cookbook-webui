@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.5.2
+
+  - nilsver
+    - [c255561] remove flush cache
+
 ## 1.5.1
 
   - nilsver
