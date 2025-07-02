@@ -307,7 +307,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      variables(nodename: hostname)
+      variables(nodename: hostname, cdomain: cdomain)
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
