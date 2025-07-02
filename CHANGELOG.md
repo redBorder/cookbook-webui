@@ -1,6 +1,13 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.6.0
+
+  - Miguel Negrón
+    - [7af79d3] Merge pull request #93 from redBorder/bugfix/#22031_add_missing_cdomain_to_chef_config
+  - Rafael Gomez
+    - [f2c4bb4] Add missing cdomain to chef_config.yml.erb
+
 ## 1.5.2
 
   - nilsver
