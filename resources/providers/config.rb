@@ -729,6 +729,8 @@ action :add_webui_conf_nginx do
     webui_hosts = new_resource.hosts
     routes = local_routes()
     cdomain = new_resource.cdomain
+    nginx_segment_max_timeout = new_resource.nginx_segment_max_timeout
+    nginx_segment_file_size = new_resource.nginx_segment_file_size
 
     service 'nginx' do
       service_name 'nginx'
@@ -742,7 +744,7 @@ action :add_webui_conf_nginx do
       group 'nginx'
       mode '0644'
       cookbook 'webui'
-      variables(webui_hosts: webui_hosts, webui_port: webui_port, cdomain: cdomain)
+      variables(webui_hosts: webui_hosts, webui_port: webui_port, cdomain: cdomain, nginx_segment_file_size: nginx_segment_file_size, nginx_segment_max_timeout: nginx_segment_max_timeout)
       notifies :restart, 'service[nginx]'
     end
 
