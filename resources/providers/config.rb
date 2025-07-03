@@ -34,7 +34,6 @@ action :add do
 
     dnf_package 'redborder-webui' do
       action :install
-      flush_cache [:before]
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
@@ -49,7 +48,6 @@ action :add do
 
     dnf_package 'redborder-webui' do
       action :upgrade
-      flush_cache [:before]
       notifies :run, 'bash[run_ditto]', :delayed
       notifies :run, 'bash[db_migrate]', :delayed
       notifies :run, 'bash[db_migrate_modules]', :delayed
@@ -309,7 +307,7 @@ action :add do
       mode '0644'
       retries 2
       cookbook 'webui'
-      variables(nodename: hostname)
+      variables(nodename: hostname, cdomain: cdomain)
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
@@ -684,17 +682,17 @@ action :add do
       action :nothing
     end
 
-    bash 'clean_stale_delayed_jobs' do
+    bash 'manage_delayed_jobs' do
       ignore_failure false
       code execute_rake_task(
-        'redBorder:terminate_without_workers',
+        'redBorder:manage_jobs',
         'redborder-worker-logs.log',
         web_dir,
         { 'RAILS_ENV' => 'production' }
       )
       only_if { !node['redborder']['leader_configuring'] }
-      user user
-      group group
+      user 'root'
+      group 'root'
       action :run
     end
 

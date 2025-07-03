@@ -1,6 +1,29 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.6.0
+
+  - Miguel Negrón
+    - [7af79d3] Merge pull request #93 from redBorder/bugfix/#22031_add_missing_cdomain_to_chef_config
+  - Rafael Gomez
+    - [f2c4bb4] Add missing cdomain to chef_config.yml.erb
+
+## 1.5.2
+
+  - nilsver
+    - [c255561] remove flush cache
+
+## 1.5.1
+
+  - nilsver
+    - [28be65f] permission issue fix
+    - [20cf1e3] make name more indicative for task
+
+## 1.5.0
+
+  - Rafa Gómez
+    - [d9897b8] Add custom error page handling for 504 errors in webui configuration (#87)
+
 ## 1.4.2
 
   - Rafael Gomez
