@@ -20,3 +20,4 @@ attribute :auth_mode, kind_of: String, default: 'database'
 attribute :webui_version, kind_of: String
 attribute :redborder_version, kind_of: String
 attribute :user_sensor_map, kind_of: String, default: ''
+attribute :s3_secrets, kind_of: Hash, default: {}
