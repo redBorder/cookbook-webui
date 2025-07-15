@@ -61,6 +61,54 @@ server {
       proxy_cache_valid 404 1m;
     }
 
+    location /monitor/export_segments {
+      proxy_redirect http://webui /;
+      proxy_pass http://webui;
+
+      client_max_body_size <%= @nginx_segment_file_size %>m;
+      proxy_connect_timeout  <%= @nginx_segment_max_timeout %>;
+      proxy_send_timeout     <%= @nginx_segment_max_timeout %>;
+      proxy_read_timeout     <%= @nginx_segment_max_timeout %>;
+
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https;
+      proxy_pass_request_headers on;
+    }
+
+    location /monitor/import_segments {
+      proxy_redirect http://webui /;
+      proxy_pass http://webui;
+
+      client_max_body_size <%= @nginx_segment_file_size %>m;
+      proxy_connect_timeout  <%= @nginx_segment_max_timeout %>;
+      proxy_send_timeout     <%= @nginx_segment_max_timeout %>;
+      proxy_read_timeout     <%= @nginx_segment_max_timeout %>;
+
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https;
+      proxy_pass_request_headers on;
+    }
+
+    location /monitor/bulk_delete_segments {
+      proxy_redirect http://webui /;
+      proxy_pass http://webui;
+
+      client_max_body_size <%= @nginx_segment_file_size %>m;
+      proxy_connect_timeout  <%= @nginx_segment_max_timeout %>;
+      proxy_send_timeout     <%= @nginx_segment_max_timeout %>;
+      proxy_read_timeout     <%= @nginx_segment_max_timeout %>;
+
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https;
+      proxy_pass_request_headers on;
+    }
+
     location / {
       proxy_redirect http://webui /;
       proxy_pass http://webui;
