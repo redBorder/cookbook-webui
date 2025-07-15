@@ -22,3 +22,4 @@ attribute :redborder_version, kind_of: String
 attribute :nginx_segment_file_size, kind_of: String, default: '512'
 attribute :nginx_segment_max_timeout, kind_of: String, default: '90'
 attribute :user_sensor_map, kind_of: String, default: ''
+attribute :s3_secrets, kind_of: Hash, default: {}

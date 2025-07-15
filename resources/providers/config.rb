@@ -20,6 +20,7 @@ action :add do
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
+    s3_secrets = new_resource.s3_secrets
 
     # INSTALLATION
     # begin
@@ -216,19 +217,11 @@ action :add do
     #   action :create_if_missing
     # end
 
-    # READ DATABAGS
-    # Obtaining s3 data
-    begin
-      s3 = data_bag_item('passwords', 's3')
-    rescue
-      s3 = {}
-    end
-
-    unless s3.empty?
-      s3_bucket = s3['s3_bucket']
-      s3_host = s3['s3_host']
-      s3_access_key = s3['s3_access_key_id']
-      s3_secret_key = s3['s3_secret_key_id']
+    unless s3_secrets.empty?
+      s3_bucket = s3_secrets['s3_bucket']
+      s3_host = s3_secrets['s3_host']
+      s3_access_key = s3_secrets['s3_access_key_id']
+      s3_secret_key = s3_secrets['s3_secret_key_id']
     end
 
     # Obtaining redborder database configuration from databag

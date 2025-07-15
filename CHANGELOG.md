@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.6.1
+
+  - Rafael Gomez
+    - [6998822] Add s3_secrets attribute to config resource
+
 ## 1.6.0
 
   - Miguel Negrón
