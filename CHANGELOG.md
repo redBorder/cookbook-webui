@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.6.2
+
+  - jnavarrorb
+    - [1be2f0c] Remove executable permissions on non-executable files
+
 ## 1.6.1
 
   - Rafael Gomez
