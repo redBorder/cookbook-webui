@@ -21,7 +21,6 @@ action :add do
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     s3_secrets = new_resource.s3_secrets
-    malware_enable = new_resource.malware_enable
     policy_enforced = node["redborder"]["policy_enforced"]
 
     # INSTALLATION
@@ -507,17 +506,15 @@ action :add do
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
-    if malware_enable
-      template "/var/www/rb-rails/config/blocked_computers.yml" do
-        source "blocked_computers.yml.erb"
-        owner user
-        group group
-        mode 0644
-        retries 2
-        variables(conf: policy_enforced)
-      end
-    end
-
+    template '/var/www/rb-rails/config/blocked_computers.yml' do
+      source 'blocked_computers.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(conf: policy_enforced)
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
     # LOG ROTATION
