@@ -118,9 +118,9 @@ module Webui
         next unless node_obj
 
         host = node_obj['ipaddress_sync'] ||
-              node_obj['ipaddress'] ||
-              node_obj['fqdn'] ||
-              (node_obj.respond_to?(:name) ? node_obj.name : node_obj['name'])
+               node_obj['ipaddress'] ||
+               node_obj['fqdn'] ||
+               (node_obj.respond_to?(:name) ? node_obj.name : node_obj['name'])
 
         port = (node_obj.dig('aerospike', 'port') || 5000).to_i
 
@@ -129,7 +129,7 @@ module Webui
 
       seeds = seeds.compact.uniq.sort
       if seeds.empty?
-        raise "Aerospike seed list is empty. Check node attributes for managers."
+        raise 'Aerospike seed list is empty. Check node attributes for managers.'
       end
       seeds
     end
