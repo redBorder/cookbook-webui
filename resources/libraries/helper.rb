@@ -133,6 +133,5 @@ module Webui
       end
       seeds
     end
-
   end
 end
