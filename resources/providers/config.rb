@@ -21,12 +21,6 @@ action :add do
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     s3_secrets = new_resource.s3_secrets
-    managers_names =
-      Array(
-        node.dig('redborder', 'managers_per_services', 'aerospike') ||
-        node.dig('redborder', 'aerospike') ||
-        node.dig('aerospike', 'managers')
-      )
 
     # INSTALLATION
     # begin
@@ -295,7 +289,7 @@ action :add do
       cookbook 'webui'
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       variables(
-        seeds: manager_seeds(managers_names)
+        seeds: manager_seeds(Array(node.dig('redborder','managers_per_services','aerospike')))
       )
     end
 

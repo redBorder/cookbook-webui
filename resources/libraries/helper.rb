@@ -129,7 +129,7 @@ module Webui
 
       seeds = seeds.compact.uniq.sort
       if seeds.empty?
-        raise 'Aerospike seed list is empty. Check node attributes for managers.'
+        Chef::Log.warn('Aerospike seed list is empty. Check node attributes for managers.')
       end
       seeds
     end
