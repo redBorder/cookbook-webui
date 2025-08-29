@@ -289,7 +289,7 @@ action :add do
       cookbook 'webui'
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       variables(
-        seeds: manager_seeds(Array(node.dig('redborder','managers_per_services','aerospike')))
+        seeds: manager_seeds(Array(node.dig('redborder', 'managers_per_services', 'aerospike')))
       )
     end
 
