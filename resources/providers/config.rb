@@ -280,6 +280,19 @@ action :add do
     end
 
     # TEMPLATES
+    template '/var/www/rb-rails/config/aerospike.yml' do
+      source 'aerospike.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      variables(
+        seeds: manager_seeds(Array(node.dig('redborder', 'managers_per_services', 'aerospike')))
+      )
+    end
+
     template '/var/www/rb-rails/config/aws.yml' do
       source 'aws.yml.erb'
       owner user
