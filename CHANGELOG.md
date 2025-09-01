@@ -1,6 +1,12 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.7.0
+
+  - Daniel Castro
+    - [a8ca065] Replace raise by warn and improve seeds
+    - [3c3fb0b] include rails aerospike config
+
 ## 1.6.2
 
   - jnavarrorb
