@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.8.0
+
+  - Rafael Gomez
+    - [2111034] Remove redborder-llm /var/www directory
+
 ## 1.7.0
 
   - Daniel Castro
