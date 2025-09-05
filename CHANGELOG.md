@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.8.1
+
+  - Pablo Pérez
+    - [df070d1] Update helper.rb
+
 ## 1.8.0
 
   - Rafael Gomez
