@@ -122,7 +122,7 @@ module Webui
                node_obj['fqdn'] ||
                (node_obj.respond_to?(:name) ? node_obj.name : node_obj['name'])
 
-        port = (node_obj.dig('aerospike', 'port') || 5000).to_i
+        port = (node_obj.dig('aerospike', 'port') || 3000).to_i
 
         host && port ? "#{host}:#{port}" : nil
       end
