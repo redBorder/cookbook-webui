@@ -21,7 +21,7 @@ action :add do
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     s3_secrets = new_resource.s3_secrets
-    policy_enforced = node['redborder']['policy_enforced'] || {}
+    policy_enforced = node['redborder']['manager']['policy_enforced'] || {}
 
     # INSTALLATION
     # begin
