@@ -947,3 +947,18 @@ action :configure_modules do
     Chef::Log.error(e.message)
   end
 end
+
+action :remove_iptables_rules do
+  begin
+    virtual_ips = new_resource.virtual_ips
+    unless virtual_ips['external']['webui']['ip'].nil?
+      execute 'remove_iptables_rule_webui' do
+        command "iptables -t nat -D PREROUTING -d #{virtual_ips['external']['webui']['ip']} -j REDIRECT"
+        only_if "iptables -t nat -L PREROUTING -n | grep #{virtual_ips['external']['webui']['ip']}"
+        ignore_failure true
+      end
+    end
+  rescue => e
+    Chef::Log.error(e.message)
+  end
+end

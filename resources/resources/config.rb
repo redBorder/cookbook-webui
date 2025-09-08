@@ -1,7 +1,7 @@
 # Cookbook:: webui
 # Resource:: config
 
-actions :add, :remove, :register, :deregister, :configure_modules, :configure_rsa, :configure_certs, :add_webui_conf_nginx
+actions :add, :remove, :register, :deregister, :configure_modules, :configure_rsa, :configure_certs, :add_webui_conf_nginx, :remove_iptables_rules
 default_action :add
 
 attribute :user, kind_of: String, default: 'webui'
@@ -21,3 +21,4 @@ attribute :webui_version, kind_of: String
 attribute :redborder_version, kind_of: String
 attribute :user_sensor_map, kind_of: String, default: ''
 attribute :s3_secrets, kind_of: Hash, default: {}
+attribute :virtual_ips, kind_of: Hash, default: {}
