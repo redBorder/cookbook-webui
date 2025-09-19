@@ -21,6 +21,7 @@ action :add do
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     s3_secrets = new_resource.s3_secrets
+    s3_malware_secrets = new_resource.s3_malware_secrets
     policy_enforced = node['redborder']['manager']['policy_enforced'] || {}
 
     # INSTALLATION
@@ -206,13 +207,16 @@ action :add do
 
     unless s3_secrets.empty?
       s3_bucket = s3_secrets['s3_bucket']
-      s3_malware_bucket = s3_secrets['s3_malware_bucket']
       s3_host = s3_secrets['s3_host']
-      s3_malware_host = s3_secrets['s3_malware_host']
       s3_access_key = s3_secrets['s3_access_key_id']
-      s3_malware_access_key = s3_secrets['s3_malware_access_key_id']
       s3_secret_key = s3_secrets['s3_secret_key_id']
-      s3_malware_secret_key = s3_secrets['s3_malware_secret_key_id']
+    end
+
+    unless s3_malware_secrets.empty?
+      s3_malware_bucket = s3_malware_secrets['s3_malware_bucket']
+      s3_malware_host = s3_malware_secrets['s3_malware_host']
+      s3_malware_access_key = s3_malware_secrets['s3_malware_access_key_id']
+      s3_malware_secret_key = s3_malware_secrets['s3_malware_secret_key_id']
     end
 
     # Obtaining redborder database configuration from databag
