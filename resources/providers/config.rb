@@ -21,6 +21,8 @@ action :add do
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     s3_secrets = new_resource.s3_secrets
+    aerospike_ips = new_resource.aerospike_ips
+    aerospike_port = new_resource.aerospike_port
 
     # INSTALLATION
     # begin
@@ -274,9 +276,7 @@ action :add do
       retries 2
       cookbook 'webui'
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-      variables(
-        seeds: manager_seeds(Array(node.dig('redborder', 'managers_per_services', 'aerospike')))
-      )
+      variables(aerospike_ips: aerospike_ips, aerospike_port: aerospike_port)
     end
 
     template '/var/www/rb-rails/config/aws.yml' do

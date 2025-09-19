@@ -1,8 +1,8 @@
 <% %w[production development].each do |env| %>
 <%= env %>:
   servers:
-<% Array(@seeds).each do |seed| %>
-    - '<%= seed %>'
+<% Array(@aerospike_ips).each do |ip| %>
+    - '<%= ip %>:<%= @aerospike_port %>'
 <% end %>
   timeout: 5
 <% end %>
