@@ -21,6 +21,7 @@ action :add do
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     s3_secrets = new_resource.s3_secrets
+    policy_enforced = node['redborder']['manager']['policy_enforced'] || {}
 
     # INSTALLATION
     # begin
@@ -205,9 +206,13 @@ action :add do
 
     unless s3_secrets.empty?
       s3_bucket = s3_secrets['s3_bucket']
+      s3_malware_bucket = s3_secrets['s3_malware_bucket']
       s3_host = s3_secrets['s3_host']
+      s3_malware_host = s3_secrets['s3_malware_host']
       s3_access_key = s3_secrets['s3_access_key_id']
+      s3_malware_access_key = s3_secrets['s3_malware_access_key_id']
       s3_secret_key = s3_secrets['s3_secret_key_id']
+      s3_malware_secret_key = s3_secrets['s3_malware_secret_key_id']
     end
 
     # Obtaining redborder database configuration from databag
@@ -266,19 +271,6 @@ action :add do
     end
 
     # TEMPLATES
-    template '/var/www/rb-rails/config/aerospike.yml' do
-      source 'aerospike.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
-      cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-      variables(
-        seeds: manager_seeds(Array(node.dig('redborder', 'managers_per_services', 'aerospike')))
-      )
-    end
-
     template '/var/www/rb-rails/config/aws.yml' do
       source 'aws.yml.erb'
       owner user
@@ -290,6 +282,32 @@ action :add do
                 s3_access_key: s3_access_key, s3_secret_key: s3_secret_key)
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    end
+
+    template '/var/www/rb-rails/config/aws_malware.yml' do
+      source 'aws.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(s3_local_storage: s3_local_storage, s3_bucket: s3_malware_bucket, s3_host: s3_malware_host,
+                s3_access_key: s3_malware_access_key, s3_secret_key: s3_malware_secret_key)
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    end
+
+    template '/var/www/rb-rails/config/aerospike.yml' do
+      source 'aerospike.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      variables(
+        seeds: manager_seeds(Array(node.dig('redborder', 'managers_per_services', 'aerospike')))
+      )
     end
 
     template '/var/www/rb-rails/config/chef_config.yml' do
@@ -499,6 +517,17 @@ action :add do
       retries 2
       cookbook 'webui'
       variables(user_sensor_map: user_sensor_map)
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+    end
+
+    template '/var/www/rb-rails/config/blocked_computers.yml' do
+      source 'blocked_computers.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      variables(conf: policy_enforced)
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 

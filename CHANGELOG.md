@@ -1,6 +1,15 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.9.0
+
+  - Pablo Pérez
+    - [58ca027] Fix node path
+    - [3d049f7] Add aws_malware.yml configuration
+    - [7acdf39] Remove malware_enable and fix format
+    - [d537aca] Create blocked computers and start creating s3 malware buckets
+    - [a8436fc] Create blocked computers
+
 ## 1.8.1
 
   - Pablo Pérez
