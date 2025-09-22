@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.9.1
+
+  - Rafael Gomez
+    - [de03a82] Using aerospike_ips and aerospike_port from rb-manager cookbook
+
 ## 1.9.0
 
   - Pablo Pérez
