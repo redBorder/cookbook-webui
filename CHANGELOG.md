@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.9.2
+
+  - Miguel Negrón
+    - [9ee2458] Merge pull request #109
+
 ## 1.9.1
 
   - Rafael Gomez
