@@ -38,7 +38,7 @@ module Webui
         cert.add_extension extension_factory.create_extension('subjectAltName', "DNS:rbookshelf.#{cn}", false)
         cert.add_extension extension_factory.create_extension('subjectAltName', "DNS:#{cn}", false)
       end
-      cert.sign key, OpenSSL::Digest.new('SHA256')
+      cert.sign key, OpenSSL::Digest.new('SHA512')
       { key: key, crt: cert }
     end
 
