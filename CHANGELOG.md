@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.9.3
+
+  - nilsver
+    - [e74c8db] move databag ssh to rBglobal
+
 ## 1.9.2
 
   - Miguel Negrón
