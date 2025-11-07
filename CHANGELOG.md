@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.9.4
+
+  - nilsver
+    - [999bd0c] revert changes
+
 ## 1.9.3
 
   - nilsver
