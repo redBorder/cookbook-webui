@@ -24,3 +24,4 @@ attribute :s3_secrets, kind_of: Hash, default: {}
 attribute :s3_malware_secrets, kind_of: Hash, default: {}
 attribute :aerospike_ips, kind_of: Array, default: ['127.0.0.1']
 attribute :aerospike_port, kind_of: Integer, default: 3000
+attribute :drill_port, kind_of: Integer, default: 8047
