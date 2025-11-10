@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.10.0
+
+  - Rafael Gomez
+    - [6496031] Use SHA512 to generate certs
+
 ## 1.9.4
 
   - nilsver
