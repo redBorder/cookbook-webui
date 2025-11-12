@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.11.0
+
+  - Juan Soto
+    - [c88f2da] Add drill_port attribute and configure drill database settings (#117)
+
 ## 1.10.0
 
   - Rafael Gomez
