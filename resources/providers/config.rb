@@ -24,6 +24,7 @@ action :add do
     s3_malware_secrets = new_resource.s3_malware_secrets
     aerospike_ips = new_resource.aerospike_ips
     aerospike_port = new_resource.aerospike_port
+    drill_port = new_resource.drill_port
     policy_enforced = node['redborder']['manager']['policy_enforced'] || {}
 
     # INSTALLATION
@@ -344,6 +345,7 @@ action :add do
                 db_name_radius: db_name_radius, db_hostname_radius: db_hostname_radius,
                 db_port_radius: db_port_radius, db_username_radius: db_username_radius,
                 db_pass_radius: db_pass_radius,
+                drill_port: drill_port,
                 http_workers: http_workers,
                 memory: memory_kb)
     end
