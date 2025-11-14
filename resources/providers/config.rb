@@ -228,7 +228,7 @@ action :add do
       db_redborder = {}
     end
 
-    unless db_redborder.empty?
+    unless db_redborder.to_hash.empty?
       db_name_redborder = db_redborder['database']
       db_hostname_redborder = db_redborder['hostname']
       db_port_redborder = db_redborder['port']
@@ -243,7 +243,7 @@ action :add do
       db_druid = {}
     end
 
-    unless db_druid.empty?
+    unless db_druid.to_hash.empty?
       db_name_druid = db_druid['database']
       db_hostname_druid = db_druid['hostname']
       db_port_druid = db_redborder['port']
@@ -258,7 +258,7 @@ action :add do
       db_radius = {}
     end
 
-    unless db_radius.empty?
+    unless db_radius.to_hash.empty?
       db_name_radius = db_radius['database']
       db_hostname_radius = db_radius['hostname']
       db_port_radius = db_radius['port']
@@ -272,7 +272,7 @@ action :add do
       webui_secret = {}
     end
 
-    unless webui_secret.empty?
+    unless webui_secret.to_hash.empty?
       webui_secret_token = webui_secret['secret']
     end
 
