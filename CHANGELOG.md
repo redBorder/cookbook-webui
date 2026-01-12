@@ -1,6 +1,12 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.11.1
+
+  - nilsver
+    - [b13ee97] convert to hash because databag is encrypted now
+    - [6eeaf6b] first version
+
 ## 1.11.0
 
   - Juan Soto
