@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.11.2
+
+  - Miguel Negron
+    - [842fcae] Add global filters configuration (#122)
+
 ## 1.11.1
 
   - nilsver
