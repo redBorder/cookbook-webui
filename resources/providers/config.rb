@@ -461,6 +461,16 @@ action :add do
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
+    template '/var/www/rb-rails/config/global_filters.yml' do
+      source 'global_filters.yml.erb'
+      owner user
+      group group
+      mode '0644'
+      retries 2
+      cookbook 'webui'
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+    end
+
     %w(flow ips location monitor iot).each do |x|
       template "/var/www/rb-rails/lib/modules/#{x}/config/rbdruid_config.yml" do
         source "#{x}_rbdruid_config.yml.erb"
