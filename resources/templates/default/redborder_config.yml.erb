@@ -4,7 +4,7 @@
   authentication_mode: <%= @auth_mode %>
   secret: <%= @webui_secret_token %>
   rsa_filename: rsa
-  url: '<%= @cdomain %>'
+  url: '<%= node['redborder']['webpage_url'] %>'
   remote_license_path: '/etc/redborder/rB.lic'
   remote_logs_path: '/var/log/remote'
   resolve_private_dns: "true"
