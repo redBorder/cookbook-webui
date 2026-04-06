@@ -1,6 +1,17 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.11.3
+
+  - nilsver
+    - [f60edb9] Merge pull request #125 from redBorder/bugfix/#24327_wrong_link_unlock_instructions_email
+  - Pablo Torres
+    - [f578ba1] Bugfix #24327: change url from redborder cluster to real ip
+  - David Vanhoucke
+    - [20f2f50] bump version
+  - Miguel Negrón
+    - [842fcae] Add global filters configuration (#122)
+
 ## 1.11.2
 
   - Miguel Negron
