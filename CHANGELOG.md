@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.11.3
+
+  - Pablo Torres
+    - [f578ba1] Bugfix #24327: change url from redborder cluster to real ip
+
 ## 1.11.2
 
   - Miguel Negron
