@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.11.4
+
+  - manegron
+    - [390b036] Adapt license
+
 ## 1.11.3
 
   - Pablo Torres
