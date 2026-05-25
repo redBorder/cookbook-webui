@@ -1,6 +1,13 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.11.5
+
+  - Juan Soto
+    - [ecad9f6] Take back create 0664
+    - [d0a80e3] Add ldap authentication mode
+  
+
 ## 1.11.4
 
   - manegron
