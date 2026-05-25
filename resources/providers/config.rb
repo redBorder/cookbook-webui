@@ -18,6 +18,10 @@ action :add do
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
     auth_mode = new_resource.auth_mode
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
+    ldap_enabled = node['redborder']['ldap_enabled']
+    if ldap_enabled && ldap_enabled.to_s != 'false'
+      auth_mode = node['redborder']['sso_enabled'] == '1' ? 'all' : ldap_enabled.to_s
+    end
     user_sensor_map = new_resource.user_sensor_map
     web_dir = new_resource.web_dir
     s3_secrets = new_resource.s3_secrets
