@@ -4,6 +4,8 @@ module Webui
     require 'resolv'
     require 'base64'
     require 'securerandom'
+    require 'aws-sdk-s3'
+    require 'digest'
 
     def local_routes
       routes = []
@@ -106,19 +108,20 @@ module Webui
     # @param host        [String] The S3 endpoint URL.
     # @param access_key  [String] The AWS access key for authentication.
     # @param secret_key  [String] The AWS secret key for authentication.
-    # @param local_path  [String] The local directory path to compare against the S3 bucket. Default is '/etc/redborder/http_agent'.
+    # @param local_path  [String] The local directory path to compare against the S3 bucket. Default is '/etc/redborder/http_agents'.
     # @param s3_prefix   [String] The prefix in the S3 bucket to check for files. Default is 'rb-webui/monitor_categories/'.
-    def check_http_agent_s3_sync(bucket, host, access_key, secret_key, local_path = '/etc/redborder/http_agent', s3_prefix = 'rb-webui/monitor_categories/')
+    def check_http_agent_s3_sync(bucket, host, access_key, secret_key, local_path = '/etc/redborder/http_agents', s3_prefix = 'rb-webui/monitor_categories/')
       client = Aws::S3::Client.new(
         region: 'us-east-1',
         access_key_id: access_key,
         secret_access_key: secret_key,
-        endpoint: host,
-        force_path_style: true
+        endpoint: "https://#{host}",
+        force_path_style: true,
+        ssl_verify_peer: false
       )
 
       remote_files = {}
-      continue_token = nil
+      continuation_token = nil
 
       loop do
         response = client.list_objects_v2(

@@ -228,12 +228,7 @@ action :add do
 
     # Check if http_agent monitor_categories in s3 is in sync with local files
     # If not, it will download the files from s3 and update local files
-    check_http_agent_s3_sync(
-      bucket: s3_bucket,
-      host: s3_host,
-      access_key: s3_access_key,
-      secret_key: s3_secret_key
-    )
+    check_http_agent_s3_sync(s3_bucket, s3_host, s3_access_key, s3_secret_key)
 
     # Obtaining redborder database configuration from databag
     begin
