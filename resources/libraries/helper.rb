@@ -100,5 +100,94 @@ module Webui
         popd &>/dev/null
       EOH
     end
+
+    # Checks the synchronization status of files between a local directory and an S3 bucket.
+    # @param bucket      [String] The name of the S3 bucket to check.
+    # @param host        [String] The S3 endpoint URL.
+    # @param access_key  [String] The AWS access key for authentication.
+    # @param secret_key  [String] The AWS secret key for authentication.
+    # @param local_path  [String] The local directory path to compare against the S3 bucket. Default is '/etc/redborder/http_agent'.
+    # @param s3_prefix   [String] The prefix in the S3 bucket to check for files. Default is 'rb-webui/monitor_categories/'.
+    def check_http_agent_s3_sync(bucket, host, access_key, secret_key, local_path = '/etc/redborder/http_agent', s3_prefix = 'rb-webui/monitor_categories/')
+      client = Aws::S3::Client.new(
+        region: 'us-east-1',
+        access_key_id: access_key,
+        secret_access_key: secret_key,
+        endpoint: host,
+        force_path_style: true
+      )
+
+      remote_files = {}
+      continue_token = nil
+
+      loop do
+        response = client.list_objects_v2(
+          bucket: bucket,
+          prefix: s3_prefix,
+          continuation_token: continuation_token
+        )
+
+        response.contents.each do |object|
+          next if object.key.end_with?('/')
+
+          relative_path = object.key.sub(s3_prefix, '')
+
+          body = client.get_object(
+            bucket: bucket,
+            key: object.key
+          ).body.read
+
+          remote_sha256 = Digest::SHA256.hexdigest(body)
+
+          remote_files[relative_path] = remote_sha256
+        end
+
+        break unless response.is_truncated
+
+        continuation_token = response.next_continuation_token
+      end
+
+      local_files = {}
+      Dir.glob("#{local_path}/**/*", File::FNM_DOTMATCH).each do |path|
+        next if File.directory?(path)
+
+        relative_path = path.sub("#{local_path}/", '')
+        local_sha256 = Digest::SHA256.file(path).hexdigest
+        local_files[relative_path] = local_sha256
+      end
+
+      missing_local = []
+      modified_files = []
+      extra_local = []
+
+      remote_files.each do |relative_path, remote_sha256|
+        local_sha256 = local_files[relative_path]
+
+        if local_sha256.nil?
+          missing_local << relative_path
+        elsif local_sha256 != remote_sha256
+          modified_files << relative_path
+        end
+      end
+
+      local_files.each do |relative_path|
+        extra_local << relative_path unless remote_files.key?(relative_path)
+      end
+
+      sync_ok = missing_local.empty? && modified_files.empty? && extra_local.empty?
+
+      unless sync_ok
+        Chef::Log.error('HTTP Agent S3 synchronization issues detected:')
+        Chef::Log.error("  Missing local files: #{missing_local.join(', ')}") if missing_local.any?
+        Chef::Log.error("  Modified files: #{modified_files.join(', ')}") if modified_files.any?
+        Chef::Log.error("  Extra local files: #{extra_local.join(', ')}") if extra_local.any?
+
+        raise 'HTTP Agent S3 synchronization issues detected. Check logs for details.'
+      end
+
+      Chef::Log.info('HTTP Agent S3 synchronization check passed successfully.')
+
+      true
+    end
   end
 end
