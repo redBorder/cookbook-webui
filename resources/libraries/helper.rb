@@ -172,7 +172,7 @@ module Webui
       end
 
       local_files.each do |relative_path|
-        extra_local << relative_path unless remote_files.key?(relative_path)
+        extra_local << relative_path unless remote_files.key?(relative_path[0])
       end
 
       sync_ok = missing_local.empty? && modified_files.empty? && extra_local.empty?
@@ -180,8 +180,6 @@ module Webui
       unless sync_ok
         Chef::Log.info('HTTP Agent S3 synchronization issues detected. Syncronizing local files with S3...')
         syncronize_local_with_s3(missing_local, modified_files, extra_local, bucket, host, access_key, secret_key, local_path, s3_prefix)
-
-        raise 'HTTP Agent S3 synchronization issues detected. Check logs for details.'
       end
 
       Chef::Log.info('HTTP Agent S3 synchronization check passed successfully.')
@@ -218,9 +216,11 @@ module Webui
       end
 
       extra_local.each do |relative_path|
-        local_file_path = "#{local_path}/#{relative_path}"
+        local_file_path = "#{local_path}/#{relative_path[0]}"
         File.delete(local_file_path) if File.exist?(local_file_path)
+        Dir.delete(File.dirname(local_file_path)) if Dir.exist?(File.dirname(local_file_path))
         Chef::Log.info("Removed extra local file not present in S3: #{relative_path}")
       end
+    end
   end
 end
