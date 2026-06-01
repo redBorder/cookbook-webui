@@ -134,14 +134,12 @@ module Webui
           next if object.key.end_with?('/')
 
           relative_path = object.key.sub(s3_prefix, '')
-
           body = client.get_object(
             bucket: bucket,
             key: object.key
           ).body.read
 
           remote_sha256 = Digest::SHA256.hexdigest(body)
-
           remote_files[relative_path] = remote_sha256
         end
 
@@ -180,10 +178,8 @@ module Webui
       sync_ok = missing_local.empty? && modified_files.empty? && extra_local.empty?
 
       unless sync_ok
-        Chef::Log.error('HTTP Agent S3 synchronization issues detected:')
-        Chef::Log.error("  Missing local files: #{missing_local.join(', ')}") if missing_local.any?
-        Chef::Log.error("  Modified files: #{modified_files.join(', ')}") if modified_files.any?
-        Chef::Log.error("  Extra local files: #{extra_local.join(', ')}") if extra_local.any?
+        Chef::Log.info('HTTP Agent S3 synchronization issues detected. Syncronizing local files with S3...')
+        syncronize_local_with_s3(missing_local, modified_files, extra_local, bucket, host, access_key, secret_key, local_path, s3_prefix)
 
         raise 'HTTP Agent S3 synchronization issues detected. Check logs for details.'
       end
@@ -192,5 +188,39 @@ module Webui
 
       true
     end
+
+    def syncronize_local_with_s3(missing_local, modified_files, extra_local, bucket, host, access_key, secret_key, local_path, s3_prefix)
+      client = Aws::S3::Client.new(
+        region: 'us-east-1',
+        access_key_id: access_key,
+        secret_access_key: secret_key,
+        endpoint: "https://#{host}",
+        force_path_style: true,
+        ssl_verify_peer: false
+      )
+
+      (missing_local + modified_files).each do |relative_path|
+        s3_key = "#{s3_prefix}#{relative_path}"
+        local_file_path = "#{local_path}/#{relative_path}"
+
+        begin
+          body = client.get_object(
+            bucket: bucket,
+            key: s3_key
+          ).body.read
+
+          FileUtils.mkdir_p(File.dirname(local_file_path))
+          File.write(local_file_path, body)
+          Chef::Log.info("Synchronized file from S3: #{relative_path}")
+        rescue Aws::S3::Errors::NoSuchKey
+          Chef::Log.error("File not found in S3 for synchronization: #{relative_path}")
+        end
+      end
+
+      extra_local.each do |relative_path|
+        local_file_path = "#{local_path}/#{relative_path}"
+        File.delete(local_file_path) if File.exist?(local_file_path)
+        Chef::Log.info("Removed extra local file not present in S3: #{relative_path}")
+      end
   end
 end
