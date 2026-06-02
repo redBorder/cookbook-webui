@@ -218,7 +218,9 @@ module Webui
       extra_local.each do |relative_path|
         local_file_path = "#{local_path}/#{relative_path[0]}"
         File.delete(local_file_path) if File.exist?(local_file_path)
-        Dir.delete(File.dirname(local_file_path)) if Dir.exist?(File.dirname(local_file_path))
+        if Dir.exist?(File.dirname(local_file_path)) && Dir.empty?(File.dirname(local_file_path))
+          Dir.delete(File.dirname(local_file_path))
+        end
         Chef::Log.info("Removed extra local file not present in S3: #{relative_path}")
       end
     end
