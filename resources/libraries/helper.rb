@@ -4,6 +4,8 @@ module Webui
     require 'resolv'
     require 'base64'
     require 'securerandom'
+    require 'aws-sdk-s3'
+    require 'digest'
 
     def local_routes
       routes = []
@@ -99,6 +101,128 @@ module Webui
         rvm ruby-2.7.5@web do #{env_prefix} bundle exec rake #{task_name} &>>/var/www/rb-rails/log/#{log_file}
         popd &>/dev/null
       EOH
+    end
+
+    # Checks the synchronization status of files between a local directory and an S3 bucket.
+    # @param bucket      [String] The name of the S3 bucket to check.
+    # @param host        [String] The S3 endpoint URL.
+    # @param access_key  [String] The AWS access key for authentication.
+    # @param secret_key  [String] The AWS secret key for authentication.
+    # @param local_path  [String] The local directory path to compare against the S3 bucket. Default is '/etc/redborder/http_agents'.
+    # @param s3_prefix   [String] The prefix in the S3 bucket to check for files. Default is 'rb-webui/monitor_categories/'.
+    def check_http_agent_s3_sync(bucket, host, access_key, secret_key, local_path = '/etc/redborder/http_agents', s3_prefix = 'rb-webui/monitor_categories/')
+      client = Aws::S3::Client.new(
+        region: 'us-east-1',
+        access_key_id: access_key,
+        secret_access_key: secret_key,
+        endpoint: "https://#{host}",
+        force_path_style: true,
+        ssl_verify_peer: false
+      )
+
+      remote_files = {}
+      continuation_token = nil
+
+      loop do
+        response = client.list_objects_v2(
+          bucket: bucket,
+          prefix: s3_prefix,
+          continuation_token: continuation_token
+        )
+
+        response.contents.each do |object|
+          next if object.key.end_with?('/')
+
+          relative_path = object.key.sub(s3_prefix, '')
+          body = client.get_object(
+            bucket: bucket,
+            key: object.key
+          ).body.read
+
+          remote_sha256 = Digest::SHA256.hexdigest(body)
+          remote_files[relative_path] = remote_sha256
+        end
+
+        break unless response.is_truncated
+
+        continuation_token = response.next_continuation_token
+      end
+
+      local_files = {}
+      Dir.glob("#{local_path}/**/*", File::FNM_DOTMATCH).each do |path|
+        next if File.directory?(path)
+
+        relative_path = path.sub("#{local_path}/", '')
+        local_sha256 = Digest::SHA256.file(path).hexdigest
+        local_files[relative_path] = local_sha256
+      end
+
+      missing_local = []
+      modified_files = []
+      extra_local = []
+
+      remote_files.each do |relative_path, remote_sha256|
+        local_sha256 = local_files[relative_path]
+
+        if local_sha256.nil?
+          missing_local << relative_path
+        elsif local_sha256 != remote_sha256
+          modified_files << relative_path
+        end
+      end
+
+      local_files.each do |relative_path|
+        extra_local << relative_path unless remote_files.key?(relative_path[0])
+      end
+
+      sync_ok = missing_local.empty? && modified_files.empty? && extra_local.empty?
+
+      unless sync_ok
+        Chef::Log.info('HTTP Agent S3 synchronization issues detected. Syncronizing local files with S3...')
+        syncronize_local_with_s3(missing_local, modified_files, extra_local, bucket, host, access_key, secret_key, local_path, s3_prefix)
+      end
+
+      Chef::Log.info('HTTP Agent S3 synchronization check passed successfully.')
+
+      true
+    end
+
+    def syncronize_local_with_s3(missing_local, modified_files, extra_local, bucket, host, access_key, secret_key, local_path, s3_prefix)
+      client = Aws::S3::Client.new(
+        region: 'us-east-1',
+        access_key_id: access_key,
+        secret_access_key: secret_key,
+        endpoint: "https://#{host}",
+        force_path_style: true,
+        ssl_verify_peer: false
+      )
+
+      (missing_local + modified_files).each do |relative_path|
+        s3_key = "#{s3_prefix}#{relative_path}"
+        local_file_path = "#{local_path}/#{relative_path}"
+
+        begin
+          body = client.get_object(
+            bucket: bucket,
+            key: s3_key
+          ).body.read
+
+          FileUtils.mkdir_p(File.dirname(local_file_path))
+          File.write(local_file_path, body)
+          Chef::Log.info("Synchronized file from S3: #{relative_path}")
+        rescue Aws::S3::Errors::NoSuchKey
+          Chef::Log.error("File not found in S3 for synchronization: #{relative_path}")
+        end
+      end
+
+      extra_local.each do |relative_path|
+        local_file_path = "#{local_path}/#{relative_path[0]}"
+        File.delete(local_file_path) if File.exist?(local_file_path)
+        if Dir.exist?(File.dirname(local_file_path)) && Dir.empty?(File.dirname(local_file_path))
+          Dir.delete(File.dirname(local_file_path))
+        end
+        Chef::Log.info("Removed extra local file not present in S3: #{relative_path}")
+      end
     end
   end
 end
