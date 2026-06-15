@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.12.0
+
+  - Pablo Pérez
+    - [df39373] Feature/#23745 extend monitor capabilities to support services monitoring (#129)
+
 ## 1.11.5
 
   - Juan Soto
