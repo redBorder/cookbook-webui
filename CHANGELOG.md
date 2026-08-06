@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 1.13.0
+
+  - vimesa
+    - [b67746f] Add a new package (redborder-webui-mibs) and run a Rake task to export MIBs
+
 ## 1.12.0
 
   - Pablo Pérez
