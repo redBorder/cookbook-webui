@@ -80,6 +80,11 @@ action :add do
       notifies :restart, 'service[webui]', :delayed
     end
 
+    dnf_package 'redborder-webui-mibs' do
+      action :upgrade
+      notifies :run, 'bash[mibs_export]', :delayed
+    end
+
     file '/root/.upgrade-redborder-webui' do
       action :nothing
     end
@@ -739,6 +744,19 @@ action :add do
       user 'root'
       group 'root'
       action :run
+    end
+
+    bash 'mibs_export' do
+      ignore_failure false
+      code execute_rake_task(
+        'mibs:export',
+        'install-redborder-mibs.log',
+        web_dir,
+        { 'RAILS_ENV' => 'production' }
+      )
+      user user
+      group group
+      action :nothing
     end
 
     # SERVICES
