@@ -19,7 +19,7 @@ Chef cookbook to install and configure redborder webui
 
 ### Chef
 
-- Chef 15.7.0 or later
+- Chef 15.7.0 or later.
 
 ## Contributing
 
