@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 2.0.0
+
+  - José Jiménez
+    - [e82cb25] Add trap at module list
+
 ## 1.13.0
 
   - vimesa
