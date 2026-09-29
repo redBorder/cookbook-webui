@@ -1,6 +1,14 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 2.1.0
+
+  - Miguel Negrón
+    - [d382bce] Merge pull request #135 from redBorder/improvement/#26722_improve_webui_performance
+  - manegron
+    - [d382bce] Merge pull request #135 from redBorder/improvement/#26722_improve_webui_performance
+    - [bb94705] Add cache for /assets via nginx
+
 ## 2.0.0
 
   - José Jiménez

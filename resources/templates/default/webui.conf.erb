@@ -49,6 +49,24 @@ server {
     
     error_page 504 = /504;
 
+    # Precompiled Rails assets carry a digest in their filename, so the URL
+    # changes whenever the content does: cache them in nginx and let browsers
+    # keep them for a year instead of hitting unicorn on every page load.
+    location ^~ /assets/ {
+      if ($request_method !~ ^(GET|HEAD)$ ) {
+        return 405;
+      }
+      proxy_pass http://webui;
+      proxy_pass_request_headers off;
+      # During a rolling upgrade of several managers, a node that still has the
+      # old assets returns 404 for the new digests: try the next one and never
+      # cache the 404.
+      proxy_next_upstream error timeout http_404;
+      proxy_cache webui-cache;
+      proxy_cache_valid 200 30d;
+      add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
     location ~ "^/(?:stylesheets|javascripts|images|flash|facebox|css|favicon|robots|humans)/{0,1}.*$" {
       if ($request_method !~ ^(GET)$ ) {
         return 405;
