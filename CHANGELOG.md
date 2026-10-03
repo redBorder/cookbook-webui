@@ -1,6 +1,11 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 2.1.1
+
+  - manegron
+    - [1d8af41] Upload cookbook only if opscode-erchef is active
+
 ## 2.1.0
 
   - Miguel Negrón
