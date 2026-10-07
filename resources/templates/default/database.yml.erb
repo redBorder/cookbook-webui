@@ -17,6 +17,9 @@ pool_radius = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
   host: <%= @db_hostname_redborder %>
   port: <%= @db_port_redborder.nil? ? "5432" : @db_port_redborder %>
   encoding: utf8
+  # Rails >= 8 loads db/schema.rb on an empty database before migrating. That
+  # file is not kept up to date and it would break the migrations of the modules
+  schema_dump: false
 <% end %>
 
 druid:

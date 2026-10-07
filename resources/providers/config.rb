@@ -608,7 +608,7 @@ action :add do
           export HOME=/var/www/rb-rails
           pushd /var/www/rb-rails &>/dev/null
           echo "### `date` - COMMAND: dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/" &>>/var/www/rb-rails/log/install-redborder-ditto.log
-          rvm ruby-2.7.5@web do dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/ &>>/var/www/rb-rails/log/install-redborder-ditto.log
+          rvm #{WEBUI_RVM_RUBY} do dittoc -r -o -f --allow-views ENTERPRISE /var/www/rb-rails/ &>>/var/www/rb-rails/log/install-redborder-ditto.log
           popd &>/dev/null
         EOH
       user user
