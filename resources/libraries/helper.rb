@@ -1,5 +1,9 @@
 module Webui
   module Helper
+    # Ruby and gemset of the webui (installed by redborder-rubyrvm). The default
+    # ruby of the platform is a different one, so it has to be named
+    WEBUI_RVM_RUBY = 'ruby-3.4.11@web'.freeze
+
     require 'openssl'
     require 'resolv'
     require 'base64'
@@ -98,7 +102,7 @@ module Webui
         export HOME=#{home_path}
         pushd /var/www/rb-rails &>/dev/null
         echo "### `date` - COMMAND: #{env_prefix} bundle exec rake #{task_name}" &>>/var/www/rb-rails/log/#{log_file}
-        rvm ruby-2.7.5@web do #{env_prefix} bundle exec rake #{task_name} &>>/var/www/rb-rails/log/#{log_file}
+        rvm #{WEBUI_RVM_RUBY} do #{env_prefix} bundle exec rake #{task_name} &>>/var/www/rb-rails/log/#{log_file}
         popd &>/dev/null
       EOH
     end
