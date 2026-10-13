@@ -1,6 +1,14 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 3.0.0
+
+  - Miguel Negrón
+    - [5acc52e] Merge pull request #137 from redBorder/rails_update
+  - manegron
+    - [5acc52e] Merge pull request #137 from redBorder/rails_update
+    - [a51f27d] Update ruby version and rails
+
 ## 2.1.1
 
   - manegron
