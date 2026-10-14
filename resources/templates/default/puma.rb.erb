@@ -8,10 +8,10 @@ environment 'production'
 # What ports/sockets to listen on, and what options for them
 bind 'tcp://0.0.0.0:8001?backlog=1024&low_latency=true'
 
-# How many worker processes. Each one serves one request at a time: the
-# application is not thread safe (User.current_user is shared by the process)
+# How many worker processes, and how many requests each one serves at the same
+# time (database.yml has a pool of at least that many connections)
 workers <%= @workers %>
-threads 1, 1
+threads <%= @threads %>, <%= @threads %>
 
 # Every worker loads the application itself, as unicorn did with
 # preload_app false (puma preloads it by default when there are several workers)
