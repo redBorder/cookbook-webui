@@ -16,3 +16,7 @@ threads <%= @threads %>, <%= @threads %>
 # Every worker loads the application itself, as unicorn did with
 # preload_app false (puma preloads it by default when there are several workers)
 preload_app! false
+
+# Loading the application takes about a minute on a manager. Puma kills a
+# worker that has not booted in 60 seconds (unicorn had no such limit)
+worker_boot_timeout 600
