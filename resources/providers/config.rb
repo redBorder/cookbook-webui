@@ -1001,7 +1001,7 @@ action :configure_modules do
     bash 'set_modules' do
       ignore_failure true
       code <<-EOH
-        rvm ruby-2.7.5@global do /usr/lib/redborder/bin/rb_set_modules bi:0 malware:0
+        rvm ruby-3.4.11@global do /usr/lib/redborder/bin/rb_set_modules bi:0 malware:0
       EOH
       user user
       group group
