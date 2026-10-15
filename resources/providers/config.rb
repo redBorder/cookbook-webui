@@ -16,6 +16,8 @@ action :add do
     elasticache_hosts = new_resource.elasticache_hosts
     memcached_servers = new_resource.memcached_servers
     http_workers = [[10 * node['cpu']['total'].to_i, (memory_kb / (3 * 1024 * 1024)).floor ].min, 1].max.to_i
+    # Requests served at the same time by each puma worker
+    http_threads = 5
     auth_mode = new_resource.auth_mode
     auth_mode = 'saml' if node['redborder']['sso_enabled'] == '1'
     ldap_enabled = node['redborder']['ldap_enabled']
@@ -360,6 +362,7 @@ action :add do
                 db_pass_radius: db_pass_radius,
                 drill_port: drill_port,
                 http_workers: http_workers,
+                http_threads: http_threads,
                 memory: memory_kb)
     end
 
@@ -496,14 +499,19 @@ action :add do
       end if Dir.exist?("/var/www/rb-rails/lib/modules/#{x}/config")
     end
 
-    template '/var/www/rb-rails/config/unicorn.rb' do
-      source 'unicorn.rb.erb'
+    # The webui runs on puma, the configuration of unicorn is not used any more
+    file '/var/www/rb-rails/config/unicorn.rb' do
+      action :delete
+    end
+
+    template '/var/www/rb-rails/config/puma.rb' do
+      source 'puma.rb.erb'
       owner user
       group group
       mode '0644'
       retries 2
       cookbook 'webui'
-      variables(workers: http_workers)
+      variables(workers: http_workers, threads: http_threads)
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 

@@ -51,7 +51,7 @@ server {
 
     # Precompiled Rails assets carry a digest in their filename, so the URL
     # changes whenever the content does: cache them in nginx and let browsers
-    # keep them for a year instead of hitting unicorn on every page load.
+    # keep them for a year instead of hitting the webui on every page load.
     location ^~ /assets/ {
       if ($request_method !~ ^(GET|HEAD)$ ) {
         return 405;

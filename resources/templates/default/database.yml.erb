@@ -10,7 +10,7 @@ pool_radius = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
 <%= x %>:
   adapter: postgresql
   database: <%= @db_name_redborder.nil? ? "redborder" : @db_name_redborder  %>
-  pool: <%= [ pool_rb, @http_workers ].max %>
+  pool: <%= [ pool_rb, @http_workers, @http_threads.to_i ].max %>
   timeout: 5000
   username: <%= @db_username_redborder %>
   password: <%= @db_pass_redborder %>
@@ -25,7 +25,7 @@ pool_radius = [ [ ( memory_per_thread * 8 / 100000).ceil, 4 ].max, 32 ].min
 druid:
   adapter: postgresql
   database: <%= @db_name_druid.nil? ? "druid" : @db_name_druid  %>
-  pool: <%= [ pool_druid, @http_workers ].max %>
+  pool: <%= [ pool_druid, @http_workers, @http_threads.to_i ].max %>
   timeout: 5000
   username: <%= @db_username_druid %>
   password: <%= @db_pass_druid %>
@@ -41,7 +41,7 @@ drill:
 radius:
   adapter: postgresql
   database: <%= @db_name_radius.nil? ? "radius" : @db_name_radius  %>
-  pool: <%= [ pool_radius, @http_workers ].max %>
+  pool: <%= [ pool_radius, @http_workers, @http_threads.to_i ].max %>
   timeout: 5000
   username: <%= @db_username_radius %>
   password: <%= @db_pass_radius %>
