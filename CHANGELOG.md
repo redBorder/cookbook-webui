@@ -1,6 +1,17 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 5.0.0
+
+  - Miguel Negrón
+    - [dc4dc54] Merge pull request #139 from redBorder/improvement/#26887_swap_unicorn_puma
+  - manegron
+    - [dc4dc54] Merge pull request #139 from redBorder/improvement/#26887_swap_unicorn_puma
+    - [0974970] Merge branch 'development' into improvement/#26887_swap_unicorn_puma
+    - [e383fb9] Update puma timeout
+    - [c4a8769] Add multiples threading
+    - [bdbbb7a] Swap unicorn to puma
+
 ## 4.0.0
 
   - Miguel Negrón
