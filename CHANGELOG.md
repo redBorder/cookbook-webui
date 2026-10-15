@@ -1,6 +1,14 @@
 cookbook-webui CHANGELOG
 ===============
 
+## 4.0.0
+
+  - Miguel Negrón
+    - [4798f85] Merge pull request #138 from redBorder/improvement/#26884_remove_ruby_2_7_5
+  - manegron
+    - [4798f85] Merge pull request #138 from redBorder/improvement/#26884_remove_ruby_2_7_5
+    - [a8f6601] Remove ruby-2.7.5
+
 ## 3.0.0
 
   - Miguel Negrón
