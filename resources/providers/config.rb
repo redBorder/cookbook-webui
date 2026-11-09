@@ -921,10 +921,13 @@ action :configure_certs do
       webui_key = webui_external_json_cert['webui_external_key']
     end
 
+    # The customer's own certificate (webui_external) stays as it is (W2); the generated one goes to OpenBao
+    webui_key_in_openbao = false
     unless webui_crt && webui_key
-      webui_json_cert = nginx_certs('webui', cdomain)
+      webui_json_cert = nginx_certs('webui', cdomain, new_resource.openbao)
       webui_crt = webui_json_cert['webui_crt']
       webui_key = webui_json_cert['webui_key']
+      webui_key_in_openbao = new_resource.openbao
     end
 
     nginx_certs('saml', cdomain)
@@ -942,17 +945,35 @@ action :configure_certs do
       notifies :restart, 'service[nginx]', :delayed
     end
 
-    template '/etc/nginx/ssl/webui.key' do
-      source 'cert.key.erb'
-      owner 'nginx'
-      group 'nginx'
-      mode '0644'
-      retries 2
-      cookbook 'webui'
-      not_if { webui_key.nil? || webui_key.empty? }
-      variables(key: webui_key)
-      action :create
-      notifies :restart, 'service[nginx]', :delayed
+    if webui_key_in_openbao
+      openbao_secret_file 'nginx-webui-key' do
+        source 'cert.key.ctmpl.erb'
+        cookbook 'webui'
+        variables(app: 'webui')
+        destination '/run/rb-secrets/nginx/webui.key'
+        owner 'root'
+        group 'nginx'
+        mode '0640'
+        unit 'nginx'
+      end
+
+      link '/etc/nginx/ssl/webui.key' do
+        to '/run/rb-secrets/nginx/webui.key'
+        notifies :restart, 'service[nginx]', :delayed
+      end
+    else
+      template '/etc/nginx/ssl/webui.key' do
+        source 'cert.key.erb'
+        owner 'nginx'
+        group 'nginx'
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        not_if { webui_key.nil? || webui_key.empty? }
+        variables(key: webui_key)
+        action :create
+        notifies :restart, 'service[nginx]', :delayed
+      end
     end
 
     Chef::Log.info('Certs for service webui have been processed')
