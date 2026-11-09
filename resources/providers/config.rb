@@ -379,7 +379,7 @@ action :add do
       # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
       # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
       execute 'selinux-webui-link-database.yml' do
-        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/database\\.yml' && restorecon -h /var/www/rb-rails/config/database.yml"
+        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/database\\.yml' && restorecon /var/www/rb-rails/config/database.yml"
         not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml'"
       end
     else
@@ -467,7 +467,7 @@ action :add do
       # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
       # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
       execute 'selinux-webui-link-redborder_config.yml' do
-        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/redborder_config\\.yml' && restorecon -h /var/www/rb-rails/config/redborder_config.yml"
+        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/redborder_config\\.yml' && restorecon /var/www/rb-rails/config/redborder_config.yml"
         not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml'"
       end
     else
