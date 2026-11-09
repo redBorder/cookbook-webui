@@ -237,6 +237,8 @@ action :add do
     # If not, it will download the files from s3 and update local files
     check_http_agent_s3_sync(s3_bucket, s3_host, s3_access_key, s3_secret_key)
 
+    openbao = new_resource.openbao
+
     # Obtaining redborder database configuration from databag
     begin
       db_redborder = data_bag_item('passwords', 'db_redborder')
@@ -249,7 +251,7 @@ action :add do
       db_hostname_redborder = db_redborder['hostname']
       db_port_redborder = db_redborder['port']
       db_username_redborder = db_redborder['username']
-      db_pass_redborder = db_redborder['pass']
+      db_pass_redborder = openbao ? OpenBao.ref('db_redborder', 'pass') : db_redborder['pass']
     end
 
     # Obtaining druid database configuration from databag
@@ -264,7 +266,7 @@ action :add do
       db_hostname_druid = db_druid['hostname']
       db_port_druid = db_redborder['port']
       db_username_druid = db_druid['username']
-      db_pass_druid = db_druid['pass']
+      db_pass_druid = openbao ? OpenBao.ref('db_druid', 'pass') : db_druid['pass']
     end
 
     # Obtaining radius database configuration from databag
@@ -279,7 +281,7 @@ action :add do
       db_hostname_radius = db_radius['hostname']
       db_port_radius = db_radius['port']
       db_username_radius = db_radius['username']
-      db_pass_radius = db_radius['pass']
+      db_pass_radius = openbao ? OpenBao.ref('db_radius', 'pass') : db_radius['pass']
     end
 
     begin
@@ -291,6 +293,8 @@ action :add do
     unless webui_secret.to_hash.empty?
       webui_secret_token = webui_secret['secret']
     end
+    # OpenBao: webui_secret is not in the data bag; the agent fills it in (redborder_config.yml in /run)
+    webui_secret_token = OpenBao.ref('webui_secret', 'secret') if openbao
 
     # TEMPLATES
     template '/var/www/rb-rails/config/aws.yml' do
@@ -342,28 +346,59 @@ action :add do
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
-    template '/var/www/rb-rails/config/database.yml' do
-      source 'database.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
-      cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
-      variables(db_name_redborder: db_name_redborder, db_hostname_redborder: db_hostname_redborder,
-                db_port_redborder: db_port_redborder, db_username_redborder: db_username_redborder,
-                db_pass_redborder: db_pass_redborder,
-                db_name_druid: db_name_druid, db_hostname_druid: db_hostname_druid,
-                db_port_druid: db_port_druid, db_username_druid: db_username_druid,
-                db_pass_druid: db_pass_druid,
-                db_name_radius: db_name_radius, db_hostname_radius: db_hostname_radius,
-                db_port_radius: db_port_radius, db_username_radius: db_username_radius,
-                db_pass_radius: db_pass_radius,
-                drill_port: drill_port,
-                http_workers: http_workers,
-                http_threads: http_threads,
-                memory: memory_kb)
+    if openbao
+      openbao_secret_file 'webui-database' do
+        source 'database.yml.erb'
+        cookbook 'webui'
+        variables(db_name_redborder: db_name_redborder, db_hostname_redborder: db_hostname_redborder,
+                  db_port_redborder: db_port_redborder, db_username_redborder: db_username_redborder,
+                  db_pass_redborder: db_pass_redborder,
+                  db_name_druid: db_name_druid, db_hostname_druid: db_hostname_druid,
+                  db_port_druid: db_port_druid, db_username_druid: db_username_druid,
+                  db_pass_druid: db_pass_druid,
+                  db_name_radius: db_name_radius, db_hostname_radius: db_hostname_radius,
+                  db_port_radius: db_port_radius, db_username_radius: db_username_radius,
+                  db_pass_radius: db_pass_radius,
+                  drill_port: drill_port,
+                  http_workers: http_workers,
+                  http_threads: http_threads,
+                  memory: memory_kb)
+        destination '/run/rb-secrets/webui/database.yml'
+        owner 'root'
+        group group
+        mode '0640'
+        unit %w(webui rb-workers)
+      end
+
+      link '/var/www/rb-rails/config/database.yml' do
+        to '/run/rb-secrets/webui/database.yml'
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
+    else
+      template '/var/www/rb-rails/config/database.yml' do
+        source 'database.yml.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+        variables(db_name_redborder: db_name_redborder, db_hostname_redborder: db_hostname_redborder,
+                  db_port_redborder: db_port_redborder, db_username_redborder: db_username_redborder,
+                  db_pass_redborder: db_pass_redborder,
+                  db_name_druid: db_name_druid, db_hostname_druid: db_hostname_druid,
+                  db_port_druid: db_port_druid, db_username_druid: db_username_druid,
+                  db_pass_druid: db_pass_druid,
+                  db_name_radius: db_name_radius, db_hostname_radius: db_hostname_radius,
+                  db_port_radius: db_port_radius, db_username_radius: db_username_radius,
+                  db_pass_radius: db_pass_radius,
+                  drill_port: drill_port,
+                  http_workers: http_workers,
+                  http_threads: http_threads,
+                  memory: memory_kb)
+      end
     end
 
     if webui_version
@@ -402,18 +437,39 @@ action :add do
       end
     end
 
-    template '/var/www/rb-rails/config/redborder_config.yml' do
-      source 'redborder_config.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
-      cookbook 'webui'
-      variables(cdomain: cdomain,
-                webui_secret_token: webui_secret_token,
-                auth_mode: auth_mode)
-      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    if openbao
+      openbao_secret_file 'webui-redborder-config' do
+        source 'redborder_config.yml.erb'
+        cookbook 'webui'
+        variables(cdomain: cdomain,
+                  webui_secret_token: webui_secret_token,
+                  auth_mode: auth_mode)
+        destination '/run/rb-secrets/webui/redborder_config.yml'
+        owner 'root'
+        group group
+        mode '0640'
+        unit %w(webui rb-workers)
+      end
+
+      link '/var/www/rb-rails/config/redborder_config.yml' do
+        to '/run/rb-secrets/webui/redborder_config.yml'
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
+    else
+      template '/var/www/rb-rails/config/redborder_config.yml' do
+        source 'redborder_config.yml.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        variables(cdomain: cdomain,
+                  webui_secret_token: webui_secret_token,
+                  auth_mode: auth_mode)
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
     end
 
     template '/var/www/rb-rails/config/rbdruid_config.yml' do
