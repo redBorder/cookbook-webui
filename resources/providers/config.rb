@@ -375,6 +375,13 @@ action :add do
         notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
         notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
       end
+
+      # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
+      # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
+      execute 'selinux-webui-link-database.yml' do
+        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/database\\.yml' && restorecon -h /var/www/rb-rails/config/database.yml"
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml'"
+      end
     else
       template '/var/www/rb-rails/config/database.yml' do
         source 'database.yml.erb'
@@ -455,6 +462,13 @@ action :add do
         to '/run/rb-secrets/webui/redborder_config.yml'
         notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
         notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
+
+      # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
+      # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
+      execute 'selinux-webui-link-redborder_config.yml' do
+        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/redborder_config\\.yml' && restorecon -h /var/www/rb-rails/config/redborder_config.yml"
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml'"
       end
     else
       template '/var/www/rb-rails/config/redborder_config.yml' do
