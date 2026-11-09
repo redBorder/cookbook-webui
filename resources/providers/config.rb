@@ -602,7 +602,28 @@ action :add do
       rsa_pem = nil
     end
 
-    if rsa_pem && rsa_pem['private_rsa']
+    if openbao
+      # SSH refuses keys others can read: owner webui, 0600
+      openbao_secret_file 'webui-rsa' do
+        source 'rsa.ctmpl.erb'
+        cookbook 'webui'
+        destination '/run/rb-secrets/webui/rsa'
+        owner user
+        group group
+        mode '0600'
+        unit %w(webui rb-workers)
+      end
+
+      link '/var/www/rb-rails/config/rsa' do
+        to '/run/rb-secrets/webui/rsa'
+      end
+
+      # init_t (the webui) cannot follow httpd_sys_content_t symlinks: same label as the other config links
+      execute 'selinux-webui-link-rsa' do
+        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/rsa' && restorecon /var/www/rb-rails/config/rsa"
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa '"
+      end
+    elsif rsa_pem && rsa_pem['private_rsa']
       template '/var/www/rb-rails/config/rsa' do
         source 'rsa_cert.pem.erb'
         owner user
@@ -1070,6 +1091,8 @@ action :configure_rsa do
   end
 
   begin
+    # OpenBao: no private key in the data bag; the public key in rBglobal/ssh says it was generated
+    rsa_pem = ssh_secrets if new_resource.openbao
     if rsa_pem
       if ssh_secrets
         file '/var/www/rb-rails/config/rsa.pub' do
@@ -1082,7 +1105,7 @@ action :configure_rsa do
       end
     else
       execute 'Check RSA certificate' do
-        command '/usr/lib/redborder/bin/rb_create_rsa.sh -f'
+        command "/usr/lib/redborder/bin/rb_create_rsa.sh -f#{new_resource.openbao ? ' -o' : ''}"
         action :nothing
       end.run_action(:run)
     end
