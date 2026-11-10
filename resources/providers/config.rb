@@ -972,6 +972,7 @@ action :configure_certs do
         cookbook 'webui'
         variables(app: 'webui')
         destination '/run/rb-secrets/nginx/webui.key'
+        selinux_type 'cert_t' # nginx runs confined (httpd_t): same label as /etc/pki/tls/private
         owner 'root'
         group 'nginx'
         mode '0640'
