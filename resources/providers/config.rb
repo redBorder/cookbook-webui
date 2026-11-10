@@ -611,7 +611,8 @@ action :add do
         owner user
         group group
         mode '0600'
-        unit %w(webui rb-workers)
+        # no unit: the webui only reads the key when it opens an SSH session; the key itself is created
+        # later (configure_rsa runs after :add), so a start dependency would block the first Chef run
       end
 
       link '/var/www/rb-rails/config/rsa' do
