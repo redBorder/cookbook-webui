@@ -235,9 +235,18 @@ action :add do
 
     # Check if http_agent monitor_categories in s3 is in sync with local files
     # If not, it will download the files from s3 and update local files
-    check_http_agent_s3_sync(s3_bucket, s3_host, s3_access_key, s3_secret_key)
-
     openbao = new_resource.openbao
+    # On-prem S3 keys are OpenBao placeholders here: the sync needs the real ones (root-only file in /run)
+    sync_access_key, sync_secret_key = s3_access_key, s3_secret_key
+    if OpenBao.placeholder?(s3_secret_key)
+      real = OpenBao.run_secret('s3') || {}
+      sync_access_key, sync_secret_key = real['s3_access_key_id'], real['s3_secret_key_id']
+    end
+    if sync_secret_key
+      check_http_agent_s3_sync(s3_bucket, s3_host, sync_access_key, sync_secret_key)
+    else
+      Chef::Log.warn('webui: S3 key not available (OpenBao sealed?), http_agent S3 sync skipped')
+    end
 
     # Obtaining redborder database configuration from databag
     begin
@@ -297,30 +306,80 @@ action :add do
     webui_secret_token = OpenBao.ref('webui_secret', 'secret') if openbao
 
     # TEMPLATES
-    template '/var/www/rb-rails/config/aws.yml' do
-      source 'aws.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
-      cookbook 'webui'
-      variables(s3_local_storage: s3_local_storage, s3_bucket: s3_bucket, s3_host: s3_host,
-                s3_access_key: s3_access_key, s3_secret_key: s3_secret_key)
-      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    if openbao
+      openbao_secret_file 'webui-aws' do
+        source 'aws.yml.erb'
+        cookbook 'webui'
+        variables(s3_local_storage: s3_local_storage, s3_bucket: s3_bucket, s3_host: s3_host,
+                  s3_access_key: s3_access_key, s3_secret_key: s3_secret_key)
+        destination '/run/rb-secrets/webui/aws.yml'
+        owner 'root'
+        group group
+        mode '0640'
+        unit %w(webui rb-workers)
+      end
+
+      link '/var/www/rb-rails/config/aws.yml' do
+        to '/run/rb-secrets/webui/aws.yml'
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
+
+      execute 'selinux-webui-link-aws.yml' do
+        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws\\.yml' && restorecon /var/www/rb-rails/config/aws.yml"
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml'"
+      end
+    else
+      template '/var/www/rb-rails/config/aws.yml' do
+        source 'aws.yml.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        variables(s3_local_storage: s3_local_storage, s3_bucket: s3_bucket, s3_host: s3_host,
+                  s3_access_key: s3_access_key, s3_secret_key: s3_secret_key)
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
     end
 
-    template '/var/www/rb-rails/config/aws_malware.yml' do
-      source 'aws.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
-      cookbook 'webui'
-      variables(s3_local_storage: s3_local_storage, s3_bucket: s3_malware_bucket, s3_host: s3_malware_host,
-                s3_access_key: s3_malware_access_key, s3_secret_key: s3_malware_secret_key)
-      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    if openbao
+      openbao_secret_file 'webui-aws-malware' do
+        source 'aws.yml.erb'
+        cookbook 'webui'
+        variables(s3_local_storage: s3_local_storage, s3_bucket: s3_malware_bucket, s3_host: s3_malware_host,
+                  s3_access_key: s3_malware_access_key, s3_secret_key: s3_malware_secret_key)
+        destination '/run/rb-secrets/webui/aws_malware.yml'
+        owner 'root'
+        group group
+        mode '0640'
+        unit %w(webui rb-workers)
+      end
+
+      link '/var/www/rb-rails/config/aws_malware.yml' do
+        to '/run/rb-secrets/webui/aws_malware.yml'
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
+
+      execute 'selinux-webui-link-aws_malware.yml' do
+        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws_malware\\.yml' && restorecon /var/www/rb-rails/config/aws_malware.yml"
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml'"
+      end
+    else
+      template '/var/www/rb-rails/config/aws_malware.yml' do
+        source 'aws.yml.erb'
+        owner user
+        group group
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        variables(s3_local_storage: s3_local_storage, s3_bucket: s3_malware_bucket, s3_host: s3_malware_host,
+                  s3_access_key: s3_malware_access_key, s3_secret_key: s3_malware_secret_key)
+        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+      end
     end
 
     template '/var/www/rb-rails/config/aerospike.yml' do
