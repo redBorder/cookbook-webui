@@ -326,8 +326,9 @@ action :add do
       end
 
       execute 'selinux-webui-link-aws.yml' do
-        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws\\.yml' && restorecon /var/www/rb-rails/config/aws.yml"
-        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml'"
+        command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws\\.yml'; } && restorecon /var/www/rb-rails/config/aws.yml"
+        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml' && stat -c %C /var/www/rb-rails/config/aws.yml | grep -q ':etc_t:'"
       end
     else
       template '/var/www/rb-rails/config/aws.yml' do
@@ -364,8 +365,9 @@ action :add do
       end
 
       execute 'selinux-webui-link-aws_malware.yml' do
-        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws_malware\\.yml' && restorecon /var/www/rb-rails/config/aws_malware.yml"
-        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml'"
+        command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws_malware\\.yml'; } && restorecon /var/www/rb-rails/config/aws_malware.yml"
+        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml' && stat -c %C /var/www/rb-rails/config/aws_malware.yml | grep -q ':etc_t:'"
       end
     else
       template '/var/www/rb-rails/config/aws_malware.yml' do
@@ -438,8 +440,9 @@ action :add do
       # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
       # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
       execute 'selinux-webui-link-database.yml' do
-        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/database\\.yml' && restorecon /var/www/rb-rails/config/database.yml"
-        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml'"
+        command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/database\\.yml'; } && restorecon /var/www/rb-rails/config/database.yml"
+        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml' && stat -c %C /var/www/rb-rails/config/database.yml | grep -q ':etc_t:'"
       end
     else
       template '/var/www/rb-rails/config/database.yml' do
@@ -526,8 +529,9 @@ action :add do
       # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
       # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
       execute 'selinux-webui-link-redborder_config.yml' do
-        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/redborder_config\\.yml' && restorecon /var/www/rb-rails/config/redborder_config.yml"
-        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml'"
+        command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/redborder_config\\.yml'; } && restorecon /var/www/rb-rails/config/redborder_config.yml"
+        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml' && stat -c %C /var/www/rb-rails/config/redborder_config.yml | grep -q ':etc_t:'"
       end
     else
       template '/var/www/rb-rails/config/redborder_config.yml' do
@@ -680,8 +684,9 @@ action :add do
 
       # init_t (the webui) cannot follow httpd_sys_content_t symlinks: same label as the other config links
       execute 'selinux-webui-link-rsa' do
-        command "semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/rsa' && restorecon /var/www/rb-rails/config/rsa"
-        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa '"
+        command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa ' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/rsa'; } && restorecon /var/www/rb-rails/config/rsa"
+        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa ' && stat -c %C /var/www/rb-rails/config/rsa | grep -q ':etc_t:'"
       end
     elsif rsa_pem && rsa_pem['private_rsa']
       template '/var/www/rb-rails/config/rsa' do
