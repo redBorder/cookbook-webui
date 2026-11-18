@@ -57,11 +57,8 @@ module Webui
       ret_json
     end
 
-    # openbao: the private key never goes to disk or the data bag; it is seeded into OpenBao and
-    # rendered by the agent into /run/rb-secrets/nginx/<app>.key (returned hash has no <app>_key)
     def nginx_certs_openbao(app, cdomain)
-      # A new cert only when the item really does not exist: on any other error (Chef server still starting
-      # after a reboot) a new cert would not match the key OpenBao keeps (seeds never overwrite it): nginx down.
+      # only on a real 404: a new cert would not match the key OpenBao keeps
       begin
         item = data_bag_item('certs', app).to_hash
       rescue Net::HTTPClientException => e
@@ -77,8 +74,8 @@ module Webui
       OpenBao.seed_cert_key(app, cert[:key].to_pem, "/run/rb-secrets/nginx/#{app}.key", 'nginx')
       ret_json = { 'id' => app, "#{app}_crt" => Base64.urlsafe_encode64(cert[:crt].to_pem) }
       FileUtils.mkdir_p('/var/chef/data/data_bag/certs')
-      File.write("/var/chef/data/data_bag/certs/#{app}.json", ret_json.to_json) # public cert only
-      # a chef-solo run on a joining manager must not replace the cluster's cert (its key is in OpenBao)
+      File.write("/var/chef/data/data_bag/certs/#{app}.json", ret_json.to_json)
+      # a joining manager must not replace the cluster's cert
       if File.exist?('/root/.chef/knife.rb') && !system("knife data bag show certs #{app} >/dev/null 2>&1")
         system("knife data bag from file certs /var/chef/data/data_bag/certs/#{app}.json")
       else

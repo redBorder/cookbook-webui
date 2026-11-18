@@ -236,7 +236,7 @@ action :add do
     # Check if http_agent monitor_categories in s3 is in sync with local files
     # If not, it will download the files from s3 and update local files
     openbao = new_resource.openbao
-    # On-prem S3 keys are OpenBao placeholders here: the sync needs the real ones (root-only file in /run)
+    # the sync needs the real on-prem S3 keys, not placeholders
     sync_access_key, sync_secret_key = s3_access_key, s3_secret_key
     if OpenBao.placeholder?(s3_secret_key)
       real = OpenBao.run_secret('s3') || {}
@@ -302,7 +302,6 @@ action :add do
     unless webui_secret.to_hash.empty?
       webui_secret_token = webui_secret['secret']
     end
-    # OpenBao: webui_secret is not in the data bag; the agent fills it in (redborder_config.yml in /run)
     webui_secret_token = OpenBao.ref('webui_secret', 'secret') if openbao
 
     # TEMPLATES
@@ -327,7 +326,7 @@ action :add do
 
       execute 'selinux-webui-link-aws.yml' do
         command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws\\.yml'; } && restorecon /var/www/rb-rails/config/aws.yml"
-        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        # also when the rule exists: a recreated link loses the label
         not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml' && stat -c %C /var/www/rb-rails/config/aws.yml | grep -q ':etc_t:'"
       end
     else
@@ -366,7 +365,7 @@ action :add do
 
       execute 'selinux-webui-link-aws_malware.yml' do
         command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws_malware\\.yml'; } && restorecon /var/www/rb-rails/config/aws_malware.yml"
-        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        # also when the rule exists: a recreated link loses the label
         not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml' && stat -c %C /var/www/rb-rails/config/aws_malware.yml | grep -q ':etc_t:'"
       end
     else
@@ -437,11 +436,10 @@ action :add do
         notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
       end
 
-      # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
-      # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
+      # the webui (init_t) silently cannot follow httpd_sys_content_t symlinks
       execute 'selinux-webui-link-database.yml' do
         command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/database\\.yml'; } && restorecon /var/www/rb-rails/config/database.yml"
-        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        # also when the rule exists: a recreated link loses the label
         not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml' && stat -c %C /var/www/rb-rails/config/database.yml | grep -q ':etc_t:'"
       end
     else
@@ -526,11 +524,10 @@ action :add do
         notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
       end
 
-      # The webui runs as init_t, which may read httpd_sys_content_t files but not symlinks with that
-      # label (silently, dontaudit). etc_t is what working config symlinks in /etc have.
+      # the webui (init_t) silently cannot follow httpd_sys_content_t symlinks
       execute 'selinux-webui-link-redborder_config.yml' do
         command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/redborder_config\\.yml'; } && restorecon /var/www/rb-rails/config/redborder_config.yml"
-        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        # also when the rule exists: a recreated link loses the label
         not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml' && stat -c %C /var/www/rb-rails/config/redborder_config.yml | grep -q ':etc_t:'"
       end
     else
@@ -666,7 +663,7 @@ action :add do
     end
 
     if openbao
-      # SSH refuses keys others can read: owner webui, 0600
+      # SSH refuses keys others can read
       openbao_secret_file 'webui-rsa' do
         source 'rsa.ctmpl.erb'
         cookbook 'webui'
@@ -674,18 +671,16 @@ action :add do
         owner user
         group group
         mode '0600'
-        # no unit: the webui only reads the key when it opens an SSH session; the key itself is created
-        # later (configure_rsa runs after :add), so a start dependency would block the first Chef run
+        # no unit: the key is created later (configure_rsa), a start dependency would block the first run
       end
 
       link '/var/www/rb-rails/config/rsa' do
         to '/run/rb-secrets/webui/rsa'
       end
 
-      # init_t (the webui) cannot follow httpd_sys_content_t symlinks: same label as the other config links
       execute 'selinux-webui-link-rsa' do
         command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa ' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/rsa'; } && restorecon /var/www/rb-rails/config/rsa"
-        # also when the rule exists: a recreated link (e.g. after a webui RPM update) gets the folder's label again
+        # also when the rule exists: a recreated link loses the label
         not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa ' && stat -c %C /var/www/rb-rails/config/rsa | grep -q ':etc_t:'"
       end
     elsif rsa_pem && rsa_pem['private_rsa']
@@ -1007,7 +1002,7 @@ action :configure_certs do
       webui_key = webui_external_json_cert['webui_external_key']
     end
 
-    # The customer's own certificate (webui_external) stays as it is (W2); the generated one goes to OpenBao
+    # the customer's own certificate (webui_external) stays as it is
     webui_key_in_openbao = false
     unless webui_crt && webui_key
       webui_json_cert = nginx_certs('webui', cdomain, new_resource.openbao)
@@ -1037,7 +1032,7 @@ action :configure_certs do
         cookbook 'webui'
         variables(app: 'webui')
         destination '/run/rb-secrets/nginx/webui.key'
-        selinux_type 'cert_t' # nginx runs confined (httpd_t): same label as /etc/pki/tls/private
+        selinux_type 'cert_t' # nginx runs confined (httpd_t)
         owner 'root'
         group 'nginx'
         mode '0640'
@@ -1157,7 +1152,7 @@ action :configure_rsa do
   end
 
   begin
-    # OpenBao: no private key in the data bag; the public key in rBglobal/ssh says it was generated
+    # the public key in rBglobal/ssh marks it as generated
     rsa_pem = ssh_secrets if new_resource.openbao
     if rsa_pem
       if ssh_secrets

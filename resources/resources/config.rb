@@ -16,7 +16,6 @@ attribute :memory_kb, kind_of: Integer
 attribute :elasticache_hosts, kind_of: Object
 attribute :zk_hosts, kind_of: String
 attribute :s3_local_storage, kind_of: String, default: 'minio'
-# true: database passwords and webui_secret come from OpenBao (configs rendered by the agent into /run)
 attribute :openbao, kind_of: [TrueClass, FalseClass], default: false
 attribute :auth_mode, kind_of: String, default: 'database'
 attribute :webui_version, kind_of: String
