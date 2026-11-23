@@ -87,9 +87,7 @@ module Webui
     # Normally you want to pass cdomain to this method but
     # you can avoid to pass it if you dont want to create the cert
     # when dont exists
-    def nginx_certs(app, cdomain = nil, openbao = false)
-      return nginx_certs_openbao(app, cdomain) if openbao
-
+    def nginx_certs(app, cdomain = nil)
       ret_json = {}
       # Check if certs exists in a data bag
       begin
