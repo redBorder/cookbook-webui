@@ -292,15 +292,6 @@ action :add do
       db_pass_radius = OpenBao.ref('db_radius', 'pass')
     end
 
-    begin
-      webui_secret = data_bag_item('passwords', 'webui_secret')
-    rescue
-      webui_secret = {}
-    end
-
-    unless webui_secret.to_hash.empty?
-      webui_secret_token = webui_secret['secret']
-    end
     webui_secret_token = OpenBao.ref('webui_secret', 'secret')
 
     # TEMPLATES
