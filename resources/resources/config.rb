@@ -15,7 +15,8 @@ attribute :web_dir, kind_of: String, default: '/var/www/rb-rails'
 attribute :memory_kb, kind_of: Integer
 attribute :elasticache_hosts, kind_of: Object
 attribute :zk_hosts, kind_of: String
-attribute :s3_local_storage, kind_of: String, default: 'minio'
+# Local S3 of the cluster (path-style). 'minio' is still accepted
+attribute :s3_local_storage, kind_of: String, default: 'seaweedfs'
 attribute :auth_mode, kind_of: String, default: 'database'
 attribute :webui_version, kind_of: String
 attribute :redborder_version, kind_of: String
