@@ -8,6 +8,7 @@ module Webui
     require 'resolv'
     require 'base64'
     require 'securerandom'
+    require 'fileutils'
     require 'aws-sdk-s3'
     require 'digest'
 
@@ -53,6 +54,33 @@ module Webui
       cert_hash = create_cert("#{app}.#{cdomain}")
       ret_json["#{app}_crt"] = Base64.urlsafe_encode64(cert_hash[:crt].to_pem)
       ret_json["#{app}_key"] = Base64.urlsafe_encode64(cert_hash[:key].to_pem)
+      ret_json
+    end
+
+    def nginx_certs_openbao(app, cdomain)
+      # only on a real 404: a new cert would not match the key OpenBao keeps
+      begin
+        item = data_bag_item('certs', app).to_hash
+      rescue Net::HTTPClientException => e
+        raise unless e.response.code == '404'
+        item = {}
+      rescue StandardError
+        raise unless Chef::Config[:solo_legacy_mode] || Chef::Config[:local_mode] # no server: first install
+        item = {}
+      end
+      return item.reject { |k, _| k == "#{app}_key" } if item["#{app}_crt"] || cdomain.nil?
+
+      cert = create_cert("#{app}.#{cdomain}")
+      OpenBao.seed_cert_key(app, cert[:key].to_pem, "/run/rb-secrets/nginx/#{app}.key", 'nginx')
+      ret_json = { 'id' => app, "#{app}_crt" => Base64.urlsafe_encode64(cert[:crt].to_pem) }
+      FileUtils.mkdir_p('/var/chef/data/data_bag/certs')
+      File.write("/var/chef/data/data_bag/certs/#{app}.json", ret_json.to_json)
+      # a joining manager must not replace the cluster's cert
+      if File.exist?('/root/.chef/knife.rb') && !system("knife data bag show certs #{app} >/dev/null 2>&1")
+        system("knife data bag from file certs /var/chef/data/data_bag/certs/#{app}.json")
+      else
+        Chef::Log.warn('knife command not available, certs databag wont be uploaded')
+      end
       ret_json
     end
 

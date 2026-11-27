@@ -235,7 +235,19 @@ action :add do
 
     # Check if http_agent monitor_categories in s3 is in sync with local files
     # If not, it will download the files from s3 and update local files
-    check_http_agent_s3_sync(s3_bucket, s3_host, s3_access_key, s3_secret_key)
+    # the sync needs the real on-prem S3 keys, not placeholders
+    sync_access_key = s3_access_key
+    sync_secret_key = s3_secret_key
+    if OpenBao.placeholder?(s3_secret_key)
+      real = OpenBao.run_secret('s3') || {}
+      sync_access_key = real['s3_access_key_id']
+      sync_secret_key = real['s3_secret_key_id']
+    end
+    if sync_secret_key
+      check_http_agent_s3_sync(s3_bucket, s3_host, sync_access_key, sync_secret_key)
+    else
+      Chef::Log.warn('webui: S3 key not available (OpenBao sealed?), http_agent S3 sync skipped')
+    end
 
     # Obtaining redborder database configuration from databag
     begin
@@ -249,7 +261,7 @@ action :add do
       db_hostname_redborder = db_redborder['hostname']
       db_port_redborder = db_redborder['port']
       db_username_redborder = db_redborder['username']
-      db_pass_redborder = db_redborder['pass']
+      db_pass_redborder = OpenBao.ref('db_redborder', 'pass')
     end
 
     # Obtaining druid database configuration from databag
@@ -264,7 +276,7 @@ action :add do
       db_hostname_druid = db_druid['hostname']
       db_port_druid = db_redborder['port']
       db_username_druid = db_druid['username']
-      db_pass_druid = db_druid['pass']
+      db_pass_druid = OpenBao.ref('db_druid', 'pass')
     end
 
     # Obtaining radius database configuration from databag
@@ -279,44 +291,58 @@ action :add do
       db_hostname_radius = db_radius['hostname']
       db_port_radius = db_radius['port']
       db_username_radius = db_radius['username']
-      db_pass_radius = db_radius['pass']
+      db_pass_radius = OpenBao.ref('db_radius', 'pass')
     end
 
-    begin
-      webui_secret = data_bag_item('passwords', 'webui_secret')
-    rescue
-      webui_secret = {}
-    end
-
-    unless webui_secret.to_hash.empty?
-      webui_secret_token = webui_secret['secret']
-    end
+    webui_secret_token = OpenBao.ref('webui_secret', 'secret')
 
     # TEMPLATES
-    template '/var/www/rb-rails/config/aws.yml' do
+    openbao_secret_file 'webui-aws' do
       source 'aws.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
       cookbook 'webui'
       variables(s3_local_storage: s3_local_storage, s3_bucket: s3_bucket, s3_host: s3_host,
                 s3_access_key: s3_access_key, s3_secret_key: s3_secret_key)
+      destination '/run/rb-secrets/webui/aws.yml'
+      owner 'root'
+      group group
+      mode '0640'
+      unit %w(webui rb-workers)
+    end
+
+    link '/var/www/rb-rails/config/aws.yml' do
+      to '/run/rb-secrets/webui/aws.yml'
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
-    template '/var/www/rb-rails/config/aws_malware.yml' do
+    execute 'selinux-webui-link-aws.yml' do
+      command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws\\.yml'; } && restorecon /var/www/rb-rails/config/aws.yml"
+      # also when the rule exists: a recreated link loses the label
+      not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws\\.yml' && stat -c %C /var/www/rb-rails/config/aws.yml | grep -q ':etc_t:'"
+    end
+
+    openbao_secret_file 'webui-aws-malware' do
       source 'aws.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
       cookbook 'webui'
       variables(s3_local_storage: s3_local_storage, s3_bucket: s3_malware_bucket, s3_host: s3_malware_host,
                 s3_access_key: s3_malware_access_key, s3_secret_key: s3_malware_secret_key)
+      destination '/run/rb-secrets/webui/aws_malware.yml'
+      owner 'root'
+      group group
+      mode '0640'
+      unit %w(webui rb-workers)
+    end
+
+    link '/var/www/rb-rails/config/aws_malware.yml' do
+      to '/run/rb-secrets/webui/aws_malware.yml'
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    end
+
+    execute 'selinux-webui-link-aws_malware.yml' do
+      command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/aws_malware\\.yml'; } && restorecon /var/www/rb-rails/config/aws_malware.yml"
+      # also when the rule exists: a recreated link loses the label
+      not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/aws_malware\\.yml' && stat -c %C /var/www/rb-rails/config/aws_malware.yml | grep -q ':etc_t:'"
     end
 
     template '/var/www/rb-rails/config/aerospike.yml' do
@@ -342,15 +368,9 @@ action :add do
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
     end
 
-    template '/var/www/rb-rails/config/database.yml' do
+    openbao_secret_file 'webui-database' do
       source 'database.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
       cookbook 'webui'
-      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
       variables(db_name_redborder: db_name_redborder, db_hostname_redborder: db_hostname_redborder,
                 db_port_redborder: db_port_redborder, db_username_redborder: db_username_redborder,
                 db_pass_redborder: db_pass_redborder,
@@ -364,6 +384,24 @@ action :add do
                 http_workers: http_workers,
                 http_threads: http_threads,
                 memory: memory_kb)
+      destination '/run/rb-secrets/webui/database.yml'
+      owner 'root'
+      group group
+      mode '0640'
+      unit %w(webui rb-workers)
+    end
+
+    link '/var/www/rb-rails/config/database.yml' do
+      to '/run/rb-secrets/webui/database.yml'
+      notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
+      notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    end
+
+    # the webui (init_t) silently cannot follow httpd_sys_content_t symlinks
+    execute 'selinux-webui-link-database.yml' do
+      command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/database\\.yml'; } && restorecon /var/www/rb-rails/config/database.yml"
+      # also when the rule exists: a recreated link loses the label
+      not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/database\\.yml' && stat -c %C /var/www/rb-rails/config/database.yml | grep -q ':etc_t:'"
     end
 
     if webui_version
@@ -402,18 +440,30 @@ action :add do
       end
     end
 
-    template '/var/www/rb-rails/config/redborder_config.yml' do
+    openbao_secret_file 'webui-redborder-config' do
       source 'redborder_config.yml.erb'
-      owner user
-      group group
-      mode '0644'
-      retries 2
       cookbook 'webui'
       variables(cdomain: cdomain,
                 webui_secret_token: webui_secret_token,
                 auth_mode: auth_mode)
+      destination '/run/rb-secrets/webui/redborder_config.yml'
+      owner 'root'
+      group group
+      mode '0640'
+      unit %w(webui rb-workers)
+    end
+
+    link '/var/www/rb-rails/config/redborder_config.yml' do
+      to '/run/rb-secrets/webui/redborder_config.yml'
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
       notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
+    end
+
+    # the webui (init_t) silently cannot follow httpd_sys_content_t symlinks
+    execute 'selinux-webui-link-redborder_config.yml' do
+      command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/redborder_config\\.yml'; } && restorecon /var/www/rb-rails/config/redborder_config.yml"
+      # also when the rule exists: a recreated link loses the label
+      not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/redborder_config\\.yml' && stat -c %C /var/www/rb-rails/config/redborder_config.yml | grep -q ':etc_t:'"
     end
 
     template '/var/www/rb-rails/config/rbdruid_config.yml' do
@@ -526,24 +576,25 @@ action :add do
       notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
     end
 
-    begin
-      rsa_pem = data_bag_item('certs', 'rsa_pem')
-    rescue
-      rsa_pem = nil
+    # SSH refuses keys others can read
+    openbao_secret_file 'webui-rsa' do
+      source 'rsa.ctmpl.erb'
+      cookbook 'webui'
+      destination '/run/rb-secrets/webui/rsa'
+      owner user
+      group group
+      mode '0600'
+      # no unit: the key is created later (configure_rsa), a start dependency would block the first run
     end
 
-    if rsa_pem && rsa_pem['private_rsa']
-      template '/var/www/rb-rails/config/rsa' do
-        source 'rsa_cert.pem.erb'
-        owner user
-        group group
-        mode '0600'
-        retries 2
-        cookbook 'webui'
-        notifies :restart, 'service[webui]', :delayed unless node['redborder']['leader_configuring']
-        notifies :restart, 'service[rb-workers]', :delayed unless node['redborder']['leader_configuring']
-        variables(private_rsa: rsa_pem['private_rsa'])
-      end
+    link '/var/www/rb-rails/config/rsa' do
+      to '/run/rb-secrets/webui/rsa'
+    end
+
+    execute 'selinux-webui-link-rsa' do
+      command "{ semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa ' || semanage fcontext -a -t etc_t -f l '/var/www/rb-rails/config/rsa'; } && restorecon /var/www/rb-rails/config/rsa"
+      # also when the rule exists: a recreated link loses the label
+      not_if "semanage fcontext -l -C | grep -qF '/var/www/rb-rails/config/rsa ' && stat -c %C /var/www/rb-rails/config/rsa | grep -q ':etc_t:'"
     end
 
     template '/var/www/rb-rails/config/sso_user_sensor_map.yml' do
@@ -851,10 +902,13 @@ action :configure_certs do
       webui_key = webui_external_json_cert['webui_external_key']
     end
 
+    # the customer's own certificate (webui_external) stays as it is
+    webui_key_in_openbao = false
     unless webui_crt && webui_key
-      webui_json_cert = nginx_certs('webui', cdomain)
+      webui_json_cert = nginx_certs_openbao('webui', cdomain)
       webui_crt = webui_json_cert['webui_crt']
       webui_key = webui_json_cert['webui_key']
+      webui_key_in_openbao = true
     end
 
     nginx_certs('saml', cdomain)
@@ -872,17 +926,36 @@ action :configure_certs do
       notifies :restart, 'service[nginx]', :delayed
     end
 
-    template '/etc/nginx/ssl/webui.key' do
-      source 'cert.key.erb'
-      owner 'nginx'
-      group 'nginx'
-      mode '0644'
-      retries 2
-      cookbook 'webui'
-      not_if { webui_key.nil? || webui_key.empty? }
-      variables(key: webui_key)
-      action :create
-      notifies :restart, 'service[nginx]', :delayed
+    if webui_key_in_openbao
+      openbao_secret_file 'nginx-webui-key' do
+        source 'cert.key.ctmpl.erb'
+        cookbook 'webui'
+        variables(app: 'webui')
+        destination '/run/rb-secrets/nginx/webui.key'
+        selinux_type 'cert_t' # nginx runs confined (httpd_t)
+        owner 'root'
+        group 'nginx'
+        mode '0640'
+        unit 'nginx'
+      end
+
+      link '/etc/nginx/ssl/webui.key' do
+        to '/run/rb-secrets/nginx/webui.key'
+        notifies :restart, 'service[nginx]', :delayed
+      end
+    else
+      template '/etc/nginx/ssl/webui.key' do
+        source 'cert.key.erb'
+        owner 'nginx'
+        group 'nginx'
+        mode '0644'
+        retries 2
+        cookbook 'webui'
+        not_if { webui_key.nil? || webui_key.empty? }
+        variables(key: webui_key)
+        action :create
+        notifies :restart, 'service[nginx]', :delayed
+      end
     end
 
     Chef::Log.info('Certs for service webui have been processed')
@@ -967,19 +1040,14 @@ end
 
 action :configure_rsa do
   begin
-    rsa_pem = data_bag_item('certs', 'rsa_pem')
-  rescue
-    rsa_pem = nil
-  end
-
-  begin
     ssh_secrets = data_bag_item('rBglobal', 'ssh')
   rescue
     ssh_secrets = nil
   end
 
   begin
-    if rsa_pem
+    # the public key in rBglobal/ssh marks it as generated
+    if ssh_secrets
       if ssh_secrets
         file '/var/www/rb-rails/config/rsa.pub' do
           content ssh_secrets['public_rsa']
@@ -991,7 +1059,7 @@ action :configure_rsa do
       end
     else
       execute 'Check RSA certificate' do
-        command '/usr/lib/redborder/bin/rb_create_rsa.sh -f'
+        command '/usr/lib/redborder/bin/rb_create_rsa.sh -f -o'
         action :nothing
       end.run_action(:run)
     end

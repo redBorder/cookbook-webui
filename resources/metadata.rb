@@ -6,3 +6,5 @@ maintainer_email 'git@redborder.com'
 license          'AGPL-3.0'
 description      'Installs/Configures cookbook-webui'
 version          '5.0.0'
+
+depends 'openbao'
