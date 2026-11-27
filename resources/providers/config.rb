@@ -236,10 +236,12 @@ action :add do
     # Check if http_agent monitor_categories in s3 is in sync with local files
     # If not, it will download the files from s3 and update local files
     # the sync needs the real on-prem S3 keys, not placeholders
-    sync_access_key, sync_secret_key = s3_access_key, s3_secret_key
+    sync_access_key = s3_access_key
+    sync_secret_key = s3_secret_key
     if OpenBao.placeholder?(s3_secret_key)
       real = OpenBao.run_secret('s3') || {}
-      sync_access_key, sync_secret_key = real['s3_access_key_id'], real['s3_secret_key_id']
+      sync_access_key = real['s3_access_key_id']
+      sync_secret_key = real['s3_secret_key_id']
     end
     if sync_secret_key
       check_http_agent_s3_sync(s3_bucket, s3_host, sync_access_key, sync_secret_key)
